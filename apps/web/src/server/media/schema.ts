@@ -1,0 +1,34 @@
+import { z } from "zod";
+
+const MAX_UPLOAD_SIZE = 10 * 1024 * 1024;
+
+export const mediaUploadMetadataSchema = z.object({
+  altText: z.string().max(200).optional().default(""),
+  fieldName: z.string().max(100).optional().default("content"),
+  entityType: z.string().max(100).optional().default("draft"),
+  entityId: z.string().max(100).optional().default("pending"),
+  moduleKey: z.enum(["dashboard", "planner", "knowledge", "writing", "archive", "modules", "settings"]).default("writing")
+});
+
+export const mediaEmbedInputSchema = z.object({
+  embedUrl: z.string().url(),
+  altText: z.string().max(200).optional().default(""),
+  fieldName: z.string().max(100).optional().default("content"),
+  entityType: z.string().max(100).optional().default("draft"),
+  entityId: z.string().max(100).optional().default("pending"),
+  moduleKey: z.enum(["dashboard", "planner", "knowledge", "writing", "archive", "modules", "settings"]).default("writing")
+});
+
+export function assertUploadableFile(file: File) {
+  if (!file || file.size <= 0) {
+    throw new Error("No file was provided.");
+  }
+
+  if (file.size > MAX_UPLOAD_SIZE) {
+    throw new Error("Uploaded file exceeds the 10MB limit.");
+  }
+
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Local upload currently supports image files only.");
+  }
+}

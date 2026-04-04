@@ -1,0 +1,22 @@
+services:
+  db:
+    image: postgres:16
+    container_name: hayden-workstation-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: hayden_web
+      POSTGRES_USER: hayden
+      POSTGRES_PASSWORD: hayden_dev_password
+    ports:
+      - "54329:5432"
+    volumes:
+      - hayden_workstation_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hayden -d hayden_web"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 5s
+
+volumes:
+  hayden_workstation_db_data:

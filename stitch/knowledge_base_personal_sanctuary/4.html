@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Knowledge Base | Digital Sanctuary</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Plus_Jakarta_Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "background": "#fbf9f5",
+                "on-surface-variant": "#5d605a",
+                "on-tertiary": "#fff8f0",
+                "on-primary-container": "#465735",
+                "outline": "#797c75",
+                "on-error": "#fff7f6",
+                "surface-dim": "#d9dbd2",
+                "primary-fixed-dim": "#c8dbb0",
+                "surface-container": "#eeeee8",
+                "primary-dim": "#475736",
+                "outline-variant": "#b1b3ab",
+                "on-primary": "#ebffd2",
+                "on-background": "#30332e",
+                "on-secondary-container": "#46535d",
+                "error": "#9e422c",
+                "primary-container": "#d6e9bd",
+                "on-error-container": "#742410",
+                "tertiary": "#685e48",
+                "secondary-fixed": "#d6e4f0",
+                "inverse-surface": "#0e0e0d",
+                "surface-container-highest": "#e2e3db",
+                "error-container": "#fe8b70",
+                "tertiary-fixed-dim": "#e4d6ba",
+                "secondary": "#53616b",
+                "surface-container-lowest": "#ffffff",
+                "on-primary-fixed": "#344424",
+                "on-surface": "#30332e",
+                "surface-bright": "#fbf9f5",
+                "secondary-dim": "#48555f",
+                "secondary-container": "#d6e4f0",
+                "tertiary-fixed": "#f3e4c8",
+                "surface-container-low": "#f5f4ef",
+                "on-tertiary-fixed": "#49402c",
+                "inverse-primary": "#e4f8cb",
+                "on-secondary-fixed-variant": "#505d67",
+                "on-secondary-fixed": "#34414a",
+                "on-secondary": "#f5f9ff",
+                "surface-container-high": "#e8e9e2",
+                "tertiary-dim": "#5c523d",
+                "tertiary-container": "#f3e4c8",
+                "error-dim": "#5c1202",
+                "primary-fixed": "#d6e9bd",
+                "surface-variant": "#e2e3db",
+                "secondary-fixed-dim": "#c8d6e2",
+                "on-tertiary-container": "#5c523d",
+                "on-tertiary-fixed-variant": "#665c46",
+                "inverse-on-surface": "#9e9d9a",
+                "primary": "#536441",
+                "surface": "#fbf9f5",
+                "surface-tint": "#536441",
+                "on-primary-fixed-variant": "#50613e"
+              },
+              fontFamily: {
+                "headline": ["Noto Serif"],
+                "body": ["Plus Jakarta Sans"],
+                "label": ["Plus Jakarta Sans"]
+              },
+              borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        h1, h2, h3, .serif { font-family: 'Noto Serif', serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen">
+<!-- SideNavBar Shell -->
+<aside class="fixed left-0 top-0 h-full hidden md:flex flex-col p-6 bg-[#eeeee8] dark:bg-stone-900 h-screen w-64 border-r-0 z-50">
+<div class="mb-12 px-2">
+<h1 class="font-['Noto_Serif'] italic text-xl text-[#30332e] dark:text-stone-200">The Curator</h1>
+<p class="font-['Plus_Jakarta_Sans'] tracking-tight text-sm text-[#30332e]/60 dark:text-stone-400">Personal Sanctuary</p>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Dashboard Tab -->
+<a class="flex items-center gap-3 px-4 py-3 text-[#30332e]/60 dark:text-stone-400 hover:bg-[#f5f4ef] dark:hover:bg-stone-800 transition-colors duration-300 font-['Plus_Jakarta_Sans'] tracking-tight text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<!-- Planner Tab -->
+<a class="flex items-center gap-3 px-4 py-3 text-[#30332e]/60 dark:text-stone-400 hover:bg-[#f5f4ef] dark:hover:bg-stone-800 transition-colors duration-300 font-['Plus_Jakarta_Sans'] tracking-tight text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span>Planner</span>
+</a>
+<!-- Knowledge Tab (ACTIVE) -->
+<a class="flex items-center gap-3 px-4 py-3 text-[#536441] dark:text-[#d6e9bd] font-semibold bg-[#f5f4ef]/50 dark:bg-stone-800/50 rounded-lg font-['Plus_Jakarta_Sans'] tracking-tight text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="auto_stories" style="font-variation-settings: 'FILL' 1;">auto_stories</span>
+<span>Knowledge</span>
+</a>
+<!-- Notes Tab -->
+<a class="flex items-center gap-3 px-4 py-3 text-[#30332e]/60 dark:text-stone-400 hover:bg-[#f5f4ef] dark:hover:bg-stone-800 transition-colors duration-300 font-['Plus_Jakarta_Sans'] tracking-tight text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span>Notes</span>
+</a>
+<!-- Writing Tab -->
+<a class="flex items-center gap-3 px-4 py-3 text-[#30332e]/60 dark:text-stone-400 hover:bg-[#f5f4ef] dark:hover:bg-stone-800 transition-colors duration-300 font-['Plus_Jakarta_Sans'] tracking-tight text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="edit_note">edit_note</span>
+<span>Writing</span>
+</a>
+<!-- Archive Tab -->
+<a class="flex items-center gap-3 px-4 py-3 text-[#30332e]/60 dark:text-stone-400 hover:bg-[#f5f4ef] dark:hover:bg-stone-800 transition-colors duration-300 font-['Plus_Jakarta_Sans'] tracking-tight text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span>Archive</span>
+</a>
+<!-- Modules Tab -->
+<a class="flex items-center gap-3 px-4 py-3 text-[#30332e]/60 dark:text-stone-400 hover:bg-[#f5f4ef] dark:hover:bg-stone-800 transition-colors duration-300 font-['Plus_Jakarta_Sans'] tracking-tight text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="widgets">widgets</span>
+<span>Modules</span>
+</a>
+<!-- Settings Tab -->
+<a class="flex items-center gap-3 px-4 py-3 text-[#30332e]/60 dark:text-stone-400 hover:bg-[#f5f4ef] dark:hover:bg-stone-800 transition-colors duration-300 font-['Plus_Jakarta_Sans'] tracking-tight text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="mt-auto">
+<button class="w-full py-4 px-4 bg-primary text-on-primary rounded-full font-semibold flex items-center justify-center gap-2 shadow-sm hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+<span>New Entry</span>
+</button>
+</div>
+</aside>
+<!-- TopNavBar Shell -->
+<header class="sticky top-0 z-40 bg-[#fbf9f5]/80 dark:bg-stone-950/80 backdrop-blur-md flex justify-between items-center w-full px-8 py-4 shadow-sm shadow-stone-200/50 dark:shadow-none md:ml-64 md:w-[calc(100%-16rem)]">
+<div class="flex items-center gap-8">
+<span class="font-['Noto_Serif'] font-bold text-[#30332e] dark:text-stone-100 text-xl">Digital Sanctuary</span>
+<div class="hidden lg:flex items-center bg-surface-container-low px-4 py-2 rounded-full min-w-[320px]">
+<span class="material-symbols-outlined text-outline text-sm" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm font-body px-3 w-full" placeholder="Search the garden..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="text-[#30332e]/70 dark:text-stone-400 hover:text-[#536441] transition-all relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container">
+<img alt="User Profile Portrait" class="w-full h-full object-cover" data-alt="Close up portrait of a calm individual in soft natural lighting, editorial style photography" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAk76SMSsWFk1vIiKAqW-IHhptkZR3bneOP9EBq-7r2benPQ97Rpu_vepnjf35kzsVQeImH9nzqlJIQjQJtjaTMxvFAeER13jjdRXuW0F7TdJKJRXMEuDpI6wP292Pw4M0Rfg0XwoFSZtJqk6zDxb8qJidFfDoITOWHzmGllCN-GTj94EwFZGGx6C2bfyr4VKU75ObjsLVdzSAiDuYA86tw49tr39XGr06m_spLIY02TbykNoZrvG3JPP5tlUATv6ewFjFhBWc5Vo-n"/>
+</div>
+<span class="material-symbols-outlined text-[#30332e]/70" data-icon="keyboard_arrow_down">keyboard_arrow_down</span>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="md:ml-64 p-8 lg:p-16 max-w-7xl mx-auto space-y-20">
+<!-- Header Section -->
+<header class="space-y-6">
+<div class="space-y-2">
+<h2 class="text-5xl font-headline tracking-tighter text-on-background">Knowledge Base</h2>
+<p class="text-on-surface-variant text-lg font-body max-w-xl italic">A quiet space for curated thoughts, growing ideas, and timeless wisdom.</p>
+</div>
+<div class="flex flex-wrap gap-3 pt-4">
+<button class="px-6 py-2 bg-primary-container text-on-primary-container rounded-full text-sm font-medium transition-all hover:bg-primary hover:text-on-primary">All Domains</button>
+<button class="px-6 py-2 bg-surface-container-low text-on-surface-variant rounded-full text-sm font-medium transition-all hover:bg-tertiary-container hover:text-on-tertiary-container">Philosophy</button>
+<button class="px-6 py-2 bg-surface-container-low text-on-surface-variant rounded-full text-sm font-medium transition-all hover:bg-tertiary-container hover:text-on-tertiary-container">Gardening</button>
+<button class="px-6 py-2 bg-surface-container-low text-on-surface-variant rounded-full text-sm font-medium transition-all hover:bg-tertiary-container hover:text-on-tertiary-container">UI/UX Design</button>
+<button class="px-6 py-2 bg-surface-container-low text-on-surface-variant rounded-full text-sm font-medium transition-all hover:bg-tertiary-container hover:text-on-tertiary-container">Cooking</button>
+<button class="px-6 py-2 bg-surface-container-low text-on-surface-variant rounded-full text-sm font-medium transition-all hover:bg-tertiary-container hover:text-on-tertiary-container">Digital Minimalism</button>
+</div>
+</header>
+<!-- Category Grid (The Domains) -->
+<section class="space-y-10">
+<div class="flex items-end justify-between">
+<h3 class="text-3xl font-headline text-on-background">Core Domains</h3>
+<a class="text-primary font-semibold text-sm hover:underline decoration-primary-container decoration-4 underline-offset-4" href="#">Explore Library</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+<!-- Card: Philosophy -->
+<div class="group relative overflow-hidden rounded-xl bg-surface-container-low p-8 aspect-square flex flex-col justify-between transition-all hover:-translate-y-2 duration-500">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="auto_stories" style="font-variation-settings: 'FILL' 1;">auto_stories</span>
+</div>
+<span class="text-xs font-label uppercase tracking-widest text-on-surface-variant">42 Notes</span>
+</div>
+<div class="space-y-2">
+<h4 class="text-2xl font-headline group-hover:text-primary transition-colors">Philosophy</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed">Reflections on stoicism, aesthetics, and the good life.</p>
+</div>
+<div class="absolute -bottom-10 -right-10 w-40 h-40 opacity-10 group-hover:scale-110 transition-transform duration-700">
+<img alt="Vase and Book" class="w-full h-full object-cover rounded-full" data-alt="Minimalist artistic still life of a classic ceramic vase and an old book with soft morning light shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNBZd8NZcxBm4xVgjxYwdR1WTQaDebYjXyXO9GU2PNpgsBnjaInT7T29dy7IC83CJkRjUDOelibFaE4Q6bMehfesracASjRqadD_ayWmi_f-zVLGFa6nq9l-2KBkair2gQPfPiZ9C_jfFC_bzG3nlYHV_03NDCbKG_ZARR2nVf0K96l5exR6xugpKRk5s95K53d7ZihQQTZ4M_nstRBMfiO5Mt-GoQCW7P5F_3w4EIn5U_ycRi37pVianiT9AX4HdXJ5cKTXEVOMU8"/>
+</div>
+</div>
+<!-- Card: Nature -->
+<div class="group relative overflow-hidden rounded-xl bg-surface-container-high p-8 aspect-square flex flex-col justify-between transition-all hover:-translate-y-2 duration-500">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 rounded-full bg-[#E8F3D6] flex items-center justify-center text-[#536441]">
+<span class="material-symbols-outlined" data-icon="potted_plant" style="font-variation-settings: 'FILL' 1;">potted_plant</span>
+</div>
+<span class="text-xs font-label uppercase tracking-widest text-on-surface-variant">28 Notes</span>
+</div>
+<div class="space-y-2">
+<h4 class="text-2xl font-headline group-hover:text-[#536441] transition-colors">Nature</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed">Seasonal gardening logs, plant species, and landscape design.</p>
+</div>
+</div>
+<!-- Card: UI/UX -->
+<div class="group relative overflow-hidden rounded-xl bg-surface-container-low p-8 aspect-square flex flex-col justify-between transition-all hover:-translate-y-2 duration-500">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" data-icon="draw" style="font-variation-settings: 'FILL' 1;">draw</span>
+</div>
+<span class="text-xs font-label uppercase tracking-widest text-on-surface-variant">56 Notes</span>
+</div>
+<div class="space-y-2">
+<h4 class="text-2xl font-headline group-hover:text-secondary transition-colors">Design</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed">Interface patterns, typographic systems, and accessibility.</p>
+</div>
+</div>
+<!-- Card: Cooking -->
+<div class="group relative overflow-hidden rounded-xl bg-surface-container-high p-8 aspect-square flex flex-col justify-between transition-all hover:-translate-y-2 duration-500">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 rounded-full bg-tertiary-container flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined" data-icon="restaurant" style="font-variation-settings: 'FILL' 1;">restaurant</span>
+</div>
+<span class="text-xs font-label uppercase tracking-widest text-on-surface-variant">15 Notes</span>
+</div>
+<div class="space-y-2">
+<h4 class="text-2xl font-headline group-hover:text-tertiary transition-colors">Culinary</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed">Heirloom recipes, fermentation logs, and seasonal flavors.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Bento Grid: Pinned & Recent -->
+<section class="space-y-10">
+<h3 class="text-3xl font-headline text-on-background">Recent Seedlings</h3>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Main Pinned Card -->
+<div class="lg:col-span-2 rounded-xl bg-surface-container-low overflow-hidden flex flex-col md:flex-row shadow-sm">
+<div class="w-full md:w-2/5 h-64 md:h-auto overflow-hidden">
+<img alt="Sunset over fields" class="w-full h-full object-cover" data-alt="Ethereal sunset over a wild lavender field with golden light rays and soft bokeh texture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCibzebbWiwoqH3XBSgSmVBLtgwYn7evnIwDmv8AQpDB_4AqTiLjfxLopsnSvdiD9QpeFmpV5kzP1Qf4-zcjcU4im-Jol3qwBJUoerCuLazb6oyQCTcgsdVPSJg6TdcepCd-DujFDKpSTRAxXMJFKaIa38-jKf8for0Z-tBLdxycEF3AxaHlaMii-pAlZT_ksSLAuU87pZS8dM3Nq1jgpIJGmPO1SE7OBBbVusZSdAySkLk3msnkWcjYSPx60sFw3ZLUhn_hY8EqD-m"/>
+</div>
+<div class="p-10 flex flex-col justify-between flex-1">
+<div class="space-y-4">
+<div class="flex gap-2">
+<span class="bg-[#f3e4c8] px-3 py-1 rounded-sm text-[10px] font-bold tracking-widest uppercase text-on-tertiary-container">Philosophy</span>
+<span class="bg-primary-container px-3 py-1 rounded-sm text-[10px] font-bold tracking-widest uppercase text-on-primary-container">Pinned</span>
+</div>
+<h4 class="text-3xl font-headline leading-tight">The Aesthetics of Imperfection: Wabi-Sabi in Digital Design</h4>
+<p class="text-on-surface-variant leading-relaxed">Exploring how we can bring tactile reality and intentional 'flaws' into digital interfaces to create more human connection...</p>
+</div>
+<div class="mt-8 flex items-center justify-between">
+<span class="text-xs font-label text-outline">Last edited: Oct 24, 2023</span>
+<button class="text-primary font-bold flex items-center gap-2 hover:gap-4 transition-all">
+                                Read More <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Side Sidebar Notes -->
+<div class="space-y-6">
+<div class="p-6 rounded-xl bg-surface-container-high border-l-4 border-primary transition-all hover:bg-surface-container-highest group">
+<div class="flex justify-between items-start mb-2">
+<span class="text-[10px] font-bold uppercase tracking-widest text-[#536441]">Nature</span>
+<span class="text-[10px] text-outline">2 days ago</span>
+</div>
+<h5 class="text-xl font-headline mb-3 group-hover:text-primary transition-colors">Pruning the Japanese Maple</h5>
+<p class="text-xs text-on-surface-variant line-clamp-2">Notes on the dormant season pruning techniques for Acer palmatum varieties in Zone 7b...</p>
+</div>
+<div class="p-6 rounded-xl bg-surface-container-low transition-all hover:bg-surface-container-highest group">
+<div class="flex justify-between items-start mb-2">
+<span class="text-[10px] font-bold uppercase tracking-widest text-secondary">UI/UX</span>
+<span class="text-[10px] text-outline">5 days ago</span>
+</div>
+<h5 class="text-xl font-headline mb-3 group-hover:text-secondary transition-colors">Micro-interactions that Heal</h5>
+<p class="text-xs text-on-surface-variant line-clamp-2">How haptic feedback and gentle easing curves can reduce cognitive load during task completion...</p>
+</div>
+<div class="p-6 rounded-xl bg-surface-container-low transition-all hover:bg-surface-container-highest group">
+<div class="flex justify-between items-start mb-2">
+<span class="text-[10px] font-bold uppercase tracking-widest text-tertiary">Reading List</span>
+<span class="text-[10px] text-outline">Oct 12</span>
+</div>
+<h5 class="text-xl font-headline mb-3 group-hover:text-tertiary transition-colors">The Craftsman by Richard Sennett</h5>
+<p class="text-xs text-on-surface-variant line-clamp-2">Core takeaways on the relationship between skill-building, tools, and the human spirit...</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Empty State / Growth CTA -->
+<section class="py-20 flex flex-col items-center text-center space-y-8">
+<div class="w-32 h-32 bg-primary-container/30 rounded-full flex items-center justify-center relative">
+<span class="material-symbols-outlined text-primary text-6xl" data-icon="potted_plant">potted_plant</span>
+<div class="absolute -top-2 -right-2 w-10 h-10 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-lg cursor-pointer hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</div>
+</div>
+<div class="space-y-3 max-w-md">
+<h4 class="text-2xl font-headline">Plant a new seed of knowledge</h4>
+<p class="text-on-surface-variant font-body leading-relaxed">Your digital garden grows one note at a time. Capture a thought, a quote, or a discovery today.</p>
+</div>
+<button class="px-10 py-4 bg-primary text-on-primary rounded-full font-bold shadow-xl shadow-primary/10 hover:shadow-2xl transition-all hover:-translate-y-1">Create New Entry</button>
+</section>
+</main>
+<!-- Footer Meta -->
+<footer class="md:ml-64 p-12 border-t-0 bg-surface-container text-on-surface-variant text-center">
+<p class="font-headline italic text-lg opacity-60">"The garden is a metaphor for the mind."</p>
+<p class="mt-4 text-xs font-label uppercase tracking-[0.2em]">Curated with Intent • 2024</p>
+</footer>
+</body></html>

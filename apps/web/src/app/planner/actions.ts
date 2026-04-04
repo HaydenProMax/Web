@@ -1,0 +1,77 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+
+import { createPlannerTask, updatePlannerTask, updatePlannerTaskStatus } from "@/server/planner/service";
+
+function normalizeDateTimeLocal(value: string) {
+  if (!value.trim()) {
+    return "";
+  }
+
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "" : date.toISOString();
+}
+
+function plannerPayload(formData: FormData) {
+  return {
+    title: formData.get("title")?.toString() ?? "",
+    description: formData.get("description")?.toString() ?? "",
+    priority: formData.get("priority")?.toString() ?? "MEDIUM",
+    status: formData.get("status")?.toString() ?? "TODO",
+    scheduledFor: normalizeDateTimeLocal(formData.get("scheduledFor")?.toString() ?? ""),
+    dueAt: normalizeDateTimeLocal(formData.get("dueAt")?.toString() ?? ""),
+    relatedNoteSlug: formData.get("relatedNoteSlug")?.toString() ?? "",
+    relatedDraftId: formData.get("relatedDraftId")?.toString() ?? ""
+  };
+}
+
+export async function createPlannerTaskAction(formData: FormData) {
+  try {
+    await createPlannerTask(plannerPayload(formData));
+    revalidatePath("/");
+    revalidatePath("/planner");
+    redirect("/planner?created=1");
+  } catch {
+    redirect("/planner/new?error=create-failed");
+  }
+}
+
+export async function updatePlannerTaskAction(formData: FormData) {
+  const taskId = formData.get("taskId")?.toString() ?? "";
+
+  if (!taskId) {
+    redirect("/planner?error=missing-task");
+  }
+
+  try {
+    await updatePlannerTask(taskId, plannerPayload(formData));
+    revalidatePath("/");
+    revalidatePath("/planner");
+    revalidatePath(`/planner/${taskId}/edit`);
+    redirect("/planner?edited=1");
+  } catch {
+    redirect(`/planner/${taskId}/edit?error=update-failed`);
+  }
+}
+
+export async function updatePlannerTaskStatusAction(formData: FormData) {
+  const taskId = formData.get("taskId")?.toString() ?? "";
+  const status = formData.get("status")?.toString() ?? "TODO";
+
+  if (!taskId) {
+    redirect("/planner?error=missing-task");
+  }
+
+  try {
+    await updatePlannerTaskStatus(taskId, status);
+    revalidatePath("/");
+    revalidatePath("/planner");
+    revalidatePath(`/planner/${taskId}/edit`);
+    redirect("/planner?updated=1");
+  } catch {
+    redirect("/planner?error=update-failed");
+  }
+}
+

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Plus+Jakarta+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-tertiary": "#fff8f0",
+              "on-primary-fixed": "#344424",
+              "on-primary": "#ebffd2",
+              "primary": "#536441",
+              "inverse-surface": "#0e0e0d",
+              "on-secondary-fixed-variant": "#505d67",
+              "surface-container-lowest": "#ffffff",
+              "primary-fixed": "#d6e9bd",
+              "inverse-on-surface": "#9e9d9a",
+              "tertiary-fixed-dim": "#e4d6ba",
+              "tertiary": "#685e48",
+              "surface-variant": "#e2e3db",
+              "surface-dim": "#d9dbd2",
+              "surface": "#fbf9f5",
+              "primary-container": "#d6e9bd",
+              "secondary-container": "#d6e4f0",
+              "surface-container-low": "#f5f4ef",
+              "on-surface-variant": "#5d605a",
+              "outline": "#797c75",
+              "on-tertiary-fixed-variant": "#665c46",
+              "on-primary-container": "#465735",
+              "primary-dim": "#475736",
+              "inverse-primary": "#e4f8cb",
+              "tertiary-container": "#f3e4c8",
+              "on-tertiary-container": "#5c523d",
+              "error": "#9e422c",
+              "tertiary-dim": "#5c523d",
+              "on-background": "#30332e",
+              "on-surface": "#30332e",
+              "secondary-dim": "#48555f",
+              "background": "#fbf9f5",
+              "on-error": "#fff7f6",
+              "surface-container": "#eeeee8",
+              "error-dim": "#5c1202",
+              "secondary": "#53616b",
+              "surface-tint": "#536441",
+              "tertiary-fixed": "#f3e4c8",
+              "on-tertiary-fixed": "#49402c",
+              "on-secondary-fixed": "#34414a",
+              "primary-fixed-dim": "#c8dbb0",
+              "surface-bright": "#fbf9f5",
+              "on-secondary-container": "#46535d",
+              "on-secondary": "#f5f9ff",
+              "secondary-fixed": "#d6e4f0",
+              "surface-container-high": "#e8e9e2",
+              "outline-variant": "#b1b3ab",
+              "surface-container-highest": "#e2e3db",
+              "secondary-fixed-dim": "#c8d6e2",
+              "on-primary-fixed-variant": "#50613e",
+              "on-error-container": "#742410",
+              "error-container": "#fe8b70"
+            },
+            fontFamily: {
+              "headline": ["Noto Serif"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #fbf9f5;
+            color: #30332e;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .serif-text { font-family: 'Noto Serif', serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-background text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+<!-- Top Navigation Anchor (Manual for detailed view context) -->
+<header class="fixed top-0 right-0 w-full flex justify-between items-center px-6 md:px-12 py-6 z-40 bg-[#fbf9f5]/80 backdrop-blur-xl">
+<div class="flex items-center gap-6">
+<a class="flex items-center gap-2 text-stone-500 hover:text-primary transition-colors duration-300" href="#">
+<span class="material-symbols-outlined">arrow_back</span>
+<span class="text-xs font-label uppercase tracking-widest font-medium">Back to Knowledge Base</span>
+</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex items-center justify-center p-2 rounded-full hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-primary">filter_vintage</span>
+</button>
+<button class="flex items-center justify-center p-2 rounded-full hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-primary">storm</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden">
+<img alt="Curator avatar" class="w-full h-full object-cover" data-alt="Portrait of a young woman with a calm expression, soft natural lighting, minimalist aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyImacBlGsR5jVuvnz2RSW_0fsdfLuVPxHKiXfbArFWFMWhv4g7KywYaLaYlToT4Ej25av3qHl948DPtJExqEnzYMTzrktbZ1udFLuzlsByBok16TNFLvnqcnGCpR13b8s0TcQiTVQdg6I3P865qS03iCVNMAWSeOoZqbJQM8YALVimXpIWvErXT732lsB5JLwnlSmjYGJgSTaIWa1sTOHSLt5qq8WCZmmZldWZp8JpdrP2LEEAytAsXqAWk2njT-SNus5Vu4H2X7l"/>
+</div>
+</div>
+</header>
+<main class="pt-32 pb-24 px-6 md:px-0">
+<div class="max-w-6xl mx-auto flex flex-col lg:flex-row gap-16">
+<!-- Main Content Area -->
+<article class="flex-1">
+<!-- Metadata Area -->
+<div class="mb-12 flex flex-wrap items-center gap-4 text-[10px] font-label uppercase tracking-[0.15em] text-stone-400">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">calendar_today</span>
+                        October 14, 2023
+                    </span>
+<span class="w-1 h-1 rounded-full bg-stone-300"></span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">history</span>
+                        Edited 2h ago
+                    </span>
+<div class="flex gap-2 ml-4">
+<span class="px-3 py-1 bg-tertiary-container text-on-tertiary-container rounded-full lowercase tracking-normal font-medium italic">#Philosophy</span>
+<span class="px-3 py-1 bg-tertiary-container text-on-tertiary-container rounded-full lowercase tracking-normal font-medium italic">#Design</span>
+<span class="px-3 py-1 bg-tertiary-container text-on-tertiary-container rounded-full lowercase tracking-normal font-medium italic">#Mindfulness</span>
+</div>
+</div>
+<!-- Hero Section -->
+<div class="mb-16">
+<h1 class="serif-text text-5xl md:text-6xl text-on-surface leading-[1.1] font-medium tracking-tight mb-12">
+                        The Aesthetics of Imperfection: Wabi-Sabi in Digital Design
+                    </h1>
+<div class="relative w-full aspect-[16/9] rounded-xl overflow-hidden mb-8">
+<img alt="Botanical illustration" class="w-full h-full object-cover" data-alt="Close-up of delicate green fern leaves against a textured creamy beige background, soft diffused sunlight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAg9PjLWDKLcakLRu-uAmLfD1CD3R5TJYKmxH2wdJqCOv2awB3xwNTSUFWSpMSmGv0-DYrLxHggmz_Ap14ebW1K692aW-cTjNYaYE52M0byUz6UHxU1FuZ7S-4ioqPlH_YQLTU76yw8vWufONZkl4-rwNS2KQ9aIG6bYOR-qGdTHvB9Vl8xkrGq8f2ukvHTZ7538Ra2yZJ9ZIh1Z1dMLWcEEMjhj8DrAlTktqwvtpz5K6pJ5nYSOxOP-dwjHSvclTCbIHCvNf2zVpWF"/>
+<div class="absolute inset-0 bg-primary/5 mix-blend-multiply"></div>
+</div>
+</div>
+<!-- Rich Text Body -->
+<div class="serif-text text-lg md:text-xl text-on-surface/90 leading-relaxed space-y-8 max-w-3xl">
+<p>
+                        In the digital realm, we have long been obsessed with the concept of the "pixel-perfect." We strive for absolute symmetry, consistent spacing, and flawless rendering. Yet, as we spend more of our lives behind screens, there is a growing yearning for the <span class="italic">tactile</span>, the <span class="italic">organic</span>, and the <span class="italic">human</span>.
+                    </p>
+<h2 class="text-3xl font-medium text-primary mt-12 mb-4">The Soul of the Interface</h2>
+<p>
+                        Wabi-sabi, the Japanese philosophy of finding beauty in imperfection and transience, offers a radical alternative to the sterile perfection of modern UI. It suggests that a design is most alive when it shows the "hand of the maker"—when it embraces subtle asymmetries and the passage of digital time.
+                    </p>
+<blockquote class="pl-8 border-l-4 border-primary-container italic text-2xl md:text-3xl text-primary-dim py-2 my-12">
+                        "In our pursuit of pixel perfection, we risk losing the soul of the interface."
+                    </blockquote>
+<p>
+                        How do we translate these ancient concepts into a medium made of code?
+                    </p>
+<ul class="space-y-4 list-none pl-6">
+<li class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary-fixed-dim mt-1">filter_vintage</span>
+<span><strong>Intentional Asymmetry:</strong> Breaking the grid to create visual breathing room and a sense of movement.</span>
+</li>
+<li class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary-fixed-dim mt-1">filter_vintage</span>
+<span><strong>Tonal Depth:</strong> Using layers of color rather than harsh lines to define space and hierarchy.</span>
+</li>
+<li class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary-fixed-dim mt-1">filter_vintage</span>
+<span><strong>Transience:</strong> Acknowledging the evolution of content—notes that "age" and "bloom" over time.</span>
+</li>
+</ul>
+<p>
+                        By introducing these elements, we create digital sanctuaries rather than just digital tools. We build spaces where users feel invited to reflect, rather than just pressured to produce.
+                    </p>
+</div>
+<!-- Footer Action -->
+<div class="mt-20 pt-12 border-t border-surface-container-highest flex justify-between items-center">
+<button class="flex items-center gap-2 text-stone-400 hover:text-primary transition-colors font-label uppercase text-[10px] tracking-widest">
+<span class="material-symbols-outlined text-[18px]">share</span> Share Reflection
+                    </button>
+<button class="bg-primary hover:bg-primary-dim text-on-primary px-8 py-3 rounded-full font-label font-semibold text-sm transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">edit_note</span> Edit Entry
+                    </button>
+</div>
+</article>
+<!-- Sidebar: Related Seedlings -->
+<aside class="lg:w-80 space-y-12">
+<section>
+<h3 class="font-label uppercase text-[10px] tracking-[0.2em] text-stone-400 mb-6 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary-container"></span>
+                        Related Seedlings
+                    </h3>
+<div class="space-y-4">
+<!-- Card 1 -->
+<div class="p-6 bg-surface-container-low rounded-lg hover:bg-white hover:shadow-[0px_12px_32px_rgba(48,51,46,0.04)] transition-all duration-300 cursor-pointer group">
+<span class="text-[10px] font-label text-primary uppercase tracking-widest mb-2 block">Seedling #142</span>
+<h4 class="serif-text text-lg font-medium leading-tight group-hover:text-primary transition-colors">The Zen of Empty States</h4>
+<p class="text-xs text-stone-500 mt-2 line-clamp-2">Exploring how white space can be a functional material in narrative design...</p>
+</div>
+<!-- Card 2 -->
+<div class="p-6 bg-surface-container-low rounded-lg hover:bg-white hover:shadow-[0px_12px_32px_rgba(48,51,46,0.04)] transition-all duration-300 cursor-pointer group">
+<span class="text-[10px] font-label text-primary uppercase tracking-widest mb-2 block">Seedling #089</span>
+<h4 class="serif-text text-lg font-medium leading-tight group-hover:text-primary transition-colors">Washi Paper Textures</h4>
+<p class="text-xs text-stone-500 mt-2 line-clamp-2">A collection of grain patterns and scan references for digital surfaces...</p>
+</div>
+<!-- Card 3 -->
+<div class="p-6 bg-surface-container-low rounded-lg hover:bg-white hover:shadow-[0px_12px_32px_rgba(48,51,46,0.04)] transition-all duration-300 cursor-pointer group">
+<span class="text-[10px] font-label text-primary uppercase tracking-widest mb-2 block">Seedling #201</span>
+<h4 class="serif-text text-lg font-medium leading-tight group-hover:text-primary transition-colors">Digital Botanical Sketches</h4>
+<p class="text-xs text-stone-500 mt-2 line-clamp-2">Documenting the growth of my garden through vector line art...</p>
+</div>
+</div>
+</section>
+<section class="p-8 bg-tertiary-container/30 rounded-xl">
+<h3 class="serif-text italic text-lg text-on-tertiary-container mb-4">Curator's Note</h3>
+<p class="text-sm leading-relaxed text-on-tertiary-container/80">
+                        This entry is part of the "Digital Garden Philosophy" collection. It currently sits in the <span class="italic">Bloom</span> stage of the lifecycle.
+                    </p>
+<div class="mt-6 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">spa</span>
+<div class="h-1 flex-1 bg-stone-200 rounded-full overflow-hidden">
+<div class="h-full w-3/4 bg-primary rounded-full"></div>
+</div>
+</div>
+</section>
+</aside>
+</div>
+</main>
+<!-- Side Navigation Shell (Hidden on mobile, defined as per JSON) -->
+<nav class="hidden lg:flex fixed left-0 top-0 h-screen w-64 bg-[#eeeee8] rounded-r-[3rem] flex-col py-12 pl-6 z-50">
+<div class="mb-12">
+<h2 class="text-2xl font-serif italic text-[#536441]">Komorebi</h2>
+<p class="font-sans tracking-widest uppercase text-[10px] text-stone-400 mt-1">In the Atelier</p>
+</div>
+<div class="flex-1 space-y-2">
+<a class="flex items-center gap-4 py-3 pl-4 transition-colors duration-300 hover:bg-[#f5f4ef] text-stone-500 font-sans tracking-widest uppercase text-[10px]" href="#">
+<span class="material-symbols-outlined text-[18px]">spa</span>
+<span>Sanctuary</span>
+</a>
+<a class="flex items-center gap-4 py-3 pl-4 transition-colors duration-300 hover:bg-[#f5f4ef] text-stone-500 font-sans tracking-widest uppercase text-[10px]" href="#">
+<span class="material-symbols-outlined text-[18px]">edit_note</span>
+<span>Journal</span>
+</a>
+<!-- Active Navigation Item: Library (Mapping 'Knowledge Base' to Library) -->
+<a class="flex items-center gap-4 py-3 pl-4 text-[#536441] font-bold bg-[#f5f4ef]/50 rounded-l-full scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined text-[18px]">auto_stories</span>
+<span class="font-sans tracking-widest uppercase text-[10px]">Library</span>
+</a>
+<a class="flex items-center gap-4 py-3 pl-4 transition-colors duration-300 hover:bg-[#f5f4ef] text-stone-500 font-sans tracking-widest uppercase text-[10px]" href="#">
+<span class="material-symbols-outlined text-[18px]">inventory_2</span>
+<span>Archives</span>
+</a>
+<a class="flex items-center gap-4 py-3 pl-4 transition-colors duration-300 hover:bg-[#f5f4ef] text-stone-500 font-sans tracking-widest uppercase text-[10px]" href="#">
+<span class="material-symbols-outlined text-[18px]">settings</span>
+<span>Settings</span>
+</a>
+</div>
+<div class="mt-auto pr-6">
+<button class="w-full bg-primary text-on-primary py-4 rounded-full font-label font-semibold text-sm shadow-[0px_12px_32px_rgba(48,51,46,0.04)] flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">add</span>
+                New Reflection
+            </button>
+</div>
+</nav>
+<!-- Mobile Navigation Shell (Visible only on mobile) -->
+<div class="lg:hidden fixed bottom-0 left-0 w-full bg-[#fbf9f5]/80 backdrop-blur-xl flex justify-around items-center py-4 px-6 z-50">
+<a class="flex flex-col items-center gap-1 text-stone-400" href="#">
+<span class="material-symbols-outlined">spa</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-stone-400" href="#">
+<span class="material-symbols-outlined">edit_note</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_stories</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-stone-400" href="#">
+<span class="material-symbols-outlined">settings</span>
+</a>
+</div>
+</body></html>

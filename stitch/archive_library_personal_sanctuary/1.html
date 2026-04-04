@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Archive &amp; Library | Komorebi Journal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "on-tertiary-fixed": "#49402c",
+                "outline-variant": "#b1b3ab",
+                "primary-dim": "#475736",
+                "primary-container": "#d6e9bd",
+                "on-secondary": "#f5f9ff",
+                "surface-dim": "#d9dbd2",
+                "surface-container-high": "#e8e9e2",
+                "tertiary-dim": "#5c523d",
+                "inverse-on-surface": "#9e9d9a",
+                "surface-container-highest": "#e2e3db",
+                "secondary": "#53616b",
+                "tertiary-container": "#f3e4c8",
+                "surface-bright": "#fbf9f5",
+                "on-tertiary-fixed-variant": "#665c46",
+                "tertiary-fixed": "#f3e4c8",
+                "surface-variant": "#e2e3db",
+                "on-primary-container": "#465735",
+                "surface-container": "#eeeee8",
+                "on-surface": "#30332e",
+                "on-secondary-container": "#46535d",
+                "on-secondary-fixed": "#34414a",
+                "on-primary-fixed-variant": "#50613e",
+                "on-background": "#30332e",
+                "error-dim": "#5c1202",
+                "background": "#fbf9f5",
+                "inverse-surface": "#0e0e0d",
+                "tertiary": "#685e48",
+                "error": "#9e422c",
+                "surface": "#fbf9f5",
+                "on-secondary-fixed-variant": "#505d67",
+                "error-container": "#fe8b70",
+                "on-primary": "#ebffd2",
+                "on-tertiary": "#fff8f0",
+                "tertiary-fixed-dim": "#e4d6ba",
+                "surface-container-low": "#f5f4ef",
+                "outline": "#797c75",
+                "primary": "#536441",
+                "secondary-fixed-dim": "#c8d6e2",
+                "surface-container-lowest": "#ffffff",
+                "on-tertiary-container": "#5c523d",
+                "surface-tint": "#536441",
+                "inverse-primary": "#e4f8cb",
+                "secondary-container": "#d6e4f0",
+                "on-surface-variant": "#5d605a",
+                "on-error": "#fff7f6",
+                "on-error-container": "#742410",
+                "primary-fixed-dim": "#c8dbb0",
+                "secondary-dim": "#48555f",
+                "primary-fixed": "#d6e9bd",
+                "on-primary-fixed": "#344424",
+                "secondary-fixed": "#d6e4f0"
+              },
+              fontFamily: {
+                "headline": ["Noto Serif"],
+                "body": ["Plus Jakarta Sans"],
+                "label": ["Plus Jakarta Sans"]
+              },
+              borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-serif-italic { font-family: 'Noto Serif', serif; font-style: italic; }
+        .text-label-sm { font-family: 'Plus Jakarta Sans', sans-serif; text-transform: uppercase; letter-spacing: 0.05em; font-size: 11px; }
+    </style>
+</head>
+<body class="bg-background text-on-background selection:bg-primary-container">
+<!-- Side Navigation Shell -->
+<aside class="fixed left-0 top-0 h-screen w-72 bg-[#eeeee8] dark:bg-[#2e3129] flex flex-col py-8 pl-4 pr-0 gap-2 z-40 hidden md:flex">
+<div class="px-6 mb-8">
+<h1 class="font-serif italic text-xl text-[#30332e] dark:text-[#fbf9f5]">Komorebi Journal</h1>
+<p class="text-[11px] uppercase tracking-widest text-primary/60">Sanctuary Archive</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-4 px-6 py-3 text-[#30332e]/70 hover:bg-[#fbf9f5]/50 rounded-r-full mr-4 transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-3 text-[#30332e]/70 hover:bg-[#fbf9f5]/50 rounded-r-full mr-4 transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">event_note</span>
+<span class="text-sm font-medium">Planner</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-3 text-[#30332e]/70 hover:bg-[#fbf9f5]/50 rounded-r-full mr-4 transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="text-sm font-medium">Knowledge</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-3 text-[#30332e]/70 hover:bg-[#fbf9f5]/50 rounded-r-full mr-4 transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">edit_note</span>
+<span class="text-sm font-medium">Notes</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-3 text-[#30332e]/70 hover:bg-[#fbf9f5]/50 rounded-r-full mr-4 transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">auto_stories</span>
+<span class="text-sm font-medium">Writing</span>
+</a>
+<!-- Active Tab: Archive -->
+<a class="flex items-center gap-4 px-6 py-3 bg-[#f5f4ef] text-[#536441] rounded-r-full mr-4 shadow-sm transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+<span class="text-sm font-bold">Archive</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-3 text-[#30332e]/70 hover:bg-[#fbf9f5]/50 rounded-r-full mr-4 transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">widgets</span>
+<span class="text-sm font-medium">Modules</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-3 text-[#30332e]/70 hover:bg-[#fbf9f5]/50 rounded-r-full mr-4 transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+<div class="mt-auto px-4 pb-4">
+<button class="w-full py-4 bg-gradient-to-br from-primary to-primary-dim text-on-primary rounded-full font-medium shadow-lg hover:opacity-90 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">local_florist</span>
+                Bloom New Idea
+            </button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-72 min-h-screen">
+<!-- Top Bar -->
+<header class="sticky top-0 z-50 bg-[#fbf9f5]/80 backdrop-blur-md flex justify-between items-center px-8 py-6 w-full">
+<div class="flex items-center gap-8">
+<span class="font-serif italic text-2xl text-[#536441] tracking-tighter">Komorebi Journal</span>
+<nav class="hidden lg:flex gap-6">
+<a class="text-label-sm text-[#30332e]/60 hover:text-[#536441] transition-colors duration-300" href="#">Garden</a>
+<a class="text-label-sm text-[#30332e]/60 hover:text-[#536441] transition-colors duration-300" href="#">Reading List</a>
+<a class="text-label-sm text-[#30332e]/60 hover:text-[#536441] transition-colors duration-300" href="#">Community</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container border-none rounded-full text-sm focus:ring-1 focus:ring-primary w-64 transition-all" placeholder="Search archive..." type="text"/>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant">notifications</button>
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high border-2 border-surface">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="soft minimalist portrait of a person in a library with warm bokeh lights background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCq2Mv7quKONAAhqYeFMANcZSvLxXxpaEgIsdapvOMg1Cocc02Dgirc7E165gL1_QT4bi9Jiln8ZYBr3ICjUCDrPTRLWdZiC1d7JFCR5mwTAuebMkEblQmU9b95PMiEsvxbZLUniwasN_YsG_wy8xM1OcYPt-nooxtsCB1bXmJr5cE5HT-XgjzVDw5h00CYX_PKEaJDKHB1h2A8hs4V0vV15srv9cLMM9jdgu8FBBAeQg_4-YBYoMb-2wrmnz-kkK86-0zT1leqxzQ9"/>
+</div>
+</div>
+</header>
+<div class="px-8 lg:px-12 py-12 space-y-20">
+<!-- Hero Header Section -->
+<section class="max-w-4xl">
+<div class="space-y-4">
+<span class="text-label-sm text-primary tracking-[0.2em]">The Curator's Vault</span>
+<h2 class="font-serif italic text-5xl lg:text-6xl text-on-surface tracking-tight leading-tight">Archive &amp; Library</h2>
+<p class="text-lg text-on-surface-variant max-w-2xl font-medium leading-relaxed">
+                        A quiet space for your past reflections and saved treasures. Every word planted here continues to grow in the stillness of time.
+                    </p>
+</div>
+</section>
+<!-- Curated Collections - Bento Style -->
+<section class="space-y-8">
+<div class="flex justify-between items-end">
+<h3 class="font-serif italic text-3xl text-on-surface">Curated Collections</h3>
+<button class="text-primary font-medium hover:underline flex items-center gap-1">View all folders <span class="material-symbols-outlined text-sm">arrow_forward</span></button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<!-- Favorites -->
+<div class="md:col-span-2 group relative overflow-hidden rounded-xl h-80 bg-surface-container-low flex items-end p-8">
+<img alt="Favorites" class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" data-alt="stack of vintage leather-bound books and a small glass jar of dried chamomile flowers on a worn wooden table" src="https://lh3.googleusercontent.com/aida-public/AB6AXuACa5tTExNuh_r5dvh0l60cCcBEkonJXeAyrQowTV4I4KLHJYOOh0RnlPZz97n9JaAu4WsJCCbcUI1uI_X2zzumr9YwtjMiahZn3wCvaX0cggrNy99D-xxMggipGyHVcNEK7VFO5bvDgY7jJowNkEWLVEunBlFAeP34NUzSj6G9VrkxG7KfilQram91Pr_OfrCkMDrTx_b0sDv1r5jMSW5vuxRPr6E7p9LWKAyJWJhBHTEeYLLhKCeOZNRybbKEHSHmcab0FmGVD-LZ"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container/90 via-transparent to-transparent"></div>
+<div class="relative z-10">
+<span class="material-symbols-outlined text-primary mb-2" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<h4 class="text-2xl font-serif italic text-on-surface">Favorites</h4>
+<p class="text-sm text-on-surface-variant">124 cherished entries</p>
+</div>
+</div>
+<!-- Reading List -->
+<div class="group relative overflow-hidden rounded-xl h-80 bg-tertiary-container/30 flex items-end p-8">
+<img alt="Reading List" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-1000" data-alt="close up of an open book with pressed flowers used as a bookmark sitting on a soft linen bedsheet" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBF_S9gyjUtIYhUikW5ixSaJS8Rfs4c1bpqSxa1wklqp0xSOS82NEr6opv7z38oX4fL91a7pxHnyiSG4DD2_5gH5QQmXjOLitodzxe54yPXKXigGtsdpv7zKPLmDTKpVsH0objqZHS1slcfy_WH_oQ3AauY3pAWhh8R2NlbgP1ZCr_M5j43GVvnBBk4Vj8jTEfgPI9UQpP2rawTj5MMjaTAW9HWyX6XRMwV2bnzsrHwpQVjgxakTmZsWlnz3BqCmPpZYAG4u90NzY8j"/>
+<div class="relative z-10">
+<h4 class="text-xl font-serif italic text-on-tertiary-container">Reading List</h4>
+<p class="text-sm text-on-tertiary-container/80">12 currently exploring</p>
+</div>
+</div>
+<!-- Resource Library -->
+<div class="group relative overflow-hidden rounded-xl h-80 bg-surface-container flex items-end p-8">
+<div class="absolute inset-0 flex flex-wrap gap-1 p-2 opacity-10">
+<span class="material-symbols-outlined text-4xl">inventory</span>
+<span class="material-symbols-outlined text-4xl">archive</span>
+<span class="material-symbols-outlined text-4xl">book</span>
+</div>
+<div class="relative z-10">
+<h4 class="text-xl font-serif italic text-on-surface">Resources</h4>
+<p class="text-sm text-on-surface-variant">450 saved items</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Time Machine Section -->
+<section class="bg-surface-container p-12 rounded-xl relative overflow-hidden">
+<div class="absolute right-0 top-0 w-1/3 h-full opacity-5 pointer-events-none">
+<span class="material-symbols-outlined text-[20rem] -mr-20 -mt-20">history</span>
+</div>
+<div class="relative z-10 space-y-8">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary text-3xl">schedule</span>
+<h3 class="font-serif italic text-3xl text-on-surface">Time Machine</h3>
+</div>
+<div class="flex flex-wrap gap-4">
+<!-- Year Cards -->
+<button class="px-8 py-6 bg-surface-container-low rounded-full border border-primary/10 hover:bg-primary hover:text-on-primary transition-all group">
+<span class="block text-label-sm opacity-60 group-hover:text-on-primary/70">Journey to</span>
+<span class="text-2xl font-serif italic">2024</span>
+</button>
+<button class="px-8 py-6 bg-surface-container-low rounded-full border border-primary/10 hover:bg-primary hover:text-on-primary transition-all group">
+<span class="block text-label-sm opacity-60 group-hover:text-on-primary/70">Journey to</span>
+<span class="text-2xl font-serif italic">2023</span>
+</button>
+<button class="px-8 py-6 bg-surface-container-low rounded-full border border-primary/10 hover:bg-primary hover:text-on-primary transition-all group">
+<span class="block text-label-sm opacity-60 group-hover:text-on-primary/70">Journey to</span>
+<span class="text-2xl font-serif italic">2022</span>
+</button>
+<button class="px-8 py-6 bg-surface-container-low rounded-full border border-primary/10 hover:bg-primary hover:text-on-primary transition-all group">
+<span class="block text-label-sm opacity-60 group-hover:text-on-primary/70">Journey to</span>
+<span class="text-2xl font-serif italic">2021</span>
+</button>
+<button class="px-8 py-6 bg-surface-container-lowest/50 rounded-full border border-outline/20 hover:border-primary transition-all flex items-center justify-center">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Recent Collections Grid -->
+<section class="space-y-8">
+<h3 class="font-serif italic text-3xl text-on-surface">Recent Collections</h3>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+<!-- Collection Item 1 -->
+<div class="group space-y-4">
+<div class="aspect-[4/5] rounded-xl overflow-hidden bg-surface-container-high relative">
+<img alt="Spring Reflections" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="ancient parchment paper with soft cursive handwriting and a sprig of dried lavender resting on top" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUqNeQ15zafv-gKK6HBY_3DQDzBOsnmYe_UExCGVQGK7FvhepeYR1v5SE59K_R2s92M0seQAKeAkMiFJtlj5WmnkXFCBg9FnvZPC2XLNI8fELUFQ8P7m7Lyi8lZQI7TSqwjdksFScn_CQYcXkgeuYHhTtbG7OU6CExymbff6RMdiMjESRvUUDW4NVCctZHqkyo0FeUWfHbJhiCNdCqF06L_3ZBCWvFOfvEWxUriBGT-smeDC75qNmrG71aiMqACOHPGAQvSsYzPXmD"/>
+<div class="absolute top-4 right-4 bg-surface-bright/80 backdrop-blur-sm p-2 rounded-full">
+<span class="material-symbols-outlined text-primary text-sm">push_pin</span>
+</div>
+</div>
+<div>
+<h5 class="text-lg font-serif italic">Spring Reflections</h5>
+<p class="text-sm text-on-surface-variant">28 items • Updated yesterday</p>
+</div>
+</div>
+<!-- Collection Item 2 -->
+<div class="group space-y-4">
+<div class="aspect-[4/5] rounded-xl overflow-hidden bg-surface-container-high">
+<img alt="Philosophy Notes" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="a dark cozy library corner with a wooden desk, a warm lamp, and floor to ceiling bookshelves" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgFpBxDhtZnRsaakI0woSN5TEKaDF_6Gv6kQLQ7Mbtl4hQ5JItU7ezkugtCexn43oeEfdXhuGs-F1OU9EF3y-vODmjCnik2JPPX85b9yLZD4KzCbjCJFn75GpzFnLyKgsbmwWf99GuLSH1ebTP5LvBd-DUDTRnHPSZqBjNGlIxO1gzktaDoa6KsoHGlB_wzaL6vtzi4AqhoZr607HUDs9EqhbFsXIUqr9wNT34ULHjOgGghxlQ-_yCQn6aiulBuXjQA346hUETDpxo"/>
+</div>
+<div>
+<h5 class="text-lg font-serif italic">Philosophy Notes</h5>
+<p class="text-sm text-on-surface-variant">142 items • Updated 3 days ago</p>
+</div>
+</div>
+<!-- Collection Item 3 -->
+<div class="group space-y-4">
+<div class="aspect-[4/5] rounded-xl overflow-hidden bg-surface-container-high">
+<img alt="Wabi-Sabi Aesthetics" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="abstract composition of cracked pottery with gold fill in the style of kintsugi on a textured beige background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBc74JtJpnoMfPU67GwaEgGB6k-kRdiJbMCFXtB7UshlGotSjzioa0VzG-QTubPOdpIgvO5MUhTLZpPfhzp9ZAXypYfA5hHCuPD1lyp8Oh1usCGsvNOvLDCpnnpSeO_Q6zYkt0iAVxvHMiozn8k-8eAta0NZAtbJpAxR9aGFXpWA1J16ggSNDp_DlSUtqUwsYZPUjw7xLvJOvvynmeXbX50fxiRKDM_Zdw4Lch7Ip5xa-8BRrbK68Hro4qvq_e70sxxZ-_y_XIBTQqm"/>
+</div>
+<div>
+<h5 class="text-lg font-serif italic">Wabi-Sabi Aesthetics</h5>
+<p class="text-sm text-on-surface-variant">56 items • Updated last week</p>
+</div>
+</div>
+<!-- Empty State Placeholder -->
+<div class="aspect-[4/5] rounded-xl border-2 border-dashed border-outline-variant/30 flex flex-col items-center justify-center p-8 text-center space-y-4 hover:border-primary/50 transition-colors cursor-pointer group">
+<div class="w-16 h-16 rounded-full bg-surface-container-low flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-outline text-3xl">add_box</span>
+</div>
+<div>
+<p class="font-serif italic text-on-surface">New Collection</p>
+<p class="text-xs text-on-surface-variant px-4">Create a new container for your future thoughts.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Search & Filters Bar -->
+<section class="max-w-4xl mx-auto py-12">
+<div class="bg-surface-container-low p-2 rounded-full flex items-center shadow-sm">
+<div class="flex-1 flex items-center px-4">
+<span class="material-symbols-outlined text-primary mr-3">search</span>
+<input class="bg-transparent border-none focus:ring-0 w-full text-lg font-serif" placeholder="Search deeper into your archives..." type="text"/>
+</div>
+<div class="flex items-center gap-2 pr-2">
+<button class="flex items-center gap-2 px-6 py-3 bg-surface-container-high rounded-full text-sm font-medium hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+                            Filter
+                        </button>
+<button class="px-6 py-3 bg-primary text-on-primary rounded-full text-sm font-medium hover:opacity-90 transition-opacity">
+                            Deep Search
+                        </button>
+</div>
+</div>
+<div class="mt-6 flex justify-center gap-8">
+<div class="flex items-center gap-2 text-sm text-on-surface-variant">
+<span class="w-2 h-2 rounded-full bg-primary/40"></span>
+                        Handwritten
+                    </div>
+<div class="flex items-center gap-2 text-sm text-on-surface-variant">
+<span class="w-2 h-2 rounded-full bg-primary/40"></span>
+                        Photographs
+                    </div>
+<div class="flex items-center gap-2 text-sm text-on-surface-variant">
+<span class="w-2 h-2 rounded-full bg-primary/40"></span>
+                        Audio Memos
+                    </div>
+<div class="flex items-center gap-2 text-sm text-on-surface-variant">
+<span class="w-2 h-2 rounded-full bg-primary/40"></span>
+                        PDF Reports
+                    </div>
+</div>
+</section>
+<!-- Footer / Quote -->
+<footer class="pt-20 pb-12 text-center space-y-6">
+<div class="w-16 h-px bg-outline-variant/30 mx-auto"></div>
+<p class="font-serif italic text-2xl text-on-surface-variant max-w-xl mx-auto">
+                    "Archives are the echoes of a life well-lived, whispering secrets of who we once were to who we are becoming."
+                </p>
+<p class="text-label-sm text-outline tracking-[0.3em]">Komorebi Sanctuary Archive © 2024</p>
+</footer>
+</div>
+</main>
+<!-- Mobile Bottom Navigation -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 bg-[#fbf9f5]/90 backdrop-blur-lg flex justify-around items-center py-4 px-6 z-50 shadow-2xl rounded-t-3xl border-t border-surface-container">
+<button class="flex flex-col items-center gap-1 text-[#30332e]/60">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-[#30332e]/60">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Library</span>
+</button>
+<div class="-mt-12">
+<button class="w-14 h-14 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+<button class="flex flex-col items-center gap-1 text-[#536441]">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Archive</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-[#30332e]/60">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Settings</span>
+</button>
+</nav>
+</body></html>

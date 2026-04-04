@@ -1,0 +1,446 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ModuleKey {
+  dashboard
+  activity
+  planner
+  knowledge
+  writing
+  archive
+  modules
+  settings
+}
+
+enum ModuleStatus {
+  ACTIVE
+  DISABLED
+  HIDDEN
+}
+
+enum MediaKind {
+  IMAGE
+  VIDEO
+  AUDIO
+  FILE
+  EMBED
+}
+
+enum MediaStatus {
+  PENDING
+  READY
+  FAILED
+  ARCHIVED
+}
+
+enum ReminderChannel {
+  IN_APP
+  EMAIL
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+  ARCHIVED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum Visibility {
+  PRIVATE
+  UNLISTED
+  PUBLIC
+}
+
+enum ArchiveSourceType {
+  NOTE
+  POST
+  MEDIA
+  RESOURCE
+}
+
+model User {
+  id                 String               @id @default(cuid())
+  email              String               @unique
+  name               String?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  profile            UserProfile?
+  preferences        UserPreference?
+  moduleSettings     UserModuleSetting[]
+  mediaAssets        MediaAsset[]
+  plannerCalendars   PlannerCalendar[]
+  plannerEvents      PlannerEvent[]
+  plannerTasks       PlannerTask[]
+  plannerReminders   PlannerReminder[]
+  knowledgeDomains   KnowledgeDomain[]
+  knowledgeNotes     KnowledgeNote[]
+  knowledgeTags      KnowledgeTag[]
+  writingDrafts      WritingDraft[]
+  writingPosts       WritingPost[]
+  archiveCollections ArchiveCollection[]
+  archiveItems       ArchiveItem[]
+}
+
+model UserProfile {
+  id            String      @id @default(cuid())
+  userId         String      @unique
+  displayName   String?
+  curatorTitle  String?
+  bio           String?
+  avatarMediaId String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  avatarMedia   MediaAsset? @relation("UserProfileAvatar", fields: [avatarMediaId], references: [id], onDelete: SetNull)
+}
+
+model UserPreference {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  theme          String?  @default("light")
+  accentColor    String?
+  typographyMode String?
+  locale         String?
+  timezone       String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ModuleRegistry {
+  id               String              @id @default(cuid())
+  key              ModuleKey           @unique
+  name             String
+  description      String
+  icon             String?
+  routePath        String
+  enabledByDefault Boolean             @default(true)
+  status           ModuleStatus        @default(ACTIVE)
+  sortOrder        Int                 @default(0)
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  userSettings     UserModuleSetting[]
+}
+
+model UserModuleSetting {
+  id         String         @id @default(cuid())
+  userId      String
+  moduleId    String
+  enabled     Boolean        @default(true)
+  pinned      Boolean        @default(false)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  module      ModuleRegistry @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, moduleId])
+}
+
+model MediaAsset {
+  id               String         @id @default(cuid())
+  ownerId          String
+  kind             MediaKind
+  status           MediaStatus    @default(PENDING)
+  storageProvider  String
+  storageKey       String
+  originalFileName String?
+  mimeType         String
+  size             Int?
+  width            Int?
+  height           Int?
+  durationSeconds  Int?
+  thumbnailKey     String?
+  altText          String?
+  embedUrl         String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  owner            User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  usages           MediaUsage[]
+  draftCovers      WritingDraft[] @relation("WritingDraftCover")
+  postCovers       WritingPost[]  @relation("WritingPostCover")
+  profileAvatars   UserProfile[]  @relation("UserProfileAvatar")
+}
+
+model MediaUsage {
+  id         String     @id @default(cuid())
+  mediaId     String
+  moduleKey   ModuleKey
+  entityType  String
+  entityId    String
+  fieldName   String
+  createdAt   DateTime   @default(now())
+  media       MediaAsset  @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@index([moduleKey, entityType, entityId])
+}
+
+model PlannerCalendar {
+  id          String         @id @default(cuid())
+  ownerId      String
+  name        String
+  description String?
+  color       String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  owner       User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  events      PlannerEvent[]
+}
+
+model PlannerEvent {
+  id           String            @id @default(cuid())
+  ownerId       String
+  calendarId    String?
+  title        String
+  description  String?
+  startsAt     DateTime
+  endsAt       DateTime?
+  location     String?
+  visibility   Visibility        @default(PRIVATE)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  owner        User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  calendar     PlannerCalendar?  @relation(fields: [calendarId], references: [id], onDelete: SetNull)
+  reminders    PlannerReminder[]
+}
+
+model PlannerTask {
+  id             String                 @id @default(cuid())
+  ownerId        String
+  relatedNoteId  String?
+  relatedDraftId String?
+  title          String
+  description    String?
+  status         TaskStatus             @default(TODO)
+  priority       TaskPriority           @default(MEDIUM)
+  scheduledFor   DateTime?
+  dueAt          DateTime?
+  completedAt    DateTime?
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+  owner          User                   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  relatedNote    KnowledgeNote?         @relation("PlannerTaskLinkedNote", fields: [relatedNoteId], references: [id], onDelete: SetNull)
+  relatedDraft   WritingDraft?          @relation("PlannerTaskLinkedDraft", fields: [relatedDraftId], references: [id], onDelete: SetNull)
+  reminders      PlannerReminder[]
+  labels         PlannerTaskLabelOnTask[]
+}
+
+model PlannerReminder {
+  id           String           @id @default(cuid())
+  ownerId       String
+  taskId        String?
+  eventId       String?
+  remindAt     DateTime
+  channel      ReminderChannel  @default(IN_APP)
+  sentAt       DateTime?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  owner        User             @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  task         PlannerTask?     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  event        PlannerEvent?    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+}
+
+model PlannerTaskLabel {
+  id         String                 @id @default(cuid())
+  name       String
+  color      String?
+  createdAt  DateTime               @default(now())
+  updatedAt  DateTime               @updatedAt
+  tasks      PlannerTaskLabelOnTask[]
+}
+
+model PlannerTaskLabelOnTask {
+  taskId   String
+  labelId  String
+  task     PlannerTask      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  label    PlannerTaskLabel @relation(fields: [labelId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, labelId])
+}
+
+model KnowledgeDomain {
+  id          String          @id @default(cuid())
+  ownerId      String
+  name        String
+  slug        String
+  description String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  owner       User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  notes       KnowledgeNote[]
+
+  @@unique([ownerId, slug])
+}
+
+model KnowledgeNote {
+  id            String            @id @default(cuid())
+  ownerId        String
+  domainId       String?
+  title         String
+  slug          String
+  summary       String?
+  contentJson   Json
+  contentHtml   String?
+  isArchived    Boolean           @default(false)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  owner         User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  domain        KnowledgeDomain?  @relation(fields: [domainId], references: [id], onDelete: SetNull)
+  tags          KnowledgeNoteTag[]
+  outgoingLinks KnowledgeLink[]   @relation("KnowledgeOutgoingLinks")
+  incomingLinks KnowledgeLink[]   @relation("KnowledgeIncomingLinks")
+  sourceDrafts      WritingDraft[]
+  sourcePosts       WritingPost[]
+  linkedPlannerTasks PlannerTask[]           @relation("PlannerTaskLinkedNote")
+  archiveItems      ArchiveItem[]
+
+  @@unique([ownerId, slug])
+}
+
+model KnowledgeTag {
+  id         String             @id @default(cuid())
+  ownerId     String
+  name       String
+  slug       String
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+  owner      User               @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  notes      KnowledgeNoteTag[]
+
+  @@unique([ownerId, slug])
+}
+
+model KnowledgeNoteTag {
+  noteId  String
+  tagId   String
+  note    KnowledgeNote @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  tag     KnowledgeTag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([noteId, tagId])
+}
+
+model KnowledgeLink {
+  id           String        @id @default(cuid())
+  sourceNoteId String
+  targetNoteId String
+  label        String?
+  createdAt    DateTime      @default(now())
+  sourceNote   KnowledgeNote @relation("KnowledgeOutgoingLinks", fields: [sourceNoteId], references: [id], onDelete: Cascade)
+  targetNote   KnowledgeNote @relation("KnowledgeIncomingLinks", fields: [targetNoteId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceNoteId, targetNoteId])
+}
+
+model WritingDraft {
+  id              String         @id @default(cuid())
+  ownerId         String
+  title           String
+  summary         String?
+  coverMediaId    String?
+  coverImageUrl   String?
+  sourceNoteId    String?
+  publishedPostId String?        @unique
+  contentJson     Json
+  contentHtml     String?
+  visibility      Visibility     @default(PRIVATE)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  owner           User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  coverMedia      MediaAsset?    @relation("WritingDraftCover", fields: [coverMediaId], references: [id], onDelete: SetNull)
+  sourceNote      KnowledgeNote? @relation(fields: [sourceNoteId], references: [id], onDelete: SetNull)
+  publishedPost   WritingPost?   @relation("DraftPublishedPost", fields: [publishedPostId], references: [id], onDelete: SetNull)
+  linkedPlannerTasks PlannerTask[] @relation("PlannerTaskLinkedDraft")
+}
+
+model WritingPost {
+  id            String               @id @default(cuid())
+  ownerId       String
+  title         String
+  slug          String
+  summary       String?
+  coverMediaId  String?
+  coverImageUrl String?
+  sourceNoteId  String?
+  contentJson   Json
+  contentHtml   String?
+  status        PostStatus           @default(DRAFT)
+  visibility    Visibility           @default(PRIVATE)
+  publishedAt   DateTime?
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  owner         User                 @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  coverMedia    MediaAsset?          @relation("WritingPostCover", fields: [coverMediaId], references: [id], onDelete: SetNull)
+  sourceDraft   WritingDraft?        @relation("DraftPublishedPost")
+  sourceNote    KnowledgeNote?       @relation(fields: [sourceNoteId], references: [id], onDelete: SetNull)
+  versions      WritingPostVersion[]
+  archiveItems  ArchiveItem[]
+
+  @@unique([ownerId, slug])
+}
+
+model WritingPostVersion {
+  id          String      @id @default(cuid())
+  postId       String
+  version     Int
+  title       String
+  summary     String?
+  contentJson Json
+  contentHtml String?
+  createdAt   DateTime    @default(now())
+  post        WritingPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, version])
+}
+
+model ArchiveCollection {
+  id          String        @id @default(cuid())
+  ownerId      String
+  name        String
+  description String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  owner       User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  items       ArchiveItem[]
+}
+
+model ArchiveItem {
+  id            String             @id @default(cuid())
+  ownerId        String
+  collectionId   String?
+  sourceType    ArchiveSourceType
+  noteId        String?
+  postId        String?
+  title         String
+  summary       String?
+  isFavorite    Boolean            @default(false)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  owner         User               @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  collection    ArchiveCollection? @relation(fields: [collectionId], references: [id], onDelete: SetNull)
+  note          KnowledgeNote?     @relation(fields: [noteId], references: [id], onDelete: SetNull)
+  post          WritingPost?       @relation(fields: [postId], references: [id], onDelete: SetNull)
+
+  @@unique([ownerId, sourceType, postId])
+  @@unique([ownerId, sourceType, noteId])
+}
+
+
+
+

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Writing &amp; Reflections - Komorebi Journal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Plus_Jakarta_Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "error": "#9e422c",
+              "on-surface-variant": "#5d605a",
+              "surface-tint": "#536441",
+              "primary": "#536441",
+              "error-container": "#fe8b70",
+              "secondary-dim": "#48555f",
+              "primary-fixed-dim": "#c8dbb0",
+              "tertiary": "#685e48",
+              "on-surface": "#30332e",
+              "surface-container-high": "#e8e9e2",
+              "surface-variant": "#e2e3db",
+              "on-tertiary-container": "#5c523d",
+              "on-secondary-fixed-variant": "#505d67",
+              "surface-dim": "#d9dbd2",
+              "surface-container-highest": "#e2e3db",
+              "secondary-fixed": "#d6e4f0",
+              "on-primary-fixed-variant": "#50613e",
+              "inverse-primary": "#e4f8cb",
+              "on-secondary-container": "#46535d",
+              "surface-bright": "#fbf9f5",
+              "on-primary-container": "#465735",
+              "secondary-container": "#d6e4f0",
+              "on-error": "#fff7f6",
+              "primary-fixed": "#d6e9bd",
+              "tertiary-fixed-dim": "#e4d6ba",
+              "on-primary": "#ebffd2",
+              "on-background": "#30332e",
+              "secondary": "#53616b",
+              "primary-container": "#d6e9bd",
+              "outline-variant": "#b1b3ab",
+              "on-tertiary-fixed": "#49402c",
+              "tertiary-fixed": "#f3e4c8",
+              "tertiary-container": "#f3e4c8",
+              "secondary-fixed-dim": "#c8d6e2",
+              "on-tertiary-fixed-variant": "#665c46",
+              "surface-container": "#eeeee8",
+              "inverse-on-surface": "#9e9d9a",
+              "background": "#fbf9f5",
+              "outline": "#797c75",
+              "on-secondary": "#f5f9ff",
+              "primary-dim": "#475736",
+              "tertiary-dim": "#5c523d",
+              "error-dim": "#5c1202",
+              "surface-container-low": "#f5f4ef",
+              "inverse-surface": "#0e0e0d",
+              "surface-container-lowest": "#ffffff",
+              "on-primary-fixed": "#344424",
+              "on-tertiary": "#fff8f0",
+              "surface": "#fbf9f5",
+              "on-secondary-fixed": "#34414a",
+              "on-error-container": "#742410"
+            },
+            fontFamily: {
+              "headline": ["Noto Serif"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-background selection:bg-primary-container selection:text-on-primary-container">
+<!-- SideNavBar Execution -->
+<aside class="fixed left-0 top-0 h-full hidden md:flex flex-col p-6 h-screen w-64 border-r-0 bg-[#eeeee8] dark:bg-stone-900 z-50">
+<div class="mb-10 flex flex-col gap-1">
+<span class="font-['Noto_Serif'] italic text-xl text-[#30332e] dark:text-stone-200">The Curator</span>
+<span class="font-['Plus_Jakarta_Sans'] tracking-tight text-xs text-[#30332e]/60 uppercase tracking-widest">Personal Sanctuary</span>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-2.5 text-[#30332e]/60 dark:text-stone-400 font-['Plus_Jakarta_Sans'] tracking-tight text-sm hover:bg-[#f5f4ef] dark:hover:bg-stone-800 transition-colors duration-300 rounded-lg" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 text-[#30332e]/60 dark:text-stone-400 font-['Plus_Jakarta_Sans'] tracking-tight text-sm hover:bg-[#f5f4ef] dark:hover:bg-stone-800 transition-colors duration-300 rounded-lg" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="calendar_today">calendar_today</span>
+<span>Planner</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 text-[#30332e]/60 dark:text-stone-400 font-['Plus_Jakarta_Sans'] tracking-tight text-sm hover:bg-[#f5f4ef] dark:hover:bg-stone-800 transition-colors duration-300 rounded-lg" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="auto_stories">auto_stories</span>
+<span>Knowledge</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 text-[#30332e]/60 dark:text-stone-400 font-['Plus_Jakarta_Sans'] tracking-tight text-sm hover:bg-[#f5f4ef] dark:hover:bg-stone-800 transition-colors duration-300 rounded-lg" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="description">description</span>
+<span>Notes</span>
+</a>
+<!-- Active State: Writing -->
+<a class="flex items-center gap-3 px-4 py-2.5 text-[#536441] dark:text-[#d6e9bd] font-semibold bg-[#f5f4ef]/50 dark:bg-stone-800/50 rounded-lg font-['Plus_Jakarta_Sans'] tracking-tight text-sm" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="edit_note">edit_note</span>
+<span>Writing</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 text-[#30332e]/60 dark:text-stone-400 font-['Plus_Jakarta_Sans'] tracking-tight text-sm hover:bg-[#f5f4ef] dark:hover:bg-stone-800 transition-colors duration-300 rounded-lg" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="inventory_2">inventory_2</span>
+<span>Archive</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 text-[#30332e]/60 dark:text-stone-400 font-['Plus_Jakarta_Sans'] tracking-tight text-sm hover:bg-[#f5f4ef] dark:hover:bg-stone-800 transition-colors duration-300 rounded-lg" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="widgets">widgets</span>
+<span>Modules</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 text-[#30332e]/60 dark:text-stone-400 font-['Plus_Jakarta_Sans'] tracking-tight text-sm hover:bg-[#f5f4ef] dark:hover:bg-stone-800 transition-colors duration-300 rounded-lg" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-6">
+<button class="w-full flex items-center justify-center gap-2 bg-primary text-on-primary py-3 px-4 rounded-full font-semibold transition-all hover:opacity-90 active:scale-95 shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined text-xl" data-icon="add">add</span>
+<span>New Entry</span>
+</button>
+<div class="mt-8 flex items-center gap-3 px-2">
+<img alt="User Profile Portrait" class="w-10 h-10 rounded-full object-cover" data-alt="portrait of a woman with soft lighting and natural background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpuiBCuWCKIRkDnVM2RbPKGqz-rdtbxRbIkHdheMGiDqF93DhZNNCamtZLQMsVmc2VIHAjcKvPeUlW-49i1ZetYU79YVndlDe5woSZTrj1OVuZNezAgsGzmm1XHSzckWyl3Zu9LnRNSWPgZrqzO9lO6ZrjF920Tf8MoxpG4FT_QrAb6cCyMo_B-0CP6C3m5ZqdldyR8qXpiGVeZFXRGyTAS0JeO2HlLUhIq4Cmf7z0A6IpgowGtQ8ERg-ve8UumwAKv-MmCYRUXyGs"/>
+<div class="flex flex-col">
+<span class="text-xs font-bold text-on-surface">Elena Vance</span>
+<span class="text-[10px] text-on-surface/40 uppercase tracking-tighter">Curator Level II</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 min-h-screen relative bg-surface-bright">
+<!-- TopNavBar Execution -->
+<header class="flex justify-between items-center w-full px-8 py-4 z-40 sticky top-0 bg-[#fbf9f5]/80 dark:bg-stone-950/80 backdrop-blur-md shadow-sm shadow-stone-200/50 dark:shadow-none">
+<div class="flex items-center gap-6">
+<span class="font-['Noto_Serif'] font-bold text-[#30332e] dark:text-stone-100 text-lg tracking-[-0.02em]">Digital Sanctuary</span>
+<div class="hidden lg:flex items-center bg-surface-container-low px-4 py-1.5 rounded-full border border-outline-variant/10">
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm placeholder:text-on-surface-variant/50 w-48 font-body" placeholder="Search thoughts..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-5">
+<button class="hidden sm:flex items-center gap-2 text-[#30332e]/70 dark:text-stone-400 font-['Noto_Serif'] text-sm hover:text-[#536441] transition-all">
+<span class="material-symbols-outlined text-lg" data-icon="auto_awesome">auto_awesome</span>
+<span>Quick Action</span>
+</button>
+<div class="flex items-center gap-3">
+<button class="p-2 text-[#30332e]/70 hover:text-[#536441] transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-[#30332e]/70 hover:text-[#536441] transition-colors">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Editorial Hero Section -->
+<section class="px-8 pt-8 pb-12">
+<div class="flex flex-col md:flex-row items-end justify-between mb-8 gap-4">
+<div class="max-w-2xl">
+<h1 class="font-headline text-5xl lg:text-6xl text-on-surface tracking-tight mb-2">Writing &amp; Reflections</h1>
+<p class="font-body text-on-surface-variant italic opacity-80 text-lg">A garden of ink where thoughts bloom at their own pace.</p>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-xs uppercase tracking-widest font-label font-bold text-primary">Volume IV</span>
+<div class="h-px w-12 bg-outline-variant/30"></div>
+</div>
+</div>
+<!-- Featured Entry -->
+<div class="relative group overflow-hidden rounded-xl bg-surface-container-low h-[500px] flex items-end">
+<img alt="Featured Article Header" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="a sun-drenched minimalist study room with a wooden desk and soft shadows from leaves on the wall" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxy7SikM53pRCGbKLJCWbXHzsdvqD1MQfd5b_pkO6a1pg8A2B1LtkDbp7d_pdmv70HfeLqiVe_PS9wv-e7ucpQP8VVjoPrFFb4fnxWnfL8hiGTgLygrRHr9yWzlN-p_uKbxm_hLWvdO2uFJww46xkHlws7Vs4UTKDFKACFT8crG2fmAHqM1GfsQkN4F8Yt9TkVvpw4-R_KqQVylHgNpXzV8Gx8G_mNviKzQH7VnGNpxMq16s3d5apnBpiM_wjadVhfp6KwfxZlmMft"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/80 via-on-surface/20 to-transparent"></div>
+<div class="relative p-10 md:p-16 w-full max-w-4xl">
+<div class="flex items-center gap-2 mb-4">
+<span class="bg-tertiary-container text-on-tertiary-container text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-full">Personal Essay</span>
+<span class="text-white/60 text-xs font-label">12 Min Read</span>
+</div>
+<h2 class="font-headline text-4xl md:text-5xl text-white leading-tight mb-6">The Art of Slow Living in a Digital Age</h2>
+<p class="text-white/80 font-body text-lg mb-8 max-w-2xl line-clamp-2">Exploring the intersections of mindfulness and modern connectivity, and how we might find silence in a world that never stops talking.</p>
+<button class="group flex items-center gap-3 text-white font-semibold">
+<span class="bg-primary p-3 rounded-full group-hover:bg-primary-fixed group-hover:text-primary transition-all">
+<span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</span>
+<span class="font-headline italic text-xl border-b border-white/30 pb-1">Begin Reading</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Filter Chips Section -->
+<section class="px-8 mb-12">
+<div class="flex items-center gap-4 overflow-x-auto hide-scrollbar pb-2">
+<button class="whitespace-nowrap bg-primary text-on-primary px-6 py-2 rounded-full text-sm font-semibold">All Entries</button>
+<button class="whitespace-nowrap bg-tertiary-container text-on-tertiary-container px-6 py-2 rounded-full text-sm font-medium hover:bg-tertiary-fixed transition-colors">Personal</button>
+<button class="whitespace-nowrap bg-tertiary-container text-on-tertiary-container px-6 py-2 rounded-full text-sm font-medium hover:bg-tertiary-fixed transition-colors">Essays</button>
+<button class="whitespace-nowrap bg-tertiary-container text-on-tertiary-container px-6 py-2 rounded-full text-sm font-medium hover:bg-tertiary-fixed transition-colors">Poetry</button>
+<button class="whitespace-nowrap bg-tertiary-container text-on-tertiary-container px-6 py-2 rounded-full text-sm font-medium hover:bg-tertiary-fixed transition-colors">Short Stories</button>
+<button class="whitespace-nowrap bg-tertiary-container text-on-tertiary-container px-6 py-2 rounded-full text-sm font-medium hover:bg-tertiary-fixed transition-colors">Reflections</button>
+</div>
+</section>
+<!-- Recent Entries Grid -->
+<section class="px-8 pb-24">
+<div class="flex items-center justify-between mb-10">
+<h3 class="font-headline text-2xl text-on-surface">Recent Entries</h3>
+<div class="flex gap-2">
+<button class="p-2 rounded-full hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+</button>
+<button class="p-2 rounded-full hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined" data-icon="list">list</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+<!-- Card 1 -->
+<div class="group flex flex-col cursor-pointer">
+<div class="aspect-[4/3] overflow-hidden rounded-lg mb-6 relative">
+<img alt="Recent Entry Thumbnail 1" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="soft focus mountain landscape at sunrise with misty layers of hills" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqvJl6ReprrmmpU3IOx7EF4F6RAJ-HlI-DWvGkeqK0hqyr5ok5ct3NTFP5hU68w0pflPT_4uuVq4O7VtHUcgeKSPo695uqRxJ1Y0asKLRs0w7MeaaURar1YwtpRKLt8835LwvZjXmgml57LnjStCtFRkQkpJvZQXVv7VXqLRSUnv3tjLBgpwqTFVucaUmcMX4XsP6RCSZauGh5jkS85tt3f3R4jwnlHTqCsW4hf7cVRRFzu9pF7_vPAy90CVr5nuACcFPHdQpit25_"/>
+<div class="absolute top-4 left-4">
+<span class="bg-surface/80 backdrop-blur-sm text-primary text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">Essay</span>
+</div>
+</div>
+<div class="flex items-center gap-3 mb-3">
+<span class="text-[10px] font-label font-bold text-on-surface-variant uppercase tracking-tighter">October 12, 2023</span>
+<div class="w-1 h-1 rounded-full bg-outline-variant"></div>
+<span class="text-[10px] font-label font-bold text-on-surface-variant uppercase tracking-tighter">5 Min Read</span>
+</div>
+<h4 class="font-headline text-2xl text-on-surface group-hover:text-primary transition-colors mb-3 leading-snug">The Architecture of Silence</h4>
+<p class="text-on-surface-variant font-body text-sm line-clamp-3 mb-4 leading-relaxed">How we build spaces of quiet within our noisy schedules and the psychological impact of intentional downtime on the creative spirit.</p>
+<div class="mt-auto flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-widest">
+<span>Read Entry</span>
+<span class="material-symbols-outlined text-sm" data-icon="arrow_right_alt">arrow_right_alt</span>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="group flex flex-col cursor-pointer">
+<div class="aspect-[4/3] overflow-hidden rounded-lg mb-6 relative">
+<img alt="Recent Entry Thumbnail 2" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="misty forest path with tall pines and soft morning light filtering through branches" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3Gr52xkbU2HrAedhRUVKvgYVavJs3VB75kKPpcoFQfNfAUqiqLI9-rXfFut3XAtdJWvzLr2hkMJVewiUcm6tw7K7lwKdbQ6LOrzzA_x1OU7CBkawPsCFN3onAHUjBtGEh6CsjvV7CD1j6jFju_tk9WuWWl59HIC-Ae0jekPYs-_BedZHH48Qq-Lfy1lrwyFq4nPxJTbNICOXsw3f1ITfx7Xl20gvShqrIPuqHzPs7eUWMGkZV6GPCzQYQw_XC6WoZSl6P65mAF0_D"/>
+<div class="absolute top-4 left-4">
+<span class="bg-surface/80 backdrop-blur-sm text-primary text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">Short Story</span>
+</div>
+</div>
+<div class="flex items-center gap-3 mb-3">
+<span class="text-[10px] font-label font-bold text-on-surface-variant uppercase tracking-tighter">October 08, 2023</span>
+<div class="w-1 h-1 rounded-full bg-outline-variant"></div>
+<span class="text-[10px] font-label font-bold text-on-surface-variant uppercase tracking-tighter">8 Min Read</span>
+</div>
+<h4 class="font-headline text-2xl text-on-surface group-hover:text-primary transition-colors mb-3 leading-snug">Whispers in the Pines</h4>
+<p class="text-on-surface-variant font-body text-sm line-clamp-3 mb-4 leading-relaxed">A narrative exploration of heritage and the stories we inherit from the landscapes that raised us, told through the lens of a traveler returning home.</p>
+<div class="mt-auto flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-widest">
+<span>Read Entry</span>
+<span class="material-symbols-outlined text-sm" data-icon="arrow_right_alt">arrow_right_alt</span>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="group flex flex-col cursor-pointer">
+<div class="aspect-[4/3] overflow-hidden rounded-lg mb-6 relative">
+<img alt="Recent Entry Thumbnail 3" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="overhead shot of an open notebook with elegant handwriting, a fountain pen, and a cup of tea" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDiRZ6cNDCxNWrLOME6SAyL84Lwqj9nrC7RNXFSN0eTV1R1XoUqCxxpTtwEjudqFMevDAyykC4j5jjJbq6-gAbMCwPLDc_VW6upOOswx2FhEhi0PKVpz5WMTrwChxVmLfEu_duAy3KQRWS-uoaeBPCRtln4BPJBHAmhZ1QxF9aTiVlPA31Bh_hdWACuMj8CAChsDuBUzwCiMRpYr2WJWbINWsItZeFAmxpx-Wxv0h-D5cOGFtQNRFvHrqLN3Qf5jnZ10j-hN9xRiENE"/>
+<div class="absolute top-4 left-4">
+<span class="bg-surface/80 backdrop-blur-sm text-primary text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">Reflection</span>
+</div>
+</div>
+<div class="flex items-center gap-3 mb-3">
+<span class="text-[10px] font-label font-bold text-on-surface-variant uppercase tracking-tighter">October 03, 2023</span>
+<div class="w-1 h-1 rounded-full bg-outline-variant"></div>
+<span class="text-[10px] font-label font-bold text-on-surface-variant uppercase tracking-tighter">3 Min Read</span>
+</div>
+<h4 class="font-headline text-2xl text-on-surface group-hover:text-primary transition-colors mb-3 leading-snug">The Pen and the Pulse</h4>
+<p class="text-on-surface-variant font-body text-sm line-clamp-3 mb-4 leading-relaxed">Brief notes on the physical act of handwriting and how the friction of paper slows down thinking to a manageable, lyrical pace.</p>
+<div class="mt-auto flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-widest">
+<span>Read Entry</span>
+<span class="material-symbols-outlined text-sm" data-icon="arrow_right_alt">arrow_right_alt</span>
+</div>
+</div>
+</div>
+<!-- Explore More Section -->
+<div class="mt-20 flex flex-col items-center">
+<div class="w-24 h-px bg-outline-variant/30 mb-8"></div>
+<button class="group flex flex-col items-center gap-4 hover:scale-105 transition-transform duration-300">
+<span class="text-on-surface-variant font-headline italic text-lg opacity-60 group-hover:opacity-100 transition-opacity">Seek deeper truths</span>
+<div class="w-16 h-16 rounded-full flex items-center justify-center border-2 border-dashed border-outline-variant group-hover:border-primary group-hover:bg-primary-container/20 transition-all">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="ink_pen">ink_pen</span>
+</div>
+<span class="font-label font-bold uppercase tracking-widest text-xs text-primary">Explore More</span>
+</button>
+</div>
+</section>
+<!-- Contextual FAB (Only on Home/Dashboard/Writing List) -->
+<button class="fixed bottom-10 right-10 w-16 h-16 bg-primary text-on-primary rounded-full shadow-[0px_12px_32px_rgba(48,51,46,0.15)] flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50">
+<span class="material-symbols-outlined text-3xl" data-icon="edit">edit</span>
+</button>
+</main>
+<!-- BottomNavBar for Mobile -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 bg-surface/90 backdrop-blur-lg flex justify-around items-center py-3 px-6 z-50 shadow-2xl">
+<button class="flex flex-col items-center gap-1 text-on-surface/40">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-[10px] font-bold">HOME</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined" data-icon="edit_note" style="font-variation-settings: 'FILL' 1;">edit_note</span>
+<span class="text-[10px] font-bold">WRITE</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface/40">
+<span class="material-symbols-outlined" data-icon="auto_stories">auto_stories</span>
+<span class="text-[10px] font-bold">READ</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface/40">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-[10px] font-bold">USER</span>
+</button>
+</nav>
+</body></html>

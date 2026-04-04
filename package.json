@@ -1,0 +1,27 @@
+{
+  "name": "hayden-web-workstation",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.0.0",
+  "scripts": {
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm --filter web build",
+    "start": "pnpm --filter web start",
+    "lint": "pnpm --filter web lint",
+    "typecheck": "pnpm --filter web typecheck",
+    "regression:web:start": "powershell -ExecutionPolicy Bypass -File scripts/start-regression-web.ps1",
+    "regression:web:stop": "powershell -ExecutionPolicy Bypass -File scripts/stop-regression-web.ps1",
+    "regression:web:status": "powershell -ExecutionPolicy Bypass -File scripts/status-regression-web.ps1",
+    "db:generate": "pnpm --filter web prisma generate",
+    "db:migrate": "pnpm --filter web prisma migrate dev",
+    "db:seed": "node prisma/seed.mjs"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "@prisma/engines",
+      "prisma",
+      "sharp"
+    ]
+  }
+}

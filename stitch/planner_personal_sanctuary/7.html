@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Planner | Komorebi Journal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Plus+Jakarta_Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary-container": "#465735",
+              "surface-dim": "#d9dbd2",
+              "surface-bright": "#fbf9f5",
+              "on-secondary-container": "#46535d",
+              "inverse-surface": "#0e0e0d",
+              "surface-container-high": "#e8e9e2",
+              "primary-fixed": "#d6e9bd",
+              "outline": "#797c75",
+              "outline-variant": "#b1b3ab",
+              "surface-container-low": "#f5f4ef",
+              "on-primary-fixed": "#344424",
+              "on-tertiary-container": "#5c523d",
+              "on-secondary": "#f5f9ff",
+              "tertiary-fixed": "#f3e4c8",
+              "on-error": "#fff7f6",
+              "primary": "#536441",
+              "inverse-primary": "#e4f8cb",
+              "primary-dim": "#475736",
+              "tertiary-fixed-dim": "#e4d6ba",
+              "on-secondary-fixed-variant": "#505d67",
+              "on-tertiary-fixed": "#49402c",
+              "surface-variant": "#e2e3db",
+              "tertiary": "#685e48",
+              "error-container": "#fe8b70",
+              "on-background": "#30332e",
+              "tertiary-dim": "#5c523d",
+              "surface-container": "#eeeee8",
+              "on-surface": "#30332e",
+              "surface-tint": "#536441",
+              "on-tertiary": "#fff8f0",
+              "inverse-on-surface": "#9e9d9a",
+              "on-primary-fixed-variant": "#50613e",
+              "error": "#9e422c",
+              "tertiary-container": "#f3e4c8",
+              "secondary-dim": "#48555f",
+              "on-primary": "#ebffd2",
+              "primary-container": "#d6e9bd",
+              "secondary-fixed-dim": "#c8d6e2",
+              "primary-fixed-dim": "#c8dbb0",
+              "background": "#fbf9f5",
+              "secondary-fixed": "#d6e4f0",
+              "on-tertiary-fixed-variant": "#665c46",
+              "on-surface-variant": "#5d605a",
+              "secondary": "#53616b",
+              "on-secondary-fixed": "#34414a",
+              "on-error-container": "#742410",
+              "error-dim": "#5c1202",
+              "surface": "#fbf9f5",
+              "secondary-container": "#d6e4f0",
+              "surface-container-lowest": "#ffffff",
+              "surface-container-highest": "#e2e3db"
+            },
+            fontFamily: {
+              "headline": ["Noto Serif"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .editorial-shadow {
+            box-shadow: 0px 12px 32px rgba(48, 51, 46, 0.04);
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e2e3db; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-background text-on-background selection:bg-primary-container selection:text-on-primary-container">
+<!-- SideNavBar Shell -->
+<aside class="fixed left-0 top-0 h-full hidden md:flex flex-col p-6 h-screen w-64 border-r-0 bg-[#eeeee8] dark:bg-stone-900 z-50">
+<div class="flex items-center gap-3 mb-10 px-2">
+<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined">filter_vintage</span>
+</div>
+<div>
+<h1 class="font-['Noto_Serif'] italic text-xl text-[#30332e] dark:text-stone-200">The Curator</h1>
+<p class="text-[10px] uppercase tracking-[0.1em] text-on-surface-variant/70">Personal Sanctuary</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Nav Items Mapping -->
+<a class="flex items-center gap-3 px-4 py-3 text-[#30332e]/60 dark:text-stone-400 font-['Plus_Jakarta_Sans'] tracking-tight text-sm hover:bg-[#f5f4ef] dark:hover:bg-stone-800 transition-colors duration-300 rounded-lg" href="#">
+<span class="material-symbols-outlined">dashboard</span> Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#536441] dark:text-[#d6e9bd] font-semibold bg-[#f5f4ef]/50 dark:bg-stone-800/50 rounded-lg font-['Plus_Jakarta_Sans'] tracking-tight text-sm" href="#">
+<span class="material-symbols-outlined">calendar_today</span> Planner
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#30332e]/60 dark:text-stone-400 font-['Plus_Jakarta_Sans'] tracking-tight text-sm hover:bg-[#f5f4ef] dark:hover:bg-stone-800 transition-colors duration-300 rounded-lg" href="#">
+<span class="material-symbols-outlined">auto_stories</span> Knowledge
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#30332e]/60 dark:text-stone-400 font-['Plus_Jakarta_Sans'] tracking-tight text-sm hover:bg-[#f5f4ef] dark:hover:bg-stone-800 transition-colors duration-300 rounded-lg" href="#">
+<span class="material-symbols-outlined">description</span> Notes
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#30332e]/60 dark:text-stone-400 font-['Plus_Jakarta_Sans'] tracking-tight text-sm hover:bg-[#f5f4ef] dark:hover:bg-stone-800 transition-colors duration-300 rounded-lg" href="#">
+<span class="material-symbols-outlined">edit_note</span> Writing
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#30332e]/60 dark:text-stone-400 font-['Plus_Jakarta_Sans'] tracking-tight text-sm hover:bg-[#f5f4ef] dark:hover:bg-stone-800 transition-colors duration-300 rounded-lg" href="#">
+<span class="material-symbols-outlined">inventory_2</span> Archive
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#30332e]/60 dark:text-stone-400 font-['Plus_Jakarta_Sans'] tracking-tight text-sm hover:bg-[#f5f4ef] dark:hover:bg-stone-800 transition-colors duration-300 rounded-lg" href="#">
+<span class="material-symbols-outlined">widgets</span> Modules
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#30332e]/60 dark:text-stone-400 font-['Plus_Jakarta_Sans'] tracking-tight text-sm hover:bg-[#f5f4ef] dark:hover:bg-stone-800 transition-colors duration-300 rounded-lg" href="#">
+<span class="material-symbols-outlined">settings</span> Settings
+            </a>
+</nav>
+<div class="mt-auto pt-6 border-t border-outline-variant/10">
+<button class="w-full py-4 bg-primary text-on-primary rounded-full font-bold flex items-center justify-center gap-2 editorial-shadow hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined">add</span> New Entry
+            </button>
+<div class="mt-6 flex items-center gap-3 px-2">
+<img alt="User Profile Portrait" class="w-10 h-10 rounded-full border-2 border-surface-container-low" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlytcCaiEtRtWCFQn28BIa44iUhZpGF-sDreVr00Ax-kY6Tp3P-v0u_xvh5yBdt9DZRiCKGUSyIYUHoE7iGrLQ_bv2fqQ-DHQYn6txKmq37AuPI69nSR1vaK4HGc7eDluYTL8iuqEwOiZ9YZ-hhDfTZIBPgLwig13yC6xRaPfhoGJ2SQlLPNi_xQs9yqCpsZydyZdqKazVd-kkx3DYsZITVyElGHT4b1fpTlUJITFHZVaWo9t8fLV4RhaJNcJ6B3UFQCZfIe6X-ZFS"/>
+<div class="overflow-hidden">
+<p class="text-sm font-semibold truncate">Elias Thorne</p>
+<p class="text-xs text-on-surface-variant truncate">Lead Curator</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="md:ml-64 min-h-screen relative">
+<!-- TopNavBar Shell -->
+<header class="flex justify-between items-center w-full px-8 py-4 z-40 bg-[#fbf9f5]/80 dark:bg-stone-950/80 backdrop-blur-md sticky top-0 shadow-sm shadow-stone-200/50 dark:shadow-none">
+<div class="flex items-center gap-6">
+<div class="hidden md:flex items-center gap-2 text-[#30332e] dark:text-stone-100 font-['Noto_Serif'] font-bold text-lg">
+                    Digital Sanctuary
+                </div>
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-sm">search</span>
+<input class="bg-surface-container-highest/40 border-none rounded-full py-2 pl-10 pr-4 text-sm w-64 focus:ring-1 focus:ring-primary/20" placeholder="Search entries..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="h-4 w-[1px] bg-outline-variant/30"></div>
+<button class="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="hidden sm:inline">Profile</span>
+</button>
+<button class="bg-primary/5 hover:bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-bold transition-all">
+                    Quick Action
+                </button>
+</div>
+</header>
+<!-- Planning Canvas -->
+<div class="max-w-7xl mx-auto px-8 py-12">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+<div>
+<h2 class="font-headline text-5xl font-bold tracking-tight text-on-background mb-2">October 2024</h2>
+<p class="font-body text-on-surface-variant italic max-w-md">"Nature does not hurry, yet everything is accomplished." — Lao Tzu</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="p-3 rounded-full bg-surface-container hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="px-6 py-2 rounded-full bg-surface-container font-semibold">Today</button>
+<button class="p-3 rounded-full bg-surface-container hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Column: Calendar -->
+<div class="lg:col-span-8 space-y-8">
+<!-- Calendar Card -->
+<div class="bg-surface-container-low rounded-xl p-8 editorial-shadow">
+<div class="grid grid-cols-7 mb-4 border-b border-outline-variant/10 pb-4">
+<div class="text-center font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Sun</div>
+<div class="text-center font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Mon</div>
+<div class="text-center font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Tue</div>
+<div class="text-center font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Wed</div>
+<div class="text-center font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Thu</div>
+<div class="text-center font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Fri</div>
+<div class="text-center font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Sat</div>
+</div>
+<div class="grid grid-cols-7 gap-px bg-outline-variant/10 rounded-lg overflow-hidden border border-outline-variant/10">
+<!-- Empty states for alignment -->
+<div class="bg-surface-container-low h-32 p-3 text-on-surface-variant/30">29</div>
+<div class="bg-surface-container-low h-32 p-3 text-on-surface-variant/30">30</div>
+<!-- Days -->
+<div class="bg-surface-container-low h-32 p-3 hover:bg-surface-bright transition-colors cursor-pointer group">
+<span class="text-sm font-medium">1</span>
+<div class="mt-2 space-y-1">
+<div class="h-1.5 w-1.5 rounded-full bg-primary mx-auto"></div>
+</div>
+</div>
+<div class="bg-surface-container-low h-32 p-3 hover:bg-surface-bright transition-colors cursor-pointer">
+<span class="text-sm font-medium">2</span>
+</div>
+<div class="bg-surface-container-low h-32 p-3 hover:bg-surface-bright transition-colors cursor-pointer">
+<span class="text-sm font-medium">3</span>
+</div>
+<div class="bg-surface-container-low h-32 p-3 hover:bg-surface-bright transition-colors cursor-pointer">
+<span class="text-sm font-medium">4</span>
+</div>
+<div class="bg-surface-container-low h-32 p-3 hover:bg-surface-bright transition-colors cursor-pointer">
+<span class="text-sm font-medium">5</span>
+</div>
+<!-- Next Row -->
+<div class="bg-surface-container-low h-32 p-3 hover:bg-surface-bright transition-colors cursor-pointer">
+<span class="text-sm font-medium">6</span>
+</div>
+<div class="bg-surface-container-low h-32 p-3 hover:bg-surface-bright transition-colors cursor-pointer">
+<span class="text-sm font-medium">7</span>
+</div>
+<!-- Active Day -->
+<div class="bg-surface-bright h-32 p-3 ring-2 ring-inset ring-primary/20 relative cursor-pointer">
+<span class="text-sm font-bold text-primary">8</span>
+<div class="mt-2 space-y-1">
+<div class="bg-primary-container text-on-primary-container text-[10px] px-2 py-0.5 rounded-full font-bold truncate">Workshop</div>
+<div class="bg-secondary-container text-on-secondary-container text-[10px] px-2 py-0.5 rounded-full font-bold truncate">Study Session</div>
+</div>
+<div class="absolute bottom-2 right-2 opacity-50">
+<span class="material-symbols-outlined text-xs">eco</span>
+</div>
+</div>
+<div class="bg-surface-container-low h-32 p-3 hover:bg-surface-bright transition-colors cursor-pointer">
+<span class="text-sm font-medium">9</span>
+</div>
+<div class="bg-surface-container-low h-32 p-3 hover:bg-surface-bright transition-colors cursor-pointer">
+<span class="text-sm font-medium">10</span>
+</div>
+<div class="bg-surface-container-low h-32 p-3 hover:bg-surface-bright transition-colors cursor-pointer">
+<span class="text-sm font-medium">11</span>
+</div>
+<div class="bg-surface-container-low h-32 p-3 hover:bg-surface-bright transition-colors cursor-pointer">
+<span class="text-sm font-medium">12</span>
+</div>
+<!-- Remaining days mock -->
+<div class="bg-surface-container-low h-32 p-3 hover:bg-surface-bright transition-colors cursor-pointer"><span class="text-sm font-medium">13</span></div>
+<div class="bg-surface-container-low h-32 p-3 hover:bg-surface-bright transition-colors cursor-pointer"><span class="text-sm font-medium">14</span></div>
+<div class="bg-surface-container-low h-32 p-3 hover:bg-surface-bright transition-colors cursor-pointer"><span class="text-sm font-medium">15</span></div>
+<div class="bg-surface-container-low h-32 p-3 hover:bg-surface-bright transition-colors cursor-pointer"><span class="text-sm font-medium">16</span></div>
+<div class="bg-surface-container-low h-32 p-3 hover:bg-surface-bright transition-colors cursor-pointer"><span class="text-sm font-medium">17</span></div>
+<div class="bg-surface-container-low h-32 p-3 hover:bg-surface-bright transition-colors cursor-pointer"><span class="text-sm font-medium">18</span></div>
+<div class="bg-surface-container-low h-32 p-3 hover:bg-surface-bright transition-colors cursor-pointer"><span class="text-sm font-medium">19</span></div>
+<div class="bg-surface-container-low h-32 p-3 hover:bg-surface-bright transition-colors cursor-pointer"><span class="text-sm font-medium">20</span></div>
+<div class="bg-surface-container-low h-32 p-3 hover:bg-surface-bright transition-colors cursor-pointer"><span class="text-sm font-medium">21</span></div>
+<div class="bg-surface-container-low h-32 p-3 hover:bg-surface-bright transition-colors cursor-pointer"><span class="text-sm font-medium">22</span></div>
+<div class="bg-surface-container-low h-32 p-3 hover:bg-surface-bright transition-colors cursor-pointer"><span class="text-sm font-medium">23</span></div>
+<div class="bg-surface-container-low h-32 p-3 hover:bg-surface-bright transition-colors cursor-pointer"><span class="text-sm font-medium">24</span></div>
+<div class="bg-surface-container-low h-32 p-3 hover:bg-surface-bright transition-colors cursor-pointer"><span class="text-sm font-medium">25</span></div>
+<div class="bg-surface-container-low h-32 p-3 hover:bg-surface-bright transition-colors cursor-pointer"><span class="text-sm font-medium">26</span></div>
+</div>
+</div>
+<!-- Task List with Priorities -->
+<div class="bg-surface-container-low rounded-xl p-8 editorial-shadow">
+<div class="flex justify-between items-center mb-8">
+<h3 class="font-headline text-2xl font-bold">Today's Focus</h3>
+<div class="flex gap-2">
+<span class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-bold rounded-full uppercase tracking-tighter">High Priority</span>
+<span class="px-3 py-1 bg-surface-container-high text-on-surface-variant text-[10px] font-bold rounded-full uppercase tracking-tighter">Tasks: 12</span>
+</div>
+</div>
+<div class="space-y-4">
+<!-- Task Row -->
+<div class="flex items-center gap-4 p-4 hover:bg-surface-bright rounded-lg transition-all border-b border-outline-variant/5">
+<button class="w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center hover:border-primary transition-colors">
+<span class="material-symbols-outlined text-[14px] opacity-0 hover:opacity-100">check</span>
+</button>
+<div class="flex-1">
+<p class="text-sm font-semibold">Refine the botanical icon set</p>
+<p class="text-[10px] text-on-surface-variant">Creative Work • 2:00 PM</p>
+</div>
+<div class="bg-primary-container/40 text-on-primary-container px-3 py-1 rounded-full text-[10px] font-bold">High</div>
+</div>
+<div class="flex items-center gap-4 p-4 hover:bg-surface-bright rounded-lg transition-all border-b border-outline-variant/5">
+<button class="w-6 h-6 rounded-full border-2 border-primary flex items-center justify-center bg-primary text-on-primary">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</button>
+<div class="flex-1">
+<p class="text-sm font-semibold line-through opacity-40">Morning meditation &amp; gratitude journal</p>
+<p class="text-[10px] text-on-surface-variant opacity-40">Well-being • 8:30 AM</p>
+</div>
+<div class="bg-tertiary-container text-on-tertiary-container px-3 py-1 rounded-full text-[10px] font-bold">Medium</div>
+</div>
+<div class="flex items-center gap-4 p-4 hover:bg-surface-bright rounded-lg transition-all border-b border-outline-variant/5">
+<button class="w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center hover:border-primary transition-colors">
+<span class="material-symbols-outlined text-[14px] opacity-0 hover:opacity-100">check</span>
+</button>
+<div class="flex-1">
+<p class="text-sm font-semibold">Weekly grocery run (Eco-market)</p>
+<p class="text-[10px] text-on-surface-variant">Errands • 5:00 PM</p>
+</div>
+<div class="bg-surface-container-highest text-on-surface-variant px-3 py-1 rounded-full text-[10px] font-bold">Low</div>
+</div>
+<div class="flex items-center gap-4 p-4 hover:bg-surface-bright rounded-lg transition-all">
+<button class="w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center hover:border-primary transition-colors">
+<span class="material-symbols-outlined text-[14px] opacity-0 hover:opacity-100">check</span>
+</button>
+<div class="flex-1">
+<p class="text-sm font-semibold">Review Q4 personal growth goals</p>
+<p class="text-[10px] text-on-surface-variant">Planning • 4:00 PM</p>
+</div>
+<div class="bg-primary-container/40 text-on-primary-container px-3 py-1 rounded-full text-[10px] font-bold">High</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Schedule & Priorities -->
+<div class="lg:col-span-4 space-y-8">
+<!-- Weekly Priorities Sidebar -->
+<div class="bg-primary-container/20 rounded-xl p-8 border border-primary/5">
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">eco</span>
+<h4 class="font-headline text-lg font-bold">Weekly Intentions</h4>
+</div>
+<ul class="space-y-6">
+<li class="flex gap-4 group">
+<div class="mt-1 w-5 h-5 rounded border border-primary/40 flex items-center justify-center group-hover:border-primary transition-all cursor-pointer">
+<div class="w-2 h-2 bg-primary rounded-sm scale-0 group-hover:scale-100 transition-transform"></div>
+</div>
+<div>
+<p class="text-sm font-bold leading-tight">Complete Autumn Sanctuary Concept</p>
+<p class="text-[11px] text-on-surface-variant mt-1 italic">3/5 Tasks completed</p>
+</div>
+</li>
+<li class="flex gap-4 group">
+<div class="mt-1 w-5 h-5 rounded border border-primary/40 flex items-center justify-center group-hover:border-primary transition-all cursor-pointer">
+<div class="w-2 h-2 bg-primary rounded-sm scale-0 group-hover:scale-100 transition-transform"></div>
+</div>
+<div>
+<p class="text-sm font-bold leading-tight">Zero-inbox by Friday Evening</p>
+<p class="text-[11px] text-on-surface-variant mt-1 italic">Focus on critical correspondence</p>
+</div>
+</li>
+<li class="flex gap-4 group">
+<div class="mt-1 w-5 h-5 rounded border border-primary flex items-center justify-center bg-primary">
+<span class="material-symbols-outlined text-on-primary text-[14px]">check</span>
+</div>
+<div>
+<p class="text-sm font-bold leading-tight line-through opacity-40">Reconnect with Old Studio Mentor</p>
+<p class="text-[11px] text-on-surface-variant mt-1 italic opacity-40">Meeting held on Monday</p>
+</div>
+</li>
+</ul>
+</div>
+<!-- Daily Timeline -->
+<div class="bg-surface-container-low rounded-xl p-8 editorial-shadow overflow-hidden relative">
+<!-- Decorative element -->
+<div class="absolute -top-12 -right-12 opacity-[0.03] rotate-12 pointer-events-none">
+<span class="material-symbols-outlined text-[200px]">potted_plant</span>
+</div>
+<h4 class="font-headline text-lg font-bold mb-8">Timeline</h4>
+<div class="relative pl-8 space-y-10">
+<!-- Line -->
+<div class="absolute left-3 top-2 bottom-2 w-px bg-outline-variant/30"></div>
+<!-- Slot -->
+<div class="relative">
+<div class="absolute -left-[23px] top-1.5 w-3 h-3 rounded-full bg-surface-container border-2 border-primary ring-4 ring-surface-container-low"></div>
+<p class="text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-widest mb-1">09:00 — 11:00</p>
+<div class="bg-surface-bright p-4 rounded-lg border-l-4 border-primary editorial-shadow">
+<p class="text-sm font-bold">Deep Creative Work</p>
+<p class="text-xs text-on-surface-variant mt-1">Sanctuary Interface Elements</p>
+</div>
+</div>
+<!-- Slot -->
+<div class="relative">
+<div class="absolute -left-[23px] top-1.5 w-3 h-3 rounded-full bg-surface-container border-2 border-outline-variant ring-4 ring-surface-container-low"></div>
+<p class="text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-widest mb-1">11:30 — 12:30</p>
+<div class="p-2">
+<p class="text-sm font-semibold">Weekly Sync Meeting</p>
+<div class="flex -space-x-2 mt-2">
+<img class="w-6 h-6 rounded-full border-2 border-surface-container-low" data-alt="Close up portrait of a young man with glasses and short brown hair" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAktQCqOzw3YS7IL3HFL4E8V9-XWddHjlWSIeW3mKlPVGKkM-9jDdWkNoMwxTqRG3o5fgrtNkXUZewoOtSOcCcVSGbue1yeh32zo8-fsAA9ObFZy0ab5kChciHYygydk49hb-7HbxSVrApdPs3YTnume7ziZ_tplEfVOw7JVBv6ErdC0Yyb5C5xZoPraK468Zdb6sn1iPDKGCpwymCb6phk2C4AmYtgAS9Uya92-Ejxw9zcYw0f5lrZpnN15m1UsztX1TRYKl0orcWo"/>
+<img class="w-6 h-6 rounded-full border-2 border-surface-container-low" data-alt="Portrait of a smiling woman with curly dark hair and professional attire" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7CNxmxiD-PAoVxYjCmYS73R79SGXhUAszEE80pfzhEIfiHnND_JzY45Kn_w-tnBH5GXsvTnVii1hlJzSuisRFqxLHr_inV5RRn3ay5cGRVPZBJmPKywyJRoYSlcU0_vX60j12bVyOiJHQV8JvRFHaNI14sDfTjrLU3jgerCXxGiypECygHof278wPWqIM8YkJqHiRYUHIWgd0exXJr05DE5n1bbk0E5YgauD39qSSTZQxiC50bgk7DaeE_1kWS43-cw9YeVstkmT6"/>
+<div class="w-6 h-6 rounded-full bg-surface-container border-2 border-surface-container-low flex items-center justify-center text-[8px] font-bold">+3</div>
+</div>
+</div>
+</div>
+<!-- Slot -->
+<div class="relative">
+<div class="absolute -left-[23px] top-1.5 w-3 h-3 rounded-full bg-surface-container border-2 border-tertiary-dim ring-4 ring-surface-container-low"></div>
+<p class="text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-widest mb-1">13:00 — 14:00</p>
+<div class="bg-tertiary-container/30 p-4 rounded-lg italic">
+<p class="text-sm font-medium">Midday Rest &amp; Reflection</p>
+</div>
+</div>
+<!-- Slot -->
+<div class="relative">
+<div class="absolute -left-[23px] top-1.5 w-3 h-3 rounded-full bg-surface-container border-2 border-outline-variant ring-4 ring-surface-container-low"></div>
+<p class="text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-widest mb-1">14:00 — 17:00</p>
+<div class="p-2">
+<p class="text-sm font-semibold">Studio Session</p>
+<p class="text-xs text-on-surface-variant mt-1">Content Batching for 'Curator' Blog</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Mini Decorative Card -->
+<div class="relative aspect-video rounded-xl overflow-hidden editorial-shadow group cursor-pointer">
+<img class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Soft focused detail of a sun-drenched wooden desk with a stack of textured handmade paper and a simple glass vase of wildflowers" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC3zggdvWSdLa1ZjhumYbr_kRYR4ue0gy6KdkEMRsqCpwK9ajOCd5XYi75nwpoeaMdQn0b2IFwR9YyHlPO3fGllhxQZJWe3IVtZqM_7COU1vaFTBYYRaBO7P48J6FKulCmo618pOxhKlEbzRWc49Kzlx0idZYsGQINr99FeuhthSldaPeVjcE7njo6_GxOF5dgjiFxMtyYJX0heyoPskIWJZ_82A0SkJc-MFVhcJ1amTDJGhxBPLUcwzhU5rxILrRod3Y-Odrow7mf6"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+<div class="absolute bottom-4 left-4 right-4">
+<p class="text-[10px] text-white/80 uppercase tracking-widest font-bold">Seasonal Note</p>
+<p class="text-white text-sm font-headline italic">The leaves are turning; remember to breathe with the change.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Floating Action Button - Supressed on Details/Transactional but active on Planner main -->
+<button class="fixed bottom-8 right-8 w-16 h-16 rounded-full bg-primary text-on-primary editorial-shadow flex items-center justify-center hover:scale-105 active:scale-95 transition-all z-50">
+<span class="material-symbols-outlined text-3xl">edit</span>
+</button>
+</main>
+<!-- Bottom Navigation for Mobile -->
+<nav class="fixed bottom-0 left-0 right-0 h-16 bg-surface/90 backdrop-blur-md flex items-center justify-around md:hidden z-50 border-none shadow-[0_-8px_24px_rgba(48,51,46,0.05)]">
+<button class="flex flex-col items-center gap-1 text-on-surface-variant/60">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Dash</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">calendar_today</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Plan</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant/60">
+<span class="material-symbols-outlined">auto_stories</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Learn</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant/60">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Set</span>
+</button>
+</nav>
+</body></html>

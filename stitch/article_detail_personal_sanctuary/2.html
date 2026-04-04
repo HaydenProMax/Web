@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Quiet Art of Digital Gardening - Komorebi Journal</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "error": "#9e422c",
+                        "on-tertiary-container": "#5c523d",
+                        "surface-container-low": "#f5f4ef",
+                        "on-secondary-fixed": "#34414a",
+                        "surface-bright": "#fbf9f5",
+                        "tertiary-fixed-dim": "#e4d6ba",
+                        "on-surface-variant": "#5d605a",
+                        "secondary-fixed": "#d6e4f0",
+                        "inverse-primary": "#e4f8cb",
+                        "on-error": "#fff7f6",
+                        "error-container": "#fe8b70",
+                        "inverse-surface": "#0e0e0d",
+                        "background": "#fbf9f5",
+                        "on-secondary-fixed-variant": "#505d67",
+                        "inverse-on-surface": "#9e9d9a",
+                        "primary-fixed-dim": "#c8dbb0",
+                        "surface-dim": "#d9dbd2",
+                        "surface": "#fbf9f5",
+                        "surface-container-highest": "#e2e3db",
+                        "secondary-dim": "#48555f",
+                        "tertiary-dim": "#5c523d",
+                        "tertiary-container": "#f3e4c8",
+                        "primary-container": "#d6e9bd",
+                        "primary-dim": "#475736",
+                        "secondary-fixed-dim": "#c8d6e2",
+                        "on-secondary-container": "#46535d",
+                        "outline": "#797c75",
+                        "primary": "#536441",
+                        "on-error-container": "#742410",
+                        "on-secondary": "#f5f9ff",
+                        "tertiary-fixed": "#f3e4c8",
+                        "on-tertiary-fixed": "#49402c",
+                        "on-primary-fixed": "#344424",
+                        "on-primary-fixed-variant": "#50613e",
+                        "surface-container-high": "#e8e9e2",
+                        "surface-tint": "#536441",
+                        "secondary-container": "#d6e4f0",
+                        "on-tertiary-fixed-variant": "#665c46",
+                        "outline-variant": "#b1b3ab",
+                        "error-dim": "#5c1202",
+                        "surface-container-lowest": "#ffffff",
+                        "on-background": "#30332e",
+                        "primary-fixed": "#d6e9bd",
+                        "on-primary-container": "#465735",
+                        "tertiary": "#685e48",
+                        "on-primary": "#ebffd2",
+                        "on-surface": "#30332e",
+                        "surface-variant": "#e2e3db",
+                        "secondary": "#53616b",
+                        "surface-container": "#eeeee8",
+                        "on-tertiary": "#fff8f0"
+                    },
+                    fontFamily: {
+                        "headline": ["Noto Serif"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Plus Jakarta Sans"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .serif-italic { font-style: italic; }
+        .central-column { max-width: 720px; }
+        .washi-gradient { background: linear-gradient(135deg, #536441, #d6e9bd); }
+        body { -webkit-font-smoothing: antialiased; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- SideNavBar (Hidden on Mobile) -->
+<aside class="hidden md:flex flex-col h-screen w-72 fixed left-0 top-0 overflow-y-auto bg-stone-100 dark:bg-stone-950 py-10 gap-8 z-50">
+<div class="px-8 mb-4">
+<h1 class="font-serif text-xl italic text-emerald-900 dark:text-emerald-50">Komorebi</h1>
+<p class="font-sans uppercase tracking-widest text-[10px] font-semibold text-stone-500">Digital Sanctuary</p>
+</div>
+<nav class="flex flex-col flex-grow">
+<a class="text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 px-8 py-3 transition-all flex items-center gap-4" href="#">
+<span class="material-symbols-outlined">eco</span>
+<span class="font-label text-[10px] uppercase tracking-widest font-semibold">Garden</span>
+</a>
+<a class="bg-stone-50 dark:bg-stone-900 text-emerald-800 dark:text-emerald-300 rounded-l-full ml-4 pl-4 py-3 font-bold transition-all flex items-center gap-4" href="#">
+<span class="material-symbols-outlined">auto_stories</span>
+<span class="font-label text-[10px] uppercase tracking-widest font-semibold">Library</span>
+</a>
+<a class="text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 px-8 py-3 transition-all flex items-center gap-4" href="#">
+<span class="material-symbols-outlined">self_improvement</span>
+<span class="font-label text-[10px] uppercase tracking-widest font-semibold">Reflections</span>
+</a>
+<a class="text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 px-8 py-3 transition-all flex items-center gap-4" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label text-[10px] uppercase tracking-widest font-semibold">Settings</span>
+</a>
+</nav>
+<div class="px-8 mt-auto">
+<button class="w-full washi-gradient text-on-primary py-4 px-6 rounded-full font-label text-sm font-bold flex items-center justify-center gap-2 shadow-[0px_12px_32px_rgba(48,51,46,0.04)]">
+<span class="material-symbols-outlined">add</span>
+                New Entry
+            </button>
+<div class="mt-8 pt-8 border-t border-stone-200/30">
+<a class="text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 py-3 flex items-center gap-4" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-label text-[10px] uppercase tracking-widest font-semibold">Archive</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="md:ml-72 min-h-screen">
+<!-- TopAppBar -->
+<header class="sticky top-0 w-full z-50 bg-stone-50/80 dark:bg-stone-900/80 backdrop-blur-xl border-none shadow-sm shadow-stone-200/50 dark:shadow-none">
+<div class="flex justify-between items-center px-8 py-4 w-full max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-4">
+<span class="text-2xl font-serif italic text-emerald-900 dark:text-emerald-50">Komorebi Journal</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex items-center gap-8 mr-8">
+<span class="text-emerald-800 dark:text-emerald-200 font-bold">Library</span>
+<span class="text-stone-500 dark:text-stone-400">Chronicle</span>
+<span class="text-stone-500 dark:text-stone-400">Atelier</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-stone-500 hover:bg-stone-200/50 rounded-full transition-colors">
+<span class="material-symbols-outlined">bookmark</span>
+</button>
+<button class="p-2 text-stone-500 hover:bg-stone-200/50 rounded-full transition-colors">
+<span class="material-symbols-outlined">share</span>
+</button>
+<button class="p-2 text-stone-500 hover:bg-stone-200/50 rounded-full transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<!-- Article Container -->
+<article class="relative">
+<!-- Hero Section -->
+<section class="w-full h-[665px] relative overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="a quiet sun-drenched wooden workspace with small green plants on a desk next to a window overlooking a soft misty forest" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7iE4yA5fxQNSiTp39aPx9JMEcxSC6yJzCDKSWP5AZVDP9jBR6-Q3tGI-IJPU0RmQkJ7QXsb72t4EImMpinF0VyzQ8x--JIxyb5CF3d4E-fbymL5rI2MsCgSYUS6IAZNvb2ma3_mr7mMs3juLdmviswBx1rMw3b6SVvHNv9ZTvgakZHxjL8EsfIBQU_qS-DsgJKcTtMgRBYkp6gRHJK7iUmeGURhEX9ODDLWQtVGZJWdnQhNL8KMW9ydK0ohsVAaD37saplhnmbGYZ"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+</section>
+<!-- Article Content -->
+<div class="relative px-6 -mt-32 pb-32">
+<div class="central-column mx-auto">
+<!-- Title & Meta -->
+<div class="bg-surface-container-low p-12 rounded-xl shadow-[0px_12px_32px_rgba(48,51,46,0.04)] mb-20 text-center">
+<span class="font-label text-[10px] tracking-[0.2em] uppercase font-bold text-primary mb-6 block">Reflections · 12 min read</span>
+<h1 class="font-headline text-5xl md:text-6xl text-on-background leading-tight mb-8 tracking-tight">The Quiet Art of Digital Gardening</h1>
+<div class="flex items-center justify-center gap-4">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="close-up portrait of a woman with a gentle expression and soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDeRN21RmS_U7hNroOycwqHP-4MLk2U4CQopqmBSTgSffDHMZk7xXvsZPpp_KWxW6aWdVxdo5RCtqcYwR8CuE-Ou6d10P6iqThXmKaZ6qEz2LyXOtvykyzxSvzYB2ax6utVeapySS2G9A0VRHV1i-7uHDHo1Fw3-uuMvj7J3IHY9C_8zNo3RtXeYjnzxrpmw8EP0OF4sF8sGcryYLosd2SYq3DlDDlz-Ye3tZnRwiGiOhh_QX_ZtGV7FPOciBXtmyHi1wCcokNs2fBW"/>
+<div class="text-left">
+<p class="text-sm font-semibold text-on-background">Elena V. Rossi</p>
+<p class="text-xs text-stone-500">Curator at Komorebi</p>
+</div>
+</div>
+</div>
+<!-- Body Text -->
+<div class="space-y-12">
+<p class="font-headline text-2xl text-on-background leading-relaxed serif-italic first-letter:text-7xl first-letter:float-left first-letter:mr-4 first-letter:font-serif first-letter:text-primary">
+                            In an age of rapid consumption and ephemeral streams, we find ourselves yearning for a space that grows at the pace of nature. Digital gardening is not just about organizing links; it is the intentional cultivation of thought over time.
+                        </p>
+<p class="font-headline text-xl leading-relaxed text-on-background/90">
+                            Unlike the high-speed conveyor belt of social media, a digital garden is a personal sanctuary. It is a space where notes are not "posts," but "seeds." Some will sprout into elaborate essays, others will remain as quiet reminders of a passing thought, and many will simply provide the rich soil from which new ideas emerge.
+                        </p>
+<!-- Pull Quote -->
+<div class="py-12 px-8 border-l-2 border-primary-container relative">
+<span class="material-symbols-outlined text-primary-container text-6xl absolute -top-4 -left-8 opacity-40">format_quote</span>
+<blockquote class="font-headline text-3xl text-primary leading-tight serif-italic">
+                                We shape our tools, and thereafter our tools shape us. In the garden, we are both the architect and the humble observer of growth.
+                            </blockquote>
+</div>
+<p class="font-headline text-xl leading-relaxed text-on-background/90">
+                            The beauty of this practice lies in its lack of performative pressure. There is no algorithm to satisfy, no "engagement" metrics to monitor. There is only the rhythm of your own curiosity.
+                        </p>
+<!-- Media Block: Video Player -->
+<div class="relative group rounded-lg overflow-hidden aspect-video bg-surface-container shadow-sm mt-16 mb-16">
+<img class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" data-alt="minimalist clean home office interior with soft sunlight and a single monitor showing architectural designs" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1kd_bFKcppEuFQIokv-DVyo_P1o7iKzxxpI9mgJ9bqsK8bPm_sGZFlDRo0cPq6wegqH7NtvPeV6pD_t6Vy-lSFHfdDkiRjmWA4n5vCEK6lFVvAUZdIqYvtC167JCPT28wgPScLpJ0Ex2HXAY5jUZg38_YRfZSpGCJQ0yHIfSLGTMqwz735sjpBUNfnAqV8ZIm088ClesOJhQrACjJ3nAMIAcuKNiorg6JQL-Z2lwIVsgwA7t0Lpzj_Ut5Hp5gLl5sG_XsxRDAbI4t"/>
+<div class="absolute inset-0 flex items-center justify-center">
+<button class="w-20 h-20 bg-surface/90 backdrop-blur-md rounded-full flex items-center justify-center text-primary shadow-xl hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+</div>
+<div class="absolute bottom-6 left-6 flex items-center gap-3">
+<span class="bg-stone-900/40 backdrop-blur-sm text-stone-100 text-[10px] px-3 py-1 rounded-full font-label uppercase tracking-widest">Atmosphere · 2:40</span>
+</div>
+</div>
+<!-- Subheading -->
+<h2 class="font-headline text-3xl text-on-background mt-20 mb-8">Intentionality Over Frequency</h2>
+<p class="font-headline text-xl leading-relaxed text-on-background/90">
+                            The "Sanctuary" we build must be protected from the noise of notification cycles. By choosing platforms that prioritize quietness—like this journal—we give our minds the permission to wander without the fear of missing out.
+                        </p>
+<!-- Image Carousel/Grid -->
+<div class="grid grid-cols-12 gap-4 my-16">
+<div class="col-span-8 overflow-hidden rounded-lg aspect-square">
+<img class="w-full h-full object-cover" data-alt="overhead view of high-quality organic paper textures and a fine-liner pen on a wooden table" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDC4IDHpabADgd2PEaX-E6E4fCm-QH3vdKdXYADUFylWjo9rkB-Lq37dsMd9S9v0vft33I6VJHUf4SGdIw35_tX1o7qCPLXmmRzuJd0PihThrionsRzoLrSa3kXsY5EcvhogXcvN4hmHyzZZl_0lewfhiWTfs_WbOdiujDH4Oi8f7MQndL-zZb6mrraPQ1wBOdbM7DdybC_2i9akWJ2V0xVEajf9muE3vdyNROWGDJ_Etrj7Q8KbnyGsDftwbnMSEhrPI4tPB0Jl__m"/>
+</div>
+<div class="col-span-4 flex flex-col gap-4">
+<div class="overflow-hidden rounded-lg flex-grow">
+<img class="w-full h-full object-cover" data-alt="soft light hitting a pile of stacked linen notebooks on a shelf" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdxWBShtL1befJQocVTYNgBD4h41-yFebRq1g6OAt3QUH6Gp2qXkWLNmF_5_8fYLzeVKZkfba5Wd-86Ww6THmAGfO96IIaoL0kF09jEy0p6plMENLj9xAD7fkPJ7XHg0QIrMgBau38foNIBJswjfNGp_PTqsM682p7BdXDjrdZSciCOVK4iHatXF8TV4icgRyr1Ke8gd_DjftAo3j71Dh69voEBrjl0yglcqrS5rSxK8QCXgi-plNpEdhbWClUz7AUBh4LR3nJ_iL0"/>
+</div>
+<div class="overflow-hidden rounded-lg flex-grow">
+<img class="w-full h-full object-cover" data-alt="a close up of a hand holding a single green leaf against a neutral beige background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvhPK6vWGm_1aCOjE0jd1dD9nrqzUjF2WA6ZyyIlyui8U5FvnpKswoQmNY2CRlo712ZZ76ULVoz65oFTGnySRDR7sPBPCPyy4hj4BtLaKemjcQho0J9HYni_JDrHTtiP5XWBk4-u16Ym9-xYDj8SwuSznZ8F1-DNHqFtxMDRewBWMpyBJAmqZf2b3ePR051kN2odZ8lRbcv07DwhrI_V3MztonaD011pV1xs4fioFIWw1wC8fmfo7SO3ckQ5yelZUDnFOz7_jz_0-O"/>
+</div>
+</div>
+<p class="col-span-12 text-center text-stone-500 font-label text-xs mt-2 uppercase tracking-widest">Fig. 1: The Tactile Elements of Reflection</p>
+</div>
+<p class="font-headline text-xl leading-relaxed text-on-background/90">
+                            To garden digitally is to accept that work is never truly "done." It is a perpetual state of becoming. We invite you to start small. Plant a single thought. Watch it change.
+                        </p>
+</div>
+<!-- Article Footer -->
+<footer class="mt-24 pt-16 border-t border-stone-200/50">
+<div class="flex flex-wrap gap-3 mb-12">
+<span class="bg-tertiary-container text-on-tertiary-container px-4 py-2 rounded-full text-xs font-label uppercase tracking-widest font-semibold">Mindfulness</span>
+<span class="bg-tertiary-container text-on-tertiary-container px-4 py-2 rounded-full text-xs font-label uppercase tracking-widest font-semibold">Digital Garden</span>
+<span class="bg-tertiary-container text-on-tertiary-container px-4 py-2 rounded-full text-xs font-label uppercase tracking-widest font-semibold">Slow Living</span>
+</div>
+<div class="bg-surface-container rounded-xl p-8 flex flex-col md:flex-row items-center gap-8">
+<div class="text-center md:text-left flex-grow">
+<h4 class="font-headline text-2xl mb-2">Join the Sanctuary</h4>
+<p class="text-stone-600 text-sm">Get our weekly curator's digest of thoughts and tools for intentional living.</p>
+</div>
+<div class="flex w-full md:w-auto gap-4">
+<input class="bg-surface-container-highest border-none rounded-full px-6 py-3 text-sm focus:ring-2 focus:ring-primary/20 w-full md:w-64" placeholder="email@address.com" type="email"/>
+<button class="bg-primary text-on-primary px-8 py-3 rounded-full text-sm font-bold font-label whitespace-nowrap">Subscribe</button>
+</div>
+</div>
+</footer>
+</div>
+</div>
+</article>
+<!-- Related Content -->
+<section class="bg-stone-100/50 py-24 px-8">
+<div class="max-w-screen-xl mx-auto">
+<div class="flex justify-between items-end mb-12">
+<div>
+<span class="font-label text-[10px] uppercase tracking-widest font-bold text-primary">Further Reading</span>
+<h3 class="font-headline text-4xl mt-2">More from the Archive</h3>
+</div>
+<button class="text-primary font-bold font-label flex items-center gap-2 hover:translate-x-2 transition-transform">
+                        Explore All <span class="material-symbols-outlined">trending_flat</span>
+</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Related Card 1 -->
+<div class="group cursor-pointer">
+<div class="rounded-lg overflow-hidden mb-6 aspect-[4/5] shadow-sm">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="a minimalist workspace with a single laptop and a mug of coffee in soft morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_vSvdkjbuxI0lcD0sNZ0YvT4J7OnsPRnVijyEMcv-bEXogsZQ9Bv4UlMbF2KF5lgH-cSH66WFrJliQNtlFcI1uXZBC-QgPuUjY6tNpTh0qI8AAxXvRgKd3RCVauZIy2Pjo0KzHO_9LqIrecscLqmsN6XCOG2lZZP5B48CGqhJh3Q2wRjeqTSC9wcxWEf73CH2r79BmfTsDgaJNfmmTeqGc2nT1lf7ev4bQWpn6KilSgzxUQLfjVFdH53hTyhO_12CPaRow8akqdrG"/>
+</div>
+<span class="font-label text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-2 block">Essays</span>
+<h4 class="font-headline text-xl group-hover:text-primary transition-colors">The Architecture of Silence</h4>
+</div>
+<!-- Related Card 2 -->
+<div class="group cursor-pointer">
+<div class="rounded-lg overflow-hidden mb-6 aspect-[4/5] shadow-sm">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="misty mountain range at sunrise with deep green valleys" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASxZPgMKnmNrldfKsDgpcCEVflkSWFJDFI-xa7ZN4f1nqrdxPFDhvaBaixDRVbrXn3PRxalFPqQ5vyLZ6U9P2eWsSsm6-7B7uoQUetxwQlummN3rRzhozL4LT3BsSt1lW3-akbnkqZtoeT6DRqfhaCHyFUkyzJq3P1PDXZ4WJRjeHQrcd-1f2zb4_PF3E0BIecwpuTNroRvQHM10Ma8PyRmJ9mYc-nEuJonS_ptx-KyJC_gbfkSR2Qe2yvJlVh14wMLFAoRvTQCEiL"/>
+</div>
+<span class="font-label text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-2 block">Curation</span>
+<h4 class="font-headline text-xl group-hover:text-primary transition-colors">Nature's Color Palette for UI</h4>
+</div>
+<!-- Related Card 3 -->
+<div class="group cursor-pointer">
+<div class="rounded-lg overflow-hidden mb-6 aspect-[4/5] shadow-sm">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="close up of a ceramic pot with a small sprout in soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwQW13eBi7pv8X99hcPfqTpqeWcXb5gJ0bCQqAjsvXiB2r_SO8UMKRoqRcQG6BEBVQdUyvzdDUghf0Qmj5UwU5aDyv_FjlTNcMXKW5mUZWcoPQmMlrcEtf3gnGM6UaPTy-TyZc1hZAkUkZy6Nuu2Zosuiw70dus6HLttVMsll8HJ0UxVC1mvAHXk9mIF5oyP1RKjnCuxIHli-51vIF9btzDYfM37DoFxDtkQ1iChBXmbRMqp_UvO7OcYTVwaqpdf-3sWpXCMDeKjn4"/>
+</div>
+<span class="font-label text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-2 block">Practices</span>
+<h4 class="font-headline text-xl group-hover:text-primary transition-colors">Morning Rituals of the Artist</h4>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Navigation Shell (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 bg-stone-50/90 backdrop-blur-xl border-none shadow-2xl py-4 px-8 flex justify-around items-center z-50">
+<a class="text-stone-400" href="#">
+<span class="material-symbols-outlined">eco</span>
+</a>
+<a class="text-emerald-800 font-bold flex flex-col items-center" href="#">
+<span class="material-symbols-outlined">auto_stories</span>
+<span class="text-[8px] uppercase tracking-widest mt-1">Library</span>
+</a>
+<a class="text-stone-400" href="#">
+<span class="material-symbols-outlined">self_improvement</span>
+</a>
+<a class="text-stone-400" href="#">
+<span class="material-symbols-outlined">settings</span>
+</a>
+</nav>
+</body></html>

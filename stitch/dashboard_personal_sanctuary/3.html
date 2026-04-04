@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Digital Sanctuary | Personal Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Plus+Jakarta+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "on-error": "#fff7f6",
+                "surface-container-lowest": "#ffffff",
+                "on-primary-container": "#465735",
+                "tertiary-container": "#f3e4c8",
+                "on-surface-variant": "#5d605a",
+                "surface-container-high": "#e8e9e2",
+                "outline-variant": "#b1b3ab",
+                "on-secondary-fixed": "#34414a",
+                "inverse-on-surface": "#9e9d9a",
+                "surface-container": "#eeeee8",
+                "on-tertiary-fixed": "#49402c",
+                "on-secondary": "#f5f9ff",
+                "tertiary-fixed-dim": "#e4d6ba",
+                "error-container": "#fe8b70",
+                "on-primary-fixed-variant": "#50613e",
+                "primary-container": "#d6e9bd",
+                "secondary-dim": "#48555f",
+                "secondary-container": "#d6e4f0",
+                "tertiary-fixed": "#f3e4c8",
+                "primary-fixed-dim": "#c8dbb0",
+                "error-dim": "#5c1202",
+                "on-primary-fixed": "#344424",
+                "surface-bright": "#fbf9f5",
+                "on-tertiary-container": "#5c523d",
+                "secondary": "#53616b",
+                "inverse-primary": "#e4f8cb",
+                "surface-container-low": "#f5f4ef",
+                "surface-variant": "#e2e3db",
+                "secondary-fixed-dim": "#c8d6e2",
+                "on-tertiary-fixed-variant": "#665c46",
+                "secondary-fixed": "#d6e4f0",
+                "tertiary-dim": "#5c523d",
+                "primary": "#536441",
+                "error": "#9e422c",
+                "on-tertiary": "#fff8f0",
+                "surface-tint": "#536441",
+                "surface": "#fbf9f5",
+                "primary-dim": "#475736",
+                "background": "#fbf9f5",
+                "on-surface": "#30332e",
+                "inverse-surface": "#0e0e0d",
+                "on-background": "#30332e",
+                "tertiary": "#685e48",
+                "surface-dim": "#d9dbd2",
+                "on-primary": "#ebffd2",
+                "surface-container-highest": "#e2e3db",
+                "primary-fixed": "#d6e9bd",
+                "outline": "#797c75",
+                "on-secondary-container": "#46535d",
+                "on-secondary-fixed-variant": "#505d67",
+                "on-error-container": "#742410"
+              },
+              fontFamily: {
+                "headline": ["Noto Serif"],
+                "body": ["Plus Jakarta Sans"],
+                "label": ["Plus Jakarta Sans"]
+              },
+              borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #fbf9f5;
+            color: #30332e;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- SideNavBar (Authority Source: JSON) -->
+<aside class="fixed left-0 top-0 h-full hidden md:flex flex-col p-6 h-screen w-64 border-r-0 bg-[#eeeee8] dark:bg-stone-900 z-50">
+<div class="mb-10 px-2">
+<h1 class="font-['Noto_Serif'] italic text-xl text-[#30332e] dark:text-stone-200">The Curator</h1>
+<p class="font-['Plus_Jakarta_Sans'] tracking-tight text-xs text-[#30332e]/60 dark:text-stone-400 mt-1">Personal Sanctuary</p>
+</div>
+<button class="mb-8 w-full bg-primary py-3 px-4 rounded-full text-on-primary font-medium flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:shadow-primary/10 active:scale-95">
+<span class="material-symbols-outlined text-lg">edit</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm">New Entry</span>
+</button>
+<nav class="flex-1 space-y-1">
+<!-- Active Tab: Dashboard -->
+<a class="flex items-center gap-3 px-4 py-3 text-[#536441] dark:text-[#d6e9bd] font-semibold bg-[#f5f4ef]/50 dark:bg-stone-800/50 rounded-lg transition-colors duration-300" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#30332e]/60 dark:text-stone-400 hover:bg-[#f5f4ef] dark:hover:bg-stone-800 transition-colors duration-300 rounded-lg" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm">Planner</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#30332e]/60 dark:text-stone-400 hover:bg-[#f5f4ef] dark:hover:bg-stone-800 transition-colors duration-300 rounded-lg" href="#">
+<span class="material-symbols-outlined">auto_stories</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm">Knowledge</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#30332e]/60 dark:text-stone-400 hover:bg-[#f5f4ef] dark:hover:bg-stone-800 transition-colors duration-300 rounded-lg" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm">Notes</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#30332e]/60 dark:text-stone-400 hover:bg-[#f5f4ef] dark:hover:bg-stone-800 transition-colors duration-300 rounded-lg" href="#">
+<span class="material-symbols-outlined">edit_note</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm">Writing</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#30332e]/60 dark:text-stone-400 hover:bg-[#f5f4ef] dark:hover:bg-stone-800 transition-colors duration-300 rounded-lg" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm">Archive</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 flex items-center gap-3 px-2">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high">
+<img class="w-full h-full object-cover" data-alt="close-up portrait of a thoughtful man in a linen shirt looking away with soft natural window lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBEzVsvIq0bjeq0Kj--gdnD3K_AaHRJAOrsOMmMq3nljoWC1BREBdWYRp69oeiIYBx1GupCl16iggAzR-ZzJmOKT3pg3o1YcIqHh0AJqPPSyznZqdkK3V41oFMByMze5d4VQg8NDJDEEHcCbQ4VEQIPZjPCWPACfIf3mphhV98OGo65U0MYi5tfRp-1MdkpXs4gnPMYkVVy0wtZdanCa32p-ul6AI9UnZLHSg08wBsS1dnqOUY2cT3RVEhX-H4DRDvKNU5FPiGxOJMm"/>
+</div>
+<div>
+<p class="font-semibold text-xs text-on-surface">Julian Vane</p>
+<p class="text-[10px] text-on-surface/50">Curation Mode</p>
+</div>
+<button class="ml-auto text-[#30332e]/60 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</aside>
+<!-- Main Wrapper -->
+<div class="md:pl-64 flex flex-col min-h-screen">
+<!-- TopNavBar (Authority Source: JSON) -->
+<header class="flex justify-between items-center w-full px-8 py-4 z-40 bg-[#fbf9f5]/80 dark:bg-stone-950/80 backdrop-blur-md docked full-width top-0 sticky shadow-sm shadow-stone-200/50 dark:shadow-none">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">eco</span>
+<span class="font-['Noto_Serif'] font-bold text-[#30332e] dark:text-stone-100 text-lg">Digital Sanctuary</span>
+</div>
+<div class="hidden lg:flex relative items-center">
+<span class="material-symbols-outlined absolute left-3 text-on-surface/40 text-sm">search</span>
+<input class="bg-surface-container-low border-none rounded-full pl-10 pr-4 py-2 text-sm w-64 focus:ring-1 focus:ring-primary/20 placeholder:text-on-surface/30" placeholder="Search the sanctuary..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-[#30332e]/70 hover:text-[#536441] transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="hidden sm:block text-sm font-medium text-on-surface-variant hover:text-primary transition-all">Quick Action</button>
+<div class="h-8 w-8 rounded-full overflow-hidden border border-outline-variant/20">
+<img class="w-full h-full object-cover" data-alt="close-up portrait of a thoughtful man in a linen shirt looking away with soft natural window lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCauOfZ0pezjSDwjCAHIpVliBzel4WHMvSL0qmH6aEOheOI8CokBB-3qlL8qvYXRtrRhPFjvswLM1ZGYqz08-ufGJr1Ss9l1BlVBUdjB_ZVn_7KFj3RHUmiSn-wNf1TWT8BcWq2vISUfhphAx1boX9FMpTE_hmYa94FCCio4xh-kX4cMVwGrxUTFj5V5mdkZLEEt36nJ7T8AcpCrBpCXuzVwoQovBfmTUzF7v_gZ2Jq2TK5u3NEJSDMkmqL7vqCjYd0WKwmsqGJfcGN"/>
+</div>
+</div>
+</header>
+<!-- Content Area -->
+<main class="flex-1 overflow-y-auto px-6 py-12 md:px-12 lg:px-20 space-y-16 max-w-7xl mx-auto w-full">
+<!-- 1. Welcome Area -->
+<section class="animate-in fade-in slide-in-from-bottom-4 duration-700">
+<div class="flex items-center gap-4 mb-2 text-primary">
+<span class="material-symbols-outlined">light_mode</span>
+<span class="font-medium tracking-widest text-[10px] uppercase opacity-70">Tuesday, October 24th</span>
+</div>
+<h2 class="font-headline text-5xl md:text-6xl text-on-surface tracking-tight mb-4">Good morning, Julian.</h2>
+<p class="font-body text-on-surface-variant text-lg max-w-xl leading-relaxed">
+                    Take a deep breath. Your sanctuary is quiet and ready for your thoughts today. Focus on what brings you clarity.
+                </p>
+</section>
+<!-- 2. Quick Actions -->
+<section class="flex flex-wrap gap-4">
+<button class="bg-surface-container-low px-6 py-4 rounded-xl flex items-center gap-3 transition-all hover:bg-primary-container group">
+<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">add_task</span>
+<span class="text-sm font-semibold text-on-surface-variant group-hover:text-on-primary-container">New Task</span>
+</button>
+<button class="bg-surface-container-low px-6 py-4 rounded-xl flex items-center gap-3 transition-all hover:bg-primary-container group">
+<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">note_add</span>
+<span class="text-sm font-semibold text-on-surface-variant group-hover:text-on-primary-container">New Note</span>
+</button>
+<button class="bg-surface-container-low px-6 py-4 rounded-xl flex items-center gap-3 transition-all hover:bg-primary-container group">
+<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">self_improvement</span>
+<span class="text-sm font-semibold text-on-surface-variant group-hover:text-on-primary-container">Journal Entry</span>
+</button>
+</section>
+<!-- 3 & 4. Focus & Schedule Bento Grid -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Today's Focus (Primary Card) -->
+<div class="lg:col-span-7 bg-surface-container-low rounded-xl p-8 relative overflow-hidden">
+<div class="flex justify-between items-center mb-8">
+<h3 class="font-headline text-2xl text-on-surface">Today's Focus</h3>
+<span class="text-xs font-semibold text-primary px-3 py-1 bg-primary-container/30 rounded-full">4 tasks left</span>
+</div>
+<ul class="space-y-6">
+<li class="flex items-center gap-4 group cursor-pointer">
+<div class="w-6 h-6 rounded-full border-2 border-primary/30 flex items-center justify-center transition-colors group-hover:border-primary"></div>
+<span class="text-on-surface text-lg">Review garden design concepts</span>
+</li>
+<li class="flex items-center gap-4 group cursor-pointer">
+<div class="w-6 h-6 rounded-full border-2 border-primary/30 flex items-center justify-center transition-colors group-hover:border-primary"></div>
+<span class="text-on-surface text-lg">Draft monthly curator report</span>
+</li>
+<li class="flex items-center gap-4 group cursor-pointer">
+<div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary text-sm">check</span>
+</div>
+<span class="text-on-surface-variant/50 line-through text-lg">Morning meditation</span>
+</li>
+<li class="flex items-center gap-4 group cursor-pointer">
+<div class="w-6 h-6 rounded-full border-2 border-primary/30 flex items-center justify-center transition-colors group-hover:border-primary"></div>
+<span class="text-on-surface text-lg">Order new linen journals</span>
+</li>
+</ul>
+<div class="mt-10 pt-6 border-t border-outline-variant/10">
+<button class="text-primary text-sm font-semibold flex items-center gap-2 hover:translate-x-1 transition-transform">
+                            View all tasks <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Recent Schedule -->
+<div class="lg:col-span-5 flex flex-col gap-8">
+<div class="bg-surface-container rounded-xl p-8 flex-1">
+<h3 class="font-headline text-2xl text-on-surface mb-6">Coming Up</h3>
+<div class="space-y-6">
+<div class="flex gap-4">
+<div class="text-center min-w-[3rem]">
+<p class="text-[10px] font-bold text-on-surface/40 uppercase">Oct</p>
+<p class="text-xl font-headline text-on-surface">25</p>
+</div>
+<div>
+<h4 class="font-semibold text-on-surface">Creative Workshop</h4>
+<p class="text-sm text-on-surface-variant">10:00 AM • Virtual Studio</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="text-center min-w-[3rem]">
+<p class="text-[10px] font-bold text-on-surface/40 uppercase">Oct</p>
+<p class="text-xl font-headline text-on-surface">27</p>
+</div>
+<div>
+<h4 class="font-semibold text-on-surface">Deep Work Session</h4>
+<p class="text-sm text-on-surface-variant">02:00 PM • Library Office</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Module Shortcuts -->
+<div class="grid grid-cols-2 gap-4">
+<a class="bg-tertiary-container/30 p-4 rounded-xl flex flex-col gap-2 hover:bg-tertiary-container/50 transition-colors" href="#">
+<span class="material-symbols-outlined text-tertiary">auto_stories</span>
+<span class="text-xs font-bold text-tertiary uppercase tracking-wider">Library</span>
+</a>
+<a class="bg-secondary-container/30 p-4 rounded-xl flex flex-col gap-2 hover:bg-secondary-container/50 transition-colors" href="#">
+<span class="material-symbols-outlined text-secondary">architecture</span>
+<span class="text-xs font-bold text-secondary uppercase tracking-wider">Modules</span>
+</a>
+</div>
+</div>
+</section>
+<!-- 5. Recent Notes -->
+<section>
+<div class="flex justify-between items-end mb-8">
+<div>
+<h3 class="font-headline text-3xl text-on-surface">Recent Reflections</h3>
+<p class="text-on-surface-variant text-sm mt-2">Captured in the last 48 hours</p>
+</div>
+<button class="text-primary font-semibold text-sm">View Archive</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="bg-surface-container-low p-6 rounded-xl hover:-translate-y-1 transition-transform cursor-pointer border border-transparent hover:border-outline-variant/10">
+<span class="text-[10px] font-bold text-primary uppercase tracking-widest mb-3 block">Philosophy</span>
+<h4 class="font-headline text-xl text-on-surface mb-3">On Wabi-Sabi and Digital Minimalims</h4>
+<p class="text-on-surface-variant text-sm line-clamp-3 leading-relaxed">The beauty of the unfinished and the imperfect. How do we apply this to a screen that demands pixel perfection every single...</p>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl hover:-translate-y-1 transition-transform cursor-pointer border border-transparent hover:border-outline-variant/10">
+<span class="text-[10px] font-bold text-primary uppercase tracking-widest mb-3 block">Seedling</span>
+<h4 class="font-headline text-xl text-on-surface mb-3">Botanical Sketching Notes</h4>
+<p class="text-on-surface-variant text-sm line-clamp-3 leading-relaxed">Focus on the veins of the leaf. Use light charcoal strokes first. The asymmetry is where the life resides. Remember to keep...</p>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl hover:-translate-y-1 transition-transform cursor-pointer border border-transparent hover:border-outline-variant/10">
+<span class="text-[10px] font-bold text-primary uppercase tracking-widest mb-3 block">Quotes</span>
+<h4 class="font-headline text-xl text-on-surface mb-3">The Quiet Mind collected</h4>
+<p class="text-on-surface-variant text-sm line-clamp-3 leading-relaxed">"The more tranquil a man becomes, the greater is his success, his influence, his power for good." — James Allen. A reminder for...</p>
+</div>
+</div>
+</section>
+<!-- 6. Latest Writing -->
+<section class="pb-20">
+<div class="flex justify-between items-end mb-8">
+<div>
+<h3 class="font-headline text-3xl text-on-surface">Long-form Writing</h3>
+<p class="text-on-surface-variant text-sm mt-2">Drafts currently in progress</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="group cursor-pointer">
+<div class="aspect-[16/9] w-full rounded-xl overflow-hidden mb-4 bg-surface-container relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="zen aesthetic workspace with a single laptop, a ceramic cup of tea, and a small green plant in soft morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzgFh9dW-LTRbOpxAIqsdzoSoyr1RBwBU7DjBYqnLq3am9bV6F1vvtKM16vLlx3Ryq0uNr2_QsazxLvLnJTX4msIXApgtX9xe9qN1CeZn4OiqhQBtgoThYqi6UgIELfx-d-KzurjPnhtgXvyXaHIXyrBf4FlRo32ejSfmg2t8gY3FMg7V4hqrSY4YWxJ3AaKt09dv5Drww95tkCNSC1_xfY_ouGOBrKY9fgGhLrXYtE9XHZigVS9RkzHe8E5fKLl_-zwbl8CeT7Da1"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</div>
+<h4 class="font-headline text-2xl text-on-surface mb-2 group-hover:text-primary transition-colors">Designing a Life of Intent</h4>
+<p class="text-on-surface-variant leading-relaxed line-clamp-2">Exploring the intersection of architectural principles and daily habits. What happens when we treat our schedule like a physical floor plan?</p>
+</div>
+<div class="group cursor-pointer">
+<div class="aspect-[16/9] w-full rounded-xl overflow-hidden mb-4 bg-surface-container relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="dense misty forest with tall evergreen trees and soft morning fog creating a mysterious ethereal atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBN0om9ki5E30Qkdnc8VVzuDHO8wa6weacSvaH8bmPqYvGZ6cnfvKCWwpc75LMBDg_TkogyrA3iwaG7FEgSyzkzjsNkqL7dy0i1Fd9v6s80PAr0q7Z9PIZFrq-thoB0XVQKF7TcNX6w7PLRcA3LqAyxa5p1CMyjgMiEnOxErVT-JLjlsK3PVKGEKclXZEmqXWy-ueE9t5loFkqUeYZbunRxsCJLfbgV34If_t6mZ9q3XLk1_pTQmnzqxORwy8bO2eoKZSnQg0CIqvKz"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</div>
+<h4 class="font-headline text-2xl text-on-surface mb-2 group-hover:text-primary transition-colors">The Solitude of the Woods</h4>
+<p class="text-on-surface-variant leading-relaxed line-clamp-2">A reflection on my recent walk through the northern trails. The silence there wasn't empty; it was full of ancient stories told by the wind.</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Contextual FAB (Requirement Check: Dashboard Context) -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition-all md:hidden">
+<span class="material-symbols-outlined">add</span>
+</button>
+<!-- BottomNavBar (Authority Source: JSON Context - Responsive Pivot) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-[#fbf9f5]/90 backdrop-blur-lg px-6 py-3 flex justify-between items-center z-50">
+<a class="flex flex-col items-center gap-1 text-[#536441]" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] font-bold">Dashboard</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-[#30332e]/60" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="text-[10px]">Planner</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-[#30332e]/60" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="text-[10px]">Notes</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-[#30332e]/60" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-[10px]">Settings</span>
+</a>
+</nav>
+</div>
+</body></html>

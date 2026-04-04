@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Komorebi Journal - Explore Modules</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Plus+Jakarta+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary": "#53616b",
+              "inverse-primary": "#e4f8cb",
+              "secondary-fixed": "#d6e4f0",
+              "tertiary-fixed": "#f3e4c8",
+              "outline-variant": "#b1b3ab",
+              "error-dim": "#5c1202",
+              "primary-fixed-dim": "#c8dbb0",
+              "on-error-container": "#742410",
+              "secondary-dim": "#48555f",
+              "on-surface": "#30332e",
+              "on-background": "#30332e",
+              "error-container": "#fe8b70",
+              "error": "#9e422c",
+              "surface-container-low": "#f5f4ef",
+              "secondary-fixed-dim": "#c8d6e2",
+              "surface-tint": "#536441",
+              "surface-container": "#eeeee8",
+              "surface-container-high": "#e8e9e2",
+              "tertiary": "#685e48",
+              "inverse-surface": "#0e0e0d",
+              "primary": "#536441",
+              "on-tertiary": "#fff8f0",
+              "primary-container": "#d6e9bd",
+              "inverse-on-surface": "#9e9d9a",
+              "surface-variant": "#e2e3db",
+              "tertiary-dim": "#5c523d",
+              "on-secondary": "#f5f9ff",
+              "primary-dim": "#475736",
+              "background": "#fbf9f5",
+              "primary-fixed": "#d6e9bd",
+              "tertiary-container": "#f3e4c8",
+              "surface-dim": "#d9dbd2",
+              "surface-container-highest": "#e2e3db",
+              "outline": "#797c75",
+              "on-error": "#fff7f6",
+              "on-primary-fixed-variant": "#50613e",
+              "secondary-container": "#d6e4f0",
+              "on-tertiary-container": "#5c523d",
+              "on-primary-fixed": "#344424",
+              "on-tertiary-fixed-variant": "#665c46",
+              "surface": "#fbf9f5",
+              "surface-container-lowest": "#ffffff",
+              "on-tertiary-fixed": "#49402c",
+              "on-secondary-container": "#46535d",
+              "on-primary-container": "#465735",
+              "surface-bright": "#fbf9f5",
+              "tertiary-fixed-dim": "#e4d6ba",
+              "on-primary": "#ebffd2",
+              "on-surface-variant": "#5d605a",
+              "on-secondary-fixed": "#34414a",
+              "on-secondary-fixed-variant": "#505d67"
+            },
+            fontFamily: {
+              "headline": ["Noto Serif"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #fbf9f5; }
+      .font-serif { font-family: 'Noto Serif', serif; }
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        vertical-align: middle;
+      }
+      .custom-glass {
+        background: rgba(251, 249, 245, 0.8);
+        backdrop-filter: blur(20px);
+      }
+      .asymmetric-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 2.75rem;
+      }
+      @media (max-width: 1024px) {
+        .asymmetric-grid { grid-template-columns: 1fr; }
+      }
+    </style>
+</head>
+<body class="text-on-background selection:bg-primary-container selection:text-on-primary-container">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full flex flex-col p-6 z-50 bg-stone-100/50 dark:bg-stone-950/50 h-screen w-64 border-r-0 hidden md:flex">
+<div class="mb-10 px-4">
+<h1 class="font-serif text-xl italic text-lime-900 dark:text-lime-100">Komorebi</h1>
+<p class="font-sans text-[10px] tracking-widest uppercase opacity-60">Digital Curator</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-stone-600 dark:text-stone-400 hover:bg-stone-200/30 transition-transform duration-200 hover:translate-x-1 font-sans text-sm tracking-wide uppercase" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-stone-600 dark:text-stone-400 hover:bg-stone-200/30 transition-transform duration-200 hover:translate-x-1 font-sans text-sm tracking-wide uppercase" href="#">
+<span class="material-symbols-outlined" data-icon="event_note">event_note</span>
+<span>Planner</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-stone-600 dark:text-stone-400 hover:bg-stone-200/30 transition-transform duration-200 hover:translate-x-1 font-sans text-sm tracking-wide uppercase" href="#">
+<span class="material-symbols-outlined" data-icon="local_library">local_library</span>
+<span>Knowledge</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-stone-600 dark:text-stone-400 hover:bg-stone-200/30 transition-transform duration-200 hover:translate-x-1 font-sans text-sm tracking-wide uppercase" href="#">
+<span class="material-symbols-outlined" data-icon="edit_note">edit_note</span>
+<span>Notes</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-stone-600 dark:text-stone-400 hover:bg-stone-200/30 transition-transform duration-200 hover:translate-x-1 font-sans text-sm tracking-wide uppercase" href="#">
+<span class="material-symbols-outlined" data-icon="auto_stories">auto_stories</span>
+<span>Writing</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-stone-600 dark:text-stone-400 hover:bg-stone-200/30 transition-transform duration-200 hover:translate-x-1 font-sans text-sm tracking-wide uppercase" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span>Archive</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-lime-100/50 dark:bg-lime-900/20 text-lime-900 dark:text-lime-200 rounded-full font-semibold font-sans text-sm tracking-wide uppercase" href="#">
+<span class="material-symbols-outlined" data-icon="extension">extension</span>
+<span>Modules</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-stone-600 dark:text-stone-400 hover:bg-stone-200/30 transition-transform duration-200 hover:translate-x-1 font-sans text-sm tracking-wide uppercase" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-outline-variant/10">
+<button class="w-full py-4 bg-primary text-on-primary rounded-full font-medium text-sm flex items-center justify-center gap-2 mb-6 shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+                New Sprout
+            </button>
+<div class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-4 py-2 text-xs text-stone-500 uppercase tracking-widest hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined scale-75" data-icon="help_outline">help_outline</span>
+                    Help
+                </a>
+<a class="flex items-center gap-3 px-4 py-2 text-xs text-stone-500 uppercase tracking-widest hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined scale-75" data-icon="shield">shield</span>
+                    Privacy
+                </a>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 min-h-screen">
+<!-- TopNavBar -->
+<header class="sticky top-0 z-40 flex justify-between items-center w-full px-8 py-4 bg-stone-50/80 dark:bg-stone-900/80 backdrop-blur-xl shadow-sm shadow-stone-200/50 dark:shadow-none">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-serif italic text-lime-900 dark:text-lime-100">Komorebi Journal</span>
+<nav class="hidden lg:flex items-center gap-6">
+<a class="text-stone-500 dark:text-stone-400 font-medium font-serif tracking-tight hover:text-lime-700 dark:hover:text-lime-200 transition-colors" href="#">Explore</a>
+<a class="text-lime-800 dark:text-lime-300 font-bold border-b-2 border-lime-700 font-serif tracking-tight" href="#">Modules</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<button class="p-2 text-stone-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-stone-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="spa">spa</span>
+</button>
+</div>
+<div class="h-10 w-10 rounded-full overflow-hidden border-2 border-white shadow-sm">
+<img class="w-full h-full object-cover" data-alt="close-up portrait of a woman with a gentle expression and natural lighting in a studio setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvXj0MjwnCcZ3kSQhq7Rqoz6sq0wyM0Kmhg5Lr_u65Zocx8pwy2d6iph8Jo7tFZmP7YqAgJAbfNbxaAZiBKj_z93ZYGUI9bBtytZzQwBjaGMfExuq_pekoyX8PmHo33IBuayO7d8krpDiJU5UrlzL8TaULKgFMSoiLJKci8y5BFbP43E8w5nh_TRzo4KKmcQsEcXibBA6ChyYN41bC_21k8HFOxdcBbphQRl10788bzYsnMwSIy0hBOEajiR91OCk_w56PJ5HQY5GB"/>
+</div>
+</div>
+</header>
+<!-- Page Hero -->
+<section class="px-8 py-16 max-w-7xl mx-auto">
+<div class="mb-20">
+<h2 class="text-5xl font-serif text-on-surface mb-4 leading-tight">Module Garden</h2>
+<p class="text-xl text-on-surface-variant max-w-2xl font-light leading-relaxed">
+                    Cultivate your digital sanctuary by adding intentional spaces for your thoughts, tasks, and creative output.
+                </p>
+</div>
+<!-- Active Modules Section -->
+<div class="mb-24">
+<div class="flex items-baseline justify-between mb-10">
+<h3 class="text-2xl font-serif text-on-surface">Currently Flourishing</h3>
+<span class="text-xs tracking-[0.2em] uppercase text-outline">4 Active Modules</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+<!-- Dashboard -->
+<div class="group bg-surface-container-low p-8 rounded-xl transition-all duration-500 hover:bg-white hover:shadow-2xl hover:shadow-stone-200/40 relative overflow-hidden">
+<div class="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity">
+<span class="material-symbols-outlined text-9xl" data-icon="grid_view">grid_view</span>
+</div>
+<div class="w-12 h-12 bg-primary-container text-on-primary-container rounded-full flex items-center justify-center mb-6">
+<span class="material-symbols-outlined" data-icon="grid_view" data-weight="fill" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+</div>
+<h4 class="text-xl font-serif mb-2">Dashboard</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed mb-6">A holistic overview of your daily rhythm and upcoming intentions.</p>
+<div class="flex items-center gap-2 text-[10px] uppercase tracking-widest text-primary font-bold">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                            Active Now
+                        </div>
+</div>
+<!-- Planner -->
+<div class="group bg-surface-container-low p-8 rounded-xl transition-all duration-500 hover:bg-white hover:shadow-2xl hover:shadow-stone-200/40 relative overflow-hidden">
+<div class="w-12 h-12 bg-secondary-container text-on-secondary-container rounded-full flex items-center justify-center mb-6">
+<span class="material-symbols-outlined" data-icon="event_note">event_note</span>
+</div>
+<h4 class="text-xl font-serif mb-2">Planner</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed mb-6">Structured time management for your tasks and appointments.</p>
+<div class="flex items-center gap-2 text-[10px] uppercase tracking-widest text-primary font-bold">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+                            Active Now
+                        </div>
+</div>
+<!-- Knowledge -->
+<div class="group bg-surface-container-low p-8 rounded-xl transition-all duration-500 hover:bg-white hover:shadow-2xl hover:shadow-stone-200/40 relative overflow-hidden">
+<div class="w-12 h-12 bg-tertiary-container text-on-tertiary-container rounded-full flex items-center justify-center mb-6">
+<span class="material-symbols-outlined" data-icon="local_library">local_library</span>
+</div>
+<h4 class="text-xl font-serif mb-2">Knowledge</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed mb-6">Your personal library of notes, references, and insights.</p>
+<div class="flex items-center gap-2 text-[10px] uppercase tracking-widest text-primary font-bold">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+                            Active Now
+                        </div>
+</div>
+<!-- Writing -->
+<div class="group bg-surface-container-low p-8 rounded-xl transition-all duration-500 hover:bg-white hover:shadow-2xl hover:shadow-stone-200/40 relative overflow-hidden">
+<div class="w-12 h-12 bg-primary-container text-on-primary-container rounded-full flex items-center justify-center mb-6">
+<span class="material-symbols-outlined" data-icon="edit_note">edit_note</span>
+</div>
+<h4 class="text-xl font-serif mb-2">Writing</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed mb-6">Distraction-free environment for deep creative flow.</p>
+<div class="flex items-center gap-2 text-[10px] uppercase tracking-widest text-primary font-bold">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+                            Active Now
+                        </div>
+</div>
+</div>
+</div>
+<!-- Explore New Seedlings -->
+<div class="mb-24">
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+<div>
+<h3 class="text-4xl font-serif text-on-surface mb-2">Explore New Seedlings</h3>
+<p class="text-on-surface-variant">Carefully selected additions for your curation journey.</p>
+</div>
+<button class="px-8 py-3 bg-tertiary text-on-tertiary rounded-full text-sm font-medium hover:opacity-90 transition-opacity">
+                        Browse Full Directory
+                    </button>
+</div>
+<div class="asymmetric-grid">
+<!-- Featured Seedling -->
+<div class="relative rounded-xl overflow-hidden min-h-[450px] group flex flex-col justify-end p-12">
+<img class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="serene morning garden with soft sunlight filtering through leaves and vibrant spring flowers in bloom" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMDSI-5E8Ym5Z3BQeT2Ck8iMrI-xYUISBT8HR4nox4qPtCGQIinyXrfQRs0sNPSxW3zo-_oZlgijnQQUj_rSLfvdB-akqsGsdYvDugu5R_EeDTQWSG_pBXRuLxqJWKH6x2LYLTmMZ71E5xIEgquEY6DcIkw-qjbGKnocBmSnwgBLHWTbjwOgBESPfPRZxdrHoIfi7pOiec4Wff8eczxQuq1G42iyjDJXUDt4aiZh-pcDzcthjjW4KZLzeMmkzMzGSihEHHHvF-YPb_"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+<div class="relative z-10 text-white">
+<div class="inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-[10px] uppercase tracking-widest mb-4 border border-white/20">
+<span class="material-symbols-outlined text-xs" data-icon="eco">eco</span>
+                                Popular Choice
+                            </div>
+<h4 class="text-3xl font-serif mb-4">Habit Sprout</h4>
+<p class="text-white/80 max-w-md mb-8 font-light">Transform daily routines into rituals of growth. Track your habits with an organic interface that evolves with your progress.</p>
+<button class="flex items-center gap-3 px-6 py-3 bg-primary text-white rounded-full font-medium hover:scale-105 transition-transform">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                                Plant Module
+                            </button>
+</div>
+</div>
+<!-- Secondary Seedlings -->
+<div class="space-y-8">
+<div class="bg-surface-container-high/50 p-8 rounded-xl border-l-4 border-primary flex gap-6 items-start">
+<div class="w-14 h-14 bg-white rounded-lg flex items-center justify-center shadow-sm shrink-0">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="graphic_eq">graphic_eq</span>
+</div>
+<div>
+<h4 class="text-xl font-serif mb-1">Focus Atmosphere</h4>
+<p class="text-sm text-on-surface-variant mb-4">Ambient soundscapes tailored for concentration and creative silence.</p>
+<button class="text-primary font-bold text-xs uppercase tracking-widest hover:underline">Get Sprout</button>
+</div>
+</div>
+<div class="bg-surface-container-high/50 p-8 rounded-xl border-l-4 border-tertiary flex gap-6 items-start">
+<div class="w-14 h-14 bg-white rounded-lg flex items-center justify-center shadow-sm shrink-0">
+<span class="material-symbols-outlined text-tertiary text-3xl" data-icon="menu_book">menu_book</span>
+</div>
+<div>
+<h4 class="text-xl font-serif mb-1">Reading Nook</h4>
+<p class="text-sm text-on-surface-variant mb-4">A digital shelf for your current reads, future wishlists, and book reflections.</p>
+<button class="text-tertiary font-bold text-xs uppercase tracking-widest hover:underline">Get Sprout</button>
+</div>
+</div>
+<div class="bg-surface-container-high/50 p-8 rounded-xl border-l-4 border-secondary flex gap-6 items-start">
+<div class="w-14 h-14 bg-white rounded-lg flex items-center justify-center shadow-sm shrink-0">
+<span class="material-symbols-outlined text-secondary text-3xl" data-icon="savings">savings</span>
+</div>
+<div>
+<h4 class="text-xl font-serif mb-1">Budgeting Bloom</h4>
+<p class="text-sm text-on-surface-variant mb-4">Mindful finance tracking that focuses on value rather than just numbers.</p>
+<button class="text-secondary font-bold text-xs uppercase tracking-widest hover:underline">Get Sprout</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Coming Soon / Advanced Features -->
+<div class="mb-24 grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div class="lg:col-span-1 flex flex-col justify-center">
+<h3 class="text-3xl font-serif mb-4">Future Growth</h3>
+<p class="text-on-surface-variant font-light">We are constantly tending to the garden, preparing advanced features to deepen your journaling experience.</p>
+</div>
+<div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="p-8 bg-white/50 border border-outline-variant/20 rounded-xl relative overflow-hidden group">
+<div class="absolute right-[-20px] top-[-20px] text-primary/5 group-hover:rotate-12 transition-transform duration-700">
+<span class="material-symbols-outlined text-[120px]" data-icon="psychology">psychology</span>
+</div>
+<span class="inline-block px-3 py-1 bg-primary-container text-on-primary-container rounded-full text-[9px] uppercase tracking-widest font-bold mb-4">Coming Summer 2024</span>
+<h4 class="text-xl font-serif mb-2">AI Reflections</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed">Gentle, AI-powered prompts that help you find patterns in your daily entries and emotional landscape.</p>
+</div>
+<div class="p-8 bg-white/50 border border-outline-variant/20 rounded-xl relative overflow-hidden group">
+<div class="absolute right-[-20px] top-[-20px] text-secondary/5 group-hover:rotate-12 transition-transform duration-700">
+<span class="material-symbols-outlined text-[120px]" data-icon="sync">sync</span>
+</div>
+<span class="inline-block px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-[9px] uppercase tracking-widest font-bold mb-4">In Beta</span>
+<h4 class="text-xl font-serif mb-2">Cross-Sync</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed">Seamlessly move between your mobile curator and desktop atelier with end-to-end encryption.</p>
+</div>
+</div>
+</div>
+<!-- Add Module Entrance -->
+<div class="bg-primary-container/30 rounded-xl p-16 text-center border border-primary-container relative overflow-hidden">
+<div class="absolute left-10 top-10 w-24 h-24 bg-primary/5 rounded-full blur-2xl"></div>
+<div class="absolute right-10 bottom-10 w-32 h-32 bg-tertiary/5 rounded-full blur-2xl"></div>
+<h3 class="text-3xl font-serif text-primary mb-4">Is something missing?</h3>
+<p class="text-on-surface-variant max-w-xl mx-auto mb-10 leading-relaxed italic">
+                    "Every garden is a unique reflection of its tender." If you have a specific module in mind, let us know and we might just plant it.
+                </p>
+<div class="flex flex-col sm:flex-row gap-4 justify-center">
+<button class="px-10 py-4 bg-primary text-on-primary rounded-full font-medium hover:shadow-xl hover:shadow-primary/20 transition-all">
+                        Request a Module
+                    </button>
+<button class="px-10 py-4 border border-primary text-primary rounded-full font-medium hover:bg-primary/5 transition-colors">
+                        Build with API
+                    </button>
+</div>
+</div>
+<!-- Footer Quote -->
+<div class="mt-32 mb-16 text-center">
+<div class="w-px h-16 bg-outline-variant/30 mx-auto mb-8"></div>
+<p class="font-serif italic text-stone-400 text-lg">"The best time to plant a tree was 20 years ago. The second best time is now."</p>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-stone-50/90 backdrop-blur-lg flex justify-around items-center py-3 px-6 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+<button class="flex flex-col items-center gap-1 text-stone-400">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="text-[10px] uppercase tracking-tighter">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-stone-400">
+<span class="material-symbols-outlined" data-icon="local_library">local_library</span>
+<span class="text-[10px] uppercase tracking-tighter">Library</span>
+</button>
+<button class="relative -top-6 w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-3xl" data-icon="add">add</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-lime-800">
+<span class="material-symbols-outlined" data-icon="extension" data-weight="fill" style="font-variation-settings: 'FILL' 1;">extension</span>
+<span class="text-[10px] uppercase tracking-tighter font-bold">Modules</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-stone-400">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="text-[10px] uppercase tracking-tighter">Self</span>
+</button>
+</nav>
+</body></html>
