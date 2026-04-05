@@ -1,4 +1,4 @@
-﻿import { notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 
 import { KnowledgeNoteForm } from "@/components/knowledge/knowledge-note-form";
 import { ShellLayout } from "@/components/shell/shell-layout";
@@ -23,8 +23,8 @@ export default async function EditKnowledgeNotePage({
 
   return (
     <ShellLayout
-      title={`编辑 ${note.title}`}
-      description="知识编辑沿用与创建相同的结构化模型，因此修改会留在模块内部，同时保留领域、标签和阅读流。"
+      title={`Edit ${note.title}`}
+      description="Knowledge editing uses the same structured note model as creation, so changes stay inside the module while preserving domains, tags, and reading flow."
     >
       {resolvedSearchParams?.error === "invalid-content-json" ? (
         <section className="rounded-[2rem] bg-rose-100 px-6 py-4 text-sm text-rose-700 shadow-ambient">
@@ -34,7 +34,7 @@ export default async function EditKnowledgeNotePage({
 
       {resolvedSearchParams?.error === "save-failed" ? (
         <section className="rounded-[2rem] bg-rose-100 px-6 py-4 text-sm text-rose-700 shadow-ambient">
-          笔记保存失败，请检查字段后重试。
+          The note could not be saved. Check the fields and try again.
         </section>
       ) : null}
 
@@ -52,4 +52,3 @@ export default async function EditKnowledgeNotePage({
     </ShellLayout>
   );
 }
-

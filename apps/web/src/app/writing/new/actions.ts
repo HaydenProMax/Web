@@ -33,12 +33,14 @@ export async function createWritingDraftAction(formData: FormData) {
     redirect(`/writing/new?error=${parsed.error}`);
   }
 
+  let draft;
   try {
-    const draft = await createWritingDraft(parsed.payload);
-    redirect(`/writing/drafts/${draft.id}?created=1`);
+    draft = await createWritingDraft(parsed.payload);
   } catch {
     redirect("/writing/new?error=create-failed");
   }
+
+  redirect(`/writing/drafts/${draft.id}?created=1`);
 }
 
 export async function updateWritingDraftAction(draftId: string, formData: FormData) {
@@ -49,17 +51,20 @@ export async function updateWritingDraftAction(draftId: string, formData: FormDa
 
   try {
     await updateWritingDraft(draftId, parsed.payload);
-    redirect(`/writing/drafts/${draftId}?saved=1`);
   } catch {
     redirect(`/writing/drafts/${draftId}?error=save-failed`);
   }
+
+  redirect(`/writing/drafts/${draftId}?saved=1`);
 }
 
 export async function publishWritingDraftAction(draftId: string) {
+  let post;
   try {
-    const post = await publishWritingDraft(draftId);
-    redirect(`/writing/${post.slug}?published=1`);
+    post = await publishWritingDraft(draftId);
   } catch {
     redirect(`/writing/drafts/${draftId}?error=publish-failed`);
   }
+
+  redirect(`/writing/${post.slug}?published=1`);
 }

@@ -1,4 +1,4 @@
-﻿export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 
@@ -23,14 +23,14 @@ function resolveFilterKey(value?: string) {
 
 function filterHeading(filter: "all" | "favorites" | "resources") {
   if (filter === "favorites") {
-    return "收藏归档记录";
+    return "Favorite Archive Records";
   }
 
   if (filter === "resources") {
-    return "资源归档记录";
+    return "Resource Archive Records";
   }
 
-  return "最近归档记录";
+  return "Recent Archive Records";
 }
 
 export default async function ArchivePage({ searchParams }: ArchivePageProps) {
@@ -51,44 +51,44 @@ export default async function ArchivePage({ searchParams }: ArchivePageProps) {
 
   const feedbackMessage =
     resolvedSearchParams?.updated === "1"
-      ? "归档收藏状态已更新。"
+      ? "Archive favorite state updated."
       : resolvedSearchParams?.error === "favorite-failed"
-        ? "归档收藏更新失败。"
+        ? "Archive favorite update failed."
         : resolvedSearchParams?.error === "missing-item"
-          ? "归档条目不存在。"
+          ? "Archive item is missing."
           : null;
 
   return (
     <ShellLayout
-      title="归档"
-      description="归档现在同时保存已发布写作和知识笔记，让记录层真正成为跨模块资料库，而不只是写作历史。"
+      title="Archive"
+      description="Archive now preserves both published writing and knowledge notes, so the record layer is becoming a true cross-module library instead of a writing-only history."
     >
       <WorkspaceViewNav
-        eyebrow="回放视图"
-        title="在时间与上下文之间切换"
+        eyebrow="Replay Views"
+        title="Move between time and context"
         items={[
           {
-            label: "历史时间线",
+            label: "History Timeline",
             href: historyTimelineHref,
-            description: "当你想看最宽的回放视图时，按天回看归档记录。"
+            description: "Review archive records by day when you want the broadest replay view."
           },
           {
-            label: "首页活动",
+            label: "Dashboard Activity",
             href: recentActivityHref,
-            description: "当你需要看最近发生了什么，就回到首页活动流。"
+            description: "Return to the live workstation pulse when you need what changed most recently."
           },
           {
-            label: "规划线程",
+            label: "Planner Threads",
             href: workThreadsHref,
-            description: "从记录层回到已关联的执行线程和活动任务。"
+            description: "Switch from records back into linked execution threads and active tasks."
           }
         ]}
       />
 
       <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
-        <p className="text-xs uppercase tracking-[0.2em] text-primary">回放上下文</p>
-        <h2 className="mt-3 font-headline text-3xl text-foreground">归档可以回到{activityReentry.label}</h2>
-        <p className="mt-3 text-sm leading-6 text-foreground/70">归档是你的长期沉淀层，但当你想从历史回到动作时，它仍然能把你送回当前回放模式。</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-primary">Replay Context</p>
+        <h2 className="mt-3 font-headline text-3xl text-foreground">Archive can return to {activityReentry.label}</h2>
+        <p className="mt-3 text-sm leading-6 text-foreground/70">The archive is your durable layer, but it can still hand you back into the active replay mode when you want to move from history into motion.</p>
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <Link href={activityReentry.nextStep.href} className="rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-ambient">
             {activityReentry.nextStep.label}
@@ -112,7 +112,7 @@ export default async function ArchivePage({ searchParams }: ArchivePageProps) {
               <p className={`text-xs uppercase tracking-[0.2em] ${isActive ? "text-white/80" : "text-primary"}`}>{collection.eyebrow}</p>
               <h2 className="mt-3 font-headline text-3xl">{collection.title}</h2>
               <p className={`mt-3 text-sm leading-6 ${isActive ? "text-white/80" : "text-foreground/70"}`}>{collection.description}</p>
-              <p className={`mt-5 text-sm font-semibold ${isActive ? "text-white" : "text-primary"}`}>{collection.count} 条</p>
+              <p className={`mt-5 text-sm font-semibold ${isActive ? "text-white" : "text-primary"}`}>{collection.count} items</p>
             </Link>
           );
         })}
@@ -124,15 +124,15 @@ export default async function ArchivePage({ searchParams }: ArchivePageProps) {
             <h2 className="font-headline text-3xl">{filterHeading(activeFilter)}</h2>
             <p className="mt-2 text-sm text-foreground/60">
               {activeFilter === "favorites"
-                ? "这里只显示你明确固定下来的归档条目。"
+                ? "Only the items you have explicitly pinned."
                 : activeFilter === "resources"
-                  ? "这条通道留给保存的参考资料和未来的资料库资产。"
-                  : "这里是当前工作站的跨模块实时历史，已经同时覆盖写作和知识。"}
+                  ? "Reserved for saved reference material and future library assets."
+                  : "A live cross-module history of the workstation so far, now spanning both writing and knowledge."}
             </p>
           </div>
           <span className="text-sm text-foreground/50">
-            显示 {items.length}
-            {activeCollection ? ` of ${activeCollection.count}` : ""} 条记录
+            Showing {items.length}
+            {activeCollection ? ` of ${activeCollection.count}` : ""} records
           </span>
         </div>
 
@@ -158,16 +158,16 @@ export default async function ArchivePage({ searchParams }: ArchivePageProps) {
                         item.isFavorite ? "bg-primary text-white" : "bg-white text-primary"
                       }`}
                     >
-                      {item.isFavorite ? "已收藏" : "加入收藏"}
+                      {item.isFavorite ? "Favorited" : "Add to Favorites"}
                     </button>
                   </form>
                 </div>
                 <h3 className="mt-3 font-headline text-2xl text-foreground">{item.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-foreground/70">{item.summary || "这条归档记录还没有摘要。"}</p>
-                <p className="mt-4 text-xs text-foreground/50">更新于 {new Date(item.updatedAt).toLocaleString("zh-CN")}</p>
+                <p className="mt-3 text-sm leading-6 text-foreground/70">{item.summary || "No summary stored for this archive record yet."}</p>
+                <p className="mt-4 text-xs text-foreground/50">Updated {new Date(item.updatedAt).toLocaleString("zh-CN")}</p>
                 {item.href ? (
                   <Link href={item.href} className="mt-4 inline-flex text-sm font-semibold text-primary">
-                    打开来源条目
+                    Open source item
                   </Link>
                 ) : null}
               </article>
@@ -176,10 +176,10 @@ export default async function ArchivePage({ searchParams }: ArchivePageProps) {
         ) : (
           <div className="rounded-[2rem] bg-surface-container-low p-6 text-sm text-foreground/60 shadow-ambient">
             {activeFilter === "favorites"
-              ? "当前还没有收藏记录。把重要条目固定到这里，形成你自己的归档书架。"
+              ? "No favorites yet. Pin important archive records here to build your personal shelf."
               : activeFilter === "resources"
-                ? "当前还没有资料型记录。这条通道会留给保存的参考资料和后续资料库资产。"
-                : "当前还没有归档记录。发布文章或创建知识笔记后，这里会自动出现对应条目。"}
+                ? "No resource records yet. This lane is ready for saved references and future library assets."
+                : "No archive records yet. Publishing a writing post or creating a knowledge note will now create one automatically."}
           </div>
         )}
       </section>
@@ -187,12 +187,12 @@ export default async function ArchivePage({ searchParams }: ArchivePageProps) {
       <section id="history-timeline" className="space-y-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="font-headline text-3xl">历史时间线</h2>
+            <h2 className="font-headline text-3xl">History Timeline</h2>
             <p className="mt-2 text-sm text-foreground/60">
-              按日期分组回看归档层，让你可以按出现时间而不只是按模块重新进入最近工作。
+              A date-grouped replay of the archive layer, so you can re-enter recent work by when it surfaced instead of only by module.
             </p>
           </div>
-          <span className="text-sm text-foreground/50">{timelineGroups.length} 个日期分组</span>
+          <span className="text-sm text-foreground/50">{timelineGroups.length} day groups</span>
         </div>
 
         {timelineGroups.length > 0 ? (
@@ -201,10 +201,10 @@ export default async function ArchivePage({ searchParams }: ArchivePageProps) {
               <section key={group.key} className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <p className="text-xs uppercase tracking-[0.2em] text-primary">时间组</p>
+                    <p className="text-xs uppercase tracking-[0.2em] text-primary">Timeline Group</p>
                     <h3 className="mt-2 font-headline text-2xl text-foreground">{group.label}</h3>
                   </div>
-                  <span className="text-sm text-foreground/50">{group.itemCount} 条记录</span>
+                  <span className="text-sm text-foreground/50">{group.itemCount} records</span>
                 </div>
 
                 <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -215,10 +215,10 @@ export default async function ArchivePage({ searchParams }: ArchivePageProps) {
                         <p className="text-xs text-foreground/50">{new Date(item.updatedAt).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}</p>
                       </div>
                       <h4 className="mt-3 font-headline text-xl text-foreground">{item.title}</h4>
-                      <p className="mt-3 text-sm leading-6 text-foreground/70">{item.summary || "这条归档记录还没有摘要。"}</p>
+                      <p className="mt-3 text-sm leading-6 text-foreground/70">{item.summary || "No summary stored for this archive record yet."}</p>
                       {item.href ? (
                         <Link href={item.href} className="mt-4 inline-flex text-sm font-semibold text-primary">
-                          重新打开记录
+                          Re-open record
                         </Link>
                       ) : null}
                     </article>
@@ -229,13 +229,10 @@ export default async function ArchivePage({ searchParams }: ArchivePageProps) {
           </div>
         ) : (
           <div className="rounded-[2rem] bg-surface-container-low p-6 text-sm text-foreground/60 shadow-ambient">
-            当前还没有历史时间线。随着笔记和文章持续进入归档，最近记录会按天汇集到这里。
+            No history timeline yet. As notes and posts continue entering the archive, the recent record stream will collect here by day.
           </div>
         )}
       </section>
     </ShellLayout>
   );
 }
-
-
-

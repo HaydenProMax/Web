@@ -40,22 +40,22 @@ export async function updateSettingsPreferencesAction(formData: FormData) {
       timezone: formData.get("timezone")?.toString() ?? "Asia/Shanghai",
       defaultActivityFocus: resolveActivityFocus(formData.get("defaultActivityFocus")?.toString())
     });
-
-    const defaultFocus = resolveActivityFocus(formData.get("defaultActivityFocus")?.toString());
-    const cookieStore = await cookies();
-    const currentCookie = getActivityFocusCookieConfig(defaultFocus);
-    const defaultCookie = getActivityFocusDefaultCookieConfig(defaultFocus);
-    cookieStore.set(defaultCookie.name, defaultCookie.value, defaultCookie.options);
-    cookieStore.set(currentCookie.name, currentCookie.value, currentCookie.options);
-
-    revalidatePath("/", "layout");
-    revalidatePath("/");
-    revalidatePath("/settings");
-    revalidatePath("/modules");
-    redirect("/settings?saved=1");
   } catch {
     redirect("/settings?error=preferences-save-failed");
   }
+
+  const defaultFocus = resolveActivityFocus(formData.get("defaultActivityFocus")?.toString());
+  const cookieStore = await cookies();
+  const currentCookie = getActivityFocusCookieConfig(defaultFocus);
+  const defaultCookie = getActivityFocusDefaultCookieConfig(defaultFocus);
+  cookieStore.set(defaultCookie.name, defaultCookie.value, defaultCookie.options);
+  cookieStore.set(currentCookie.name, currentCookie.value, currentCookie.options);
+
+  revalidatePath("/", "layout");
+  revalidatePath("/");
+  revalidatePath("/settings");
+  revalidatePath("/modules");
+  redirect("/settings?saved=1");
 }
 
 export async function toggleModuleEnabledAction(formData: FormData) {
@@ -69,12 +69,13 @@ export async function toggleModuleEnabledAction(formData: FormData) {
 
   try {
     await setModuleEnabled(moduleKey, enabled);
-    revalidatePath("/", "layout");
-    revalidatePath("/");
-    revalidatePath("/settings");
-    revalidatePath("/modules");
-    redirect(`${returnTo}?updated=${moduleKey}`);
   } catch {
     redirect(`${returnTo}?error=module-update-failed`);
   }
+
+  revalidatePath("/", "layout");
+  revalidatePath("/");
+  revalidatePath("/settings");
+  revalidatePath("/modules");
+  redirect(`${returnTo}?updated=${moduleKey}`);
 }

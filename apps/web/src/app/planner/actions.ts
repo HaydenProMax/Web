@@ -30,12 +30,13 @@ function plannerPayload(formData: FormData) {
 export async function createPlannerTaskAction(formData: FormData) {
   try {
     await createPlannerTask(plannerPayload(formData));
-    revalidatePath("/");
-    revalidatePath("/planner");
-    redirect("/planner?created=1");
   } catch {
     redirect("/planner/new?error=create-failed");
   }
+
+  revalidatePath("/");
+  revalidatePath("/planner");
+  redirect("/planner?created=1");
 }
 
 export async function updatePlannerTaskAction(formData: FormData) {
@@ -47,13 +48,14 @@ export async function updatePlannerTaskAction(formData: FormData) {
 
   try {
     await updatePlannerTask(taskId, plannerPayload(formData));
-    revalidatePath("/");
-    revalidatePath("/planner");
-    revalidatePath(`/planner/${taskId}/edit`);
-    redirect("/planner?edited=1");
   } catch {
     redirect(`/planner/${taskId}/edit?error=update-failed`);
   }
+
+  revalidatePath("/");
+  revalidatePath("/planner");
+  revalidatePath(`/planner/${taskId}/edit`);
+  redirect("/planner?edited=1");
 }
 
 export async function updatePlannerTaskStatusAction(formData: FormData) {
@@ -66,12 +68,12 @@ export async function updatePlannerTaskStatusAction(formData: FormData) {
 
   try {
     await updatePlannerTaskStatus(taskId, status);
-    revalidatePath("/");
-    revalidatePath("/planner");
-    revalidatePath(`/planner/${taskId}/edit`);
-    redirect("/planner?updated=1");
   } catch {
     redirect("/planner?error=update-failed");
   }
-}
 
+  revalidatePath("/");
+  revalidatePath("/planner");
+  revalidatePath(`/planner/${taskId}/edit`);
+  redirect("/planner?updated=1");
+}

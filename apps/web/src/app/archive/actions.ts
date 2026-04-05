@@ -24,10 +24,11 @@ export async function toggleArchiveFavoriteAction(formData: FormData) {
 
   try {
     await setArchiveItemFavorite(itemId, nextValue);
-    revalidatePath("/");
-    revalidatePath("/archive");
-    redirect(`/archive?collection=${collection}&updated=1`);
   } catch {
     redirect(`/archive?collection=${collection}&error=favorite-failed`);
   }
+
+  revalidatePath("/");
+  revalidatePath("/archive");
+  redirect(`/archive?collection=${collection}&updated=1`);
 }

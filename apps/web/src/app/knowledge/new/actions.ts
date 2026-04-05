@@ -36,12 +36,14 @@ export async function createKnowledgeNoteAction(formData: FormData) {
     redirect(`/knowledge/new?error=${parsed.error}`);
   }
 
+  let note;
   try {
-    const note = await createKnowledgeNote(parsed.payload);
-    redirect(`/knowledge/${note.slug}?created=1`);
+    note = await createKnowledgeNote(parsed.payload);
   } catch {
     redirect("/knowledge/new?error=create-failed");
   }
+
+  redirect(`/knowledge/${note.slug}?created=1`);
 }
 
 export async function updateKnowledgeNoteAction(slug: string, formData: FormData) {
@@ -50,10 +52,12 @@ export async function updateKnowledgeNoteAction(slug: string, formData: FormData
     redirect(`/knowledge/${slug}/edit?error=${parsed.error}`);
   }
 
+  let note;
   try {
-    const note = await updateKnowledgeNote(slug, parsed.payload);
-    redirect(`/knowledge/${note.slug}?saved=1`);
+    note = await updateKnowledgeNote(slug, parsed.payload);
   } catch {
     redirect(`/knowledge/${slug}/edit?error=save-failed`);
   }
+
+  redirect(`/knowledge/${note.slug}?saved=1`);
 }

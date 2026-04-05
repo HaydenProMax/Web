@@ -1,4 +1,4 @@
-﻿export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 
@@ -41,26 +41,26 @@ function moduleReplayHref(moduleKey: string, defaultFocus: "all" | "planner" | "
 
 function moduleReplayLabel(moduleKey: string, defaultFocus: "all" | "planner" | "knowledge" | "writing" | "archive") {
   if (moduleKey === "planner") {
-    return "打开执行回放";
+    return "Open execution replay";
   }
 
   if (moduleKey === "knowledge") {
-    return "打开思考回放";
+    return "Open thinking replay";
   }
 
   if (moduleKey === "writing") {
-    return "打开写作回放";
+    return "Open publishing replay";
   }
 
   if (moduleKey === "archive") {
-    return "打开历史回放";
+    return "Open history replay";
   }
 
   if (moduleKey === "activity") {
-    return "打开默认回放";
+    return "Open preferred replay";
   }
 
-  return "打开回放上下文";
+  return "Open replay context";
 }
 
 function resolveModuleFeedbackLabel(value: string | undefined, modules: SettingsSnapshot["modules"]) {
@@ -77,12 +77,7 @@ export default async function ModulesPage({
   searchParams?: Promise<{ updated?: string; error?: string }>;
 }) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
-  const [snapshot, activityReentry, postureSnapshot, rememberedWorkflow] = await Promise.all([
-    getSettingsSnapshot(),
-    getPreferredActivityReentry(),
-    getSystemPostureSnapshot(),
-    getRememberedWorkflowSummary()
-  ]);
+  const [snapshot, activityReentry, postureSnapshot, rememberedWorkflow] = await Promise.all([getSettingsSnapshot(), getPreferredActivityReentry(), getSystemPostureSnapshot(), getRememberedWorkflowSummary()]);
   const updatedModule = resolveModuleFeedbackLabel(resolvedSearchParams?.updated, snapshot.modules);
   const error = resolvedSearchParams?.error === "module-update-failed" || resolvedSearchParams?.error === "unknown-module" ? resolvedSearchParams.error : "";
   const alignedWorkflowKey = isSearchModuleStackKey(postureSnapshot.alignedModuleKey) ? postureSnapshot.alignedModuleKey : null;
@@ -90,48 +85,48 @@ export default async function ModulesPage({
 
   return (
     <ShellLayout
-      title="模块中心"
-      description="这里管理模块启用状态、回放契合度，以及工作站壳层的长期组织方式。"
+      title="Modules"
+      description="This registry now reflects live per-user module state, so enabling or hiding capabilities changes the shell without merging module logic together."
     >
       {updatedModule ? (
         <section className="rounded-[1.5rem] bg-surface-container-low px-5 py-4 text-sm text-primary shadow-ambient">
-          模块偏好已更新：{updatedModule}。
+          Module preference updated for {updatedModule}.
         </section>
       ) : null}
       {error ? (
         <section className="rounded-[1.5rem] bg-surface-container-low px-5 py-4 text-sm text-rose-600 shadow-ambient">
-          请求的模块变更无法应用。
+          The requested module change could not be applied.
         </section>
       ) : null}
 
       <SystemPostureSnapshotCard
         snapshot={postureSnapshot}
-        title="先查看当前系统姿态如何影响模块注册表"
-        description="先确认当前回放视角、默认习惯、对齐模块与可见模块，再决定模块层要怎么收束。"
+        title="See how the registry fits the current workstation posture"
+        description="The registry now sits on top of a live shell posture. This snapshot shows which replay mode is active, which module is naturally aligned with it, and how much of the shell is currently visible."
         primaryHref={activityReentry.href}
-        primaryLabel={`回到${activityReentry.label}视角`}
+        primaryLabel={`Resume ${activityReentry.label} Lens`}
         secondaryHref="/settings#replay-habit"
-        secondaryLabel="调整回放习惯"
+        secondaryLabel="Adjust Replay Habit"
         hint={getActivityFocusPostureHint(postureSnapshot.defaultLens, "modules")}
       />
 
       <SystemPostureNav
-        title="在注册表控制、回放习惯和当前视角之间切换"
+        title="Move between registry control, replay habit, and active lens entry"
         items={[
           {
-            label: "回放习惯",
+            label: "Replay Habit",
             href: "/settings#replay-habit",
-            description: "回到设置页，调整默认回放习惯和系统偏好。"
+            description: "Adjust the default lens that determines which modules feel most natural to re-enter."
           },
           {
-            label: "当前视角",
+            label: "Current Lens",
             href: activityReentry.href,
-            description: "返回当前活动视角，确认模块层变化会如何影响回放入口。"
+            description: "Return directly to the replay surface that is currently steering the workstation."
           },
           {
-            label: "默认视角",
+            label: "Default Lens",
             href: buildActivityHref(activityReentry.defaultFocus),
-            description: "按默认回放习惯重新进入活动中心。"
+            description: "Jump into the baseline replay habit without changing module state."
           }
         ]}
       />
@@ -139,49 +134,40 @@ export default async function ModulesPage({
       <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-primary">记忆工作流</p>
-            <h2 className="mt-3 font-headline text-3xl text-foreground">
-              {rememberedWorkflow.active ? `${rememberedWorkflow.title} 仍在影响模块注册表` : "当前模块层仍由回放习惯和系统姿态共同驱动"}
-            </h2>
+            <p className="text-xs uppercase tracking-[0.2em] text-primary">Remembered Workflow</p>
+            <h2 className="mt-3 font-headline text-3xl text-foreground">{rememberedWorkflow.active ? `${rememberedWorkflow.title} is still active in the registry` : "The registry is currently following replay habit and module posture"}</h2>
           </div>
           <div className="flex flex-wrap gap-3">
             <Link href={rememberedWorkflow.href} className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-ambient">
-              {rememberedWorkflow.active ? "打开工作流" : "打开指令台"}
+              {rememberedWorkflow.active ? "Open Workflow" : "Open Command Desk"}
             </Link>
             {rememberedWorkflow.active ? (
               <Link href={buildClearSearchModuleStackHref("/modules")} className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-ambient">
-                清除工作流
+                Clear Workflow
               </Link>
             ) : null}
           </div>
         </div>
-        <p className="mt-4 max-w-3xl text-sm leading-7 text-foreground/70">
-          {rememberedWorkflow.summary}{" "}
-          {rememberedWorkflow.active
-            ? "模块中心会继续保留这条工作流的优先级，因此模块的启用和排序不会抹掉你刻意固定的入口。"
-            : "当前没有固定工作流时，模块中心会更多依赖系统姿态与默认回放习惯来组织入口。"}
-        </p>
+        <p className="mt-4 max-w-3xl text-sm leading-7 text-foreground/70">{rememberedWorkflow.summary} {rememberedWorkflow.active ? "The registry keeps this workflow visible so module toggles can be evaluated against the lane you are actually trying to preserve." : "Until a workflow is pinned again, module emphasis will fall back to replay habit and aligned module posture."}</p>
       </section>
 
       <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-primary">工作流覆盖</p>
-            <h2 className="mt-3 font-headline text-3xl text-foreground">固定你希望模块层长期保持热度的工作流通道</h2>
+            <p className="text-xs uppercase tracking-[0.2em] text-primary">Workflow Override</p>
+            <h2 className="mt-3 font-headline text-3xl text-foreground">Switch which module stack the registry should keep in front</h2>
           </div>
           {alignedWorkflowMeta ? (
             <Link href={buildSearchModuleStackHref(alignedWorkflowKey, "/modules")} className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-ambient">
-              跟随 {alignedWorkflowMeta.title}
+              Follow {alignedWorkflowMeta.title}
             </Link>
           ) : null}
         </div>
-        <p className="mt-4 max-w-3xl text-sm leading-7 text-foreground/70">
-          如果你希望模块层持续围绕某条动作栈组织入口，就在这里固定它，而不是完全交给系统姿态自动推断。
-        </p>
+        <p className="mt-4 max-w-3xl text-sm leading-7 text-foreground/70">Use the registry to explicitly repin the stack you want the desk to favor. This lets you switch workflow memory without hunting through the command desk first.</p>
         {!rememberedWorkflow.active && alignedWorkflowMeta ? (
           <div className="mt-5 flex flex-wrap gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
             <Link href={buildSearchModuleStackHref(alignedWorkflowKey, "/modules")} className="rounded-full bg-white px-4 py-2 shadow-ambient">
-              建议固定 {alignedWorkflowMeta.title}
+              Suggest {alignedWorkflowMeta.title}
             </Link>
           </div>
         ) : null}
@@ -195,16 +181,16 @@ export default async function ModulesPage({
               <div key={stackKey} className="rounded-[1.5rem] bg-white/80 p-4 shadow-ambient">
                 <div className="flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
                   <span>{stack.title}</span>
-                  {isRemembered ? <span className="rounded-full bg-primary px-2 py-1 text-white">已固定</span> : null}
-                  {isAligned ? <span className="rounded-full bg-primary-container px-2 py-1 text-primary">已对齐</span> : null}
+                  {isRemembered ? <span className="rounded-full bg-primary px-2 py-1 text-white">Pinned</span> : null}
+                  {isAligned ? <span className="rounded-full bg-primary-container px-2 py-1 text-primary">Aligned</span> : null}
                 </div>
                 <p className="mt-3 text-sm leading-6 text-foreground/70">{stack.summary}</p>
                 <div className="mt-4 flex flex-wrap gap-3">
                   <Link href={buildSearchModuleStackHref(stackKey, "/modules")} className="rounded-full bg-primary px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-white shadow-ambient">
-                    {isRemembered ? "保持固定" : "固定工作流"}
+                    {isRemembered ? "Keep pinned" : "Pin workflow"}
                   </Link>
                   <Link href={stack.href} className="rounded-full bg-surface-container-low px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-primary shadow-ambient">
-                    打开动作栈
+                    Open stack
                   </Link>
                 </div>
               </div>
@@ -214,15 +200,15 @@ export default async function ModulesPage({
       </section>
 
       <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
-        <p className="text-xs uppercase tracking-[0.2em] text-primary">模块回放习惯</p>
-        <h2 className="mt-3 font-headline text-3xl text-foreground">默认回到{activityReentry.defaultLabel}</h2>
-        <p className="mt-3 max-w-3xl text-sm leading-7 text-foreground/70">模块中心会沿用当前默认回放习惯，把你带回最合适的活动中心视角。</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-primary">Module Replay Habit</p>
+        <h2 className="mt-3 font-headline text-3xl text-foreground">Your current module posture follows {activityReentry.defaultLabel}</h2>
+        <p className="mt-3 max-w-3xl text-sm leading-7 text-foreground/70">Modules that match your default replay lens are highlighted as the most natural re-entry points. You can still jump directly into the replay surface from here without leaving the registry.</p>
         <div className="mt-5 flex flex-wrap gap-3">
           <Link href={activityReentry.href} className="rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-ambient">
-            回到{activityReentry.label}视角
+            Resume {activityReentry.label} Lens
           </Link>
           <Link href={buildActivityHref(activityReentry.defaultFocus)} className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-primary shadow-ambient">
-            打开默认{getActivityFocusLabel(activityReentry.defaultFocus)}视角
+            Open Default {getActivityFocusLabel(activityReentry.defaultFocus)} Lens
           </Link>
         </div>
       </section>
@@ -238,34 +224,32 @@ export default async function ModulesPage({
               title={module.name}
               description={module.description}
               href={module.enabled ? module.href : undefined}
-              eyebrow={module.locked ? "锁定模块" : module.enabled ? "已在壳层启用" : "可选模块"}
+              eyebrow={module.locked ? "Locked" : module.enabled ? "Enabled in shell" : "Hidden from shell"}
             >
               <div className="space-y-4 text-sm text-foreground/65">
                 <div className="flex items-center justify-between rounded-[1.5rem] bg-white/80 px-4 py-3">
-                  <span>状态</span>
-                  <span className="font-semibold text-primary">{module.enabled ? "启用" : "隐藏"}</span>
+                  <span>Status</span>
+                  <span className="font-semibold text-primary">{module.enabled ? "Visible" : "Disabled"}</span>
                 </div>
                 <div className="flex items-center justify-between rounded-[1.5rem] bg-white/80 px-4 py-3">
-                  <span>默认启用</span>
-                  <span className="font-semibold text-primary">{module.enabledByDefault ? "是" : "否"}</span>
+                  <span>Registry default</span>
+                  <span className="font-semibold text-primary">{module.enabledByDefault ? "Enabled" : "Optional"}</span>
                 </div>
                 <div className="flex items-center justify-between rounded-[1.5rem] bg-white/80 px-4 py-3">
-                  <span>回放契合度</span>
-                  <span className="font-semibold text-primary">
-                    {rememberedWorkflow.active && module.key === rememberedWorkflow.key ? "匹配记忆工作流" : module.replayAligned ? "匹配当前回放习惯" : "一般"}
-                  </span>
+                  <span>Replay fit</span>
+                  <span className="font-semibold text-primary">{rememberedWorkflow.active && module.key === rememberedWorkflow.key ? "Matches remembered workflow" : module.replayAligned ? "Matches your default lens" : "Neutral"}</span>
                 </div>
                 <Link href={moduleReplayHref(module.key, activityReentry.defaultFocus)} className="block rounded-[1.5rem] bg-white/80 px-4 py-3 font-semibold text-primary shadow-ambient">
                   {moduleReplayLabel(module.key, activityReentry.defaultFocus)}
                 </Link>
                 {stackModule ? (
                   <Link href={buildSearchModuleStackHref(module.key, "/modules")} className="block rounded-[1.5rem] bg-white/80 px-4 py-3 font-semibold text-primary shadow-ambient">
-                    {isRemembered ? `保持 ${stackModule.title}` : `固定 ${stackModule.title}`}
+                    {isRemembered ? `Keep ${stackModule.title}` : `Pin ${stackModule.title}`}
                   </Link>
                 ) : null}
                 {module.locked ? (
                   <div className="rounded-[1.5rem] bg-white/80 px-4 py-3 font-semibold text-primary">
-                    该模块属于锁定基础设施，始终保留在工作站壳层中。
+                    Core infrastructure modules stay available so the shell can always be configured.
                   </div>
                 ) : (
                   <form action={toggleModuleEnabledAction}>
@@ -273,7 +257,7 @@ export default async function ModulesPage({
                     <input type="hidden" name="enabled" value={module.enabled ? "0" : "1"} />
                     <input type="hidden" name="returnTo" value="/modules" />
                     <button type="submit" className="rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white">
-                      {module.enabled ? "隐藏模块" : "启用模块"}
+                      {module.enabled ? "Hide from shell" : "Enable in shell"}
                     </button>
                   </form>
                 )}
@@ -285,3 +269,6 @@ export default async function ModulesPage({
     </ShellLayout>
   );
 }
+
+
+

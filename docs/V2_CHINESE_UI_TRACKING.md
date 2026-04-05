@@ -327,3 +327,8 @@ V2 closeout rule:
 - keep build-stable Chinese coverage across the already localized pages
 - treat dashboard and search as follow-up pages for manual browser-side review or a later dedicated translation pass
 - do not continue scripted broad replacements on either file in this phase
+
+## Rollback
+- 2026-04-05: Chinese UI rollout was discontinued. The product returned to the stable English UI baseline, while keeping functional bug fixes made after V1.
+- Dashboard and search are no longer being localized in the current phase. Future language work, if resumed, should be handled as a separate scoped effort.
+

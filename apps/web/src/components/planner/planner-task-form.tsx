@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useState } from "react";
@@ -36,20 +36,20 @@ export function PlannerTaskForm({
   linkOptions,
   taskId,
   mode = "create",
-  submitLabel = mode === "edit" ? "保存修改" : "创建任务",
-  titleText = mode === "edit" ? "编辑这项任务" : "创建一项新任务",
+  submitLabel = mode === "edit" ? "Save Changes" : "Create Task",
+  titleText = mode === "edit" ? "Refine this task" : "Capture a new task",
   introText = mode === "edit"
-    ? "在不离开规划流的情况下，更新任务范围、时间、执行状态和上游上下文。"
-    : "规划模块支持把任务回链到知识与写作模块，让执行记录始终连接到它们的来源想法。",
+    ? "Update task scope, timing, execution state, and upstream context without leaving the planner workflow."
+    : "Planner now supports linking work back to the knowledge and writing modules, so execution records can stay connected to the ideas they came from.",
   cancelHref = "/planner",
-  cancelLabel = "返回规划"
+  cancelLabel = "Back to planner"
 }: PlannerTaskFormProps) {
-  const [title, set标题] = useState(initialData.title);
-  const [description, set说明] = useState(initialData.description);
-  const [priority, set优先级] = useState<PlannerTaskPriority>(initialData.priority);
-  const [status, set状态] = useState<"TODO" | "IN_PROGRESS" | "DONE">(initialData.status);
-  const [scheduledFor, set已计划For] = useState(initialData.scheduledFor);
-  const [dueAt, set截止At] = useState(initialData.dueAt);
+  const [title, setTitle] = useState(initialData.title);
+  const [description, setDescription] = useState(initialData.description);
+  const [priority, setPriority] = useState<PlannerTaskPriority>(initialData.priority);
+  const [status, setStatus] = useState<"TODO" | "IN_PROGRESS" | "DONE">(initialData.status);
+  const [scheduledFor, setScheduledFor] = useState(initialData.scheduledFor);
+  const [dueAt, setDueAt] = useState(initialData.dueAt);
   const [relatedNoteSlug, setRelatedNoteSlug] = useState(initialData.relatedNoteSlug);
   const [relatedDraftId, setRelatedDraftId] = useState(initialData.relatedDraftId);
 
@@ -69,81 +69,81 @@ export function PlannerTaskForm({
           {taskId ? <input type="hidden" name="taskId" value={taskId} /> : null}
 
           <div className="space-y-2">
-            <label htmlFor="title" className="text-sm font-semibold text-foreground/70">标题</label>
+            <label htmlFor="title" className="text-sm font-semibold text-foreground/70">Title</label>
             <input
               id="title"
               name="title"
               value={title}
-              onChange={(event) => set标题(event.target.value)}
+              onChange={(event) => setTitle(event.target.value)}
               className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none"
             />
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="description" className="text-sm font-semibold text-foreground/70">说明</label>
+            <label htmlFor="description" className="text-sm font-semibold text-foreground/70">Description</label>
             <textarea
               id="description"
               name="description"
               rows={5}
               value={description}
-              onChange={(event) => set说明(event.target.value)}
+              onChange={(event) => setDescription(event.target.value)}
               className="w-full rounded-[1.5rem] border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none"
             />
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <label htmlFor="priority" className="text-sm font-semibold text-foreground/70">优先级</label>
+              <label htmlFor="priority" className="text-sm font-semibold text-foreground/70">Priority</label>
               <select
                 id="priority"
                 name="priority"
                 value={priority}
-                onChange={(event) => set优先级(event.target.value as PlannerTaskPriority)}
+                onChange={(event) => setPriority(event.target.value as PlannerTaskPriority)}
                 className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none"
               >
-                <option value="LOW">低</option>
-                <option value="MEDIUM">中</option>
-                <option value="HIGH">高</option>
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
               </select>
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="status" className="text-sm font-semibold text-foreground/70">状态</label>
+              <label htmlFor="status" className="text-sm font-semibold text-foreground/70">Status</label>
               <select
                 id="status"
                 name="status"
                 value={status}
-                onChange={(event) => set状态(event.target.value as "TODO" | "IN_PROGRESS" | "DONE")}
+                onChange={(event) => setStatus(event.target.value as "TODO" | "IN_PROGRESS" | "DONE")}
                 className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none"
               >
-                <option value="TODO">待开始</option>
-                <option value="IN_PROGRESS">进行中</option>
-                <option value="DONE">已完成</option>
+                <option value="TODO">Todo</option>
+                <option value="IN_PROGRESS">In Progress</option>
+                <option value="DONE">Done</option>
               </select>
             </div>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <label htmlFor="scheduledFor" className="text-sm font-semibold text-foreground/70">计划时间</label>
+              <label htmlFor="scheduledFor" className="text-sm font-semibold text-foreground/70">Scheduled For</label>
               <input
                 id="scheduledFor"
                 name="scheduledFor"
                 type="datetime-local"
                 value={scheduledFor}
-                onChange={(event) => set已计划For(event.target.value)}
+                onChange={(event) => setScheduledFor(event.target.value)}
                 className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none"
               />
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="dueAt" className="text-sm font-semibold text-foreground/70">截止时间</label>
+              <label htmlFor="dueAt" className="text-sm font-semibold text-foreground/70">Due At</label>
               <input
                 id="dueAt"
                 name="dueAt"
                 type="datetime-local"
                 value={dueAt}
-                onChange={(event) => set截止At(event.target.value)}
+                onChange={(event) => setDueAt(event.target.value)}
                 className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none"
               />
             </div>
@@ -151,7 +151,7 @@ export function PlannerTaskForm({
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <label htmlFor="relatedNoteSlug" className="text-sm font-semibold text-foreground/70">关联笔记</label>
+              <label htmlFor="relatedNoteSlug" className="text-sm font-semibold text-foreground/70">Linked Note</label>
               <select
                 id="relatedNoteSlug"
                 name="relatedNoteSlug"
@@ -159,18 +159,18 @@ export function PlannerTaskForm({
                 onChange={(event) => setRelatedNoteSlug(event.target.value)}
                 className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none"
               >
-                <option value="">无关联笔记</option>
+                <option value="">No linked note</option>
                 {linkOptions.notes.map((option) => (
                   <option key={option.value} value={option.value}>{option.title}</option>
                 ))}
               </select>
               <p className="text-xs leading-5 text-foreground/55">
-                {selectedNote ? selectedNote.meta : "把任务锚定到知识笔记，让规划始终连接到来源思路。"}
+                {selectedNote ? selectedNote.meta : "Anchor this task to a knowledge note so planning stays connected to source thinking."}
               </p>
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="relatedDraftId" className="text-sm font-semibold text-foreground/70">关联草稿</label>
+              <label htmlFor="relatedDraftId" className="text-sm font-semibold text-foreground/70">Linked Draft</label>
               <select
                 id="relatedDraftId"
                 name="relatedDraftId"
@@ -178,13 +178,13 @@ export function PlannerTaskForm({
                 onChange={(event) => setRelatedDraftId(event.target.value)}
                 className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none"
               >
-                <option value="">无关联草稿</option>
+                <option value="">No linked draft</option>
                 {linkOptions.drafts.map((option) => (
                   <option key={option.value} value={option.value}>{option.title}</option>
                 ))}
               </select>
               <p className="text-xs leading-5 text-foreground/55">
-                {selectedDraft ? selectedDraft.meta : "当执行和写作需要一起推进时，把任务关联到进行中的草稿。"}
+                {selectedDraft ? selectedDraft.meta : "Link the task to an in-progress writing draft when execution and composition should move together."}
               </p>
             </div>
           </div>
@@ -202,54 +202,54 @@ export function PlannerTaskForm({
 
       <aside className="space-y-6">
         <div className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
-          <p className="text-xs uppercase tracking-[0.2em] text-primary">任务预览</p>
-          <h3 className="mt-3 font-headline text-2xl">执行快照</h3>
+          <p className="text-xs uppercase tracking-[0.2em] text-primary">Task Preview</p>
+          <h3 className="mt-3 font-headline text-2xl">Execution snapshot</h3>
           <p className="mt-3 text-sm leading-6 text-foreground/70">
             {mode === "edit"
-              ? "调整状态、时间和范围时，规划任务仍会保留上游笔记和草稿上下文。"
-              : "使用这张表单为任务设置时间、优先级，并回链到它来源的笔记或草稿。"}
+              ? "Planner tasks can now keep their upstream note and draft context while you adjust status, timing, and scope."
+              : "Use this form to plan work with timing, priority, and links back to the note or draft that generated it."}
           </p>
         </div>
 
         <div className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
-          <p className="text-xs uppercase tracking-[0.2em] text-primary">当前值</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-primary">Current Values</p>
           <div className="mt-4 space-y-4 rounded-[1.5rem] bg-white/80 p-5">
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-primary">标题</p>
-              <p className="mt-2 font-headline text-2xl text-foreground">{title || "未命名任务"}</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-primary">Title</p>
+              <p className="mt-2 font-headline text-2xl text-foreground">{title || "Untitled task"}</p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-primary">说明</p>
-              <p className="mt-2 text-sm leading-6 text-foreground/70">{description || "暂无说明。"}</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-primary">Description</p>
+              <p className="mt-2 text-sm leading-6 text-foreground/70">{description || "No description yet."}</p>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-primary">优先级</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-primary">Priority</p>
                 <p className="mt-2 text-sm font-semibold text-foreground">{priority}</p>
               </div>
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-primary">状态</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-primary">Status</p>
                 <p className="mt-2 text-sm font-semibold text-foreground">{status}</p>
               </div>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-primary">已计划</p>
-                <p className="mt-2 text-sm text-foreground/70">{scheduledFor || "尚未计划"}</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-primary">Scheduled</p>
+                <p className="mt-2 text-sm text-foreground/70">{scheduledFor || "Not scheduled"}</p>
               </div>
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-primary">截止</p>
-                <p className="mt-2 text-sm text-foreground/70">{dueAt || "暂无截止时间"}</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-primary">Due</p>
+                <p className="mt-2 text-sm text-foreground/70">{dueAt || "No deadline"}</p>
               </div>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-primary">关联笔记</p>
-                <p className="mt-2 text-sm text-foreground/70">{selectedNote?.title || "无关联笔记"}</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-primary">Linked Note</p>
+                <p className="mt-2 text-sm text-foreground/70">{selectedNote?.title || "No linked note"}</p>
               </div>
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-primary">关联草稿</p>
-                <p className="mt-2 text-sm text-foreground/70">{selectedDraft?.title || "无关联草稿"}</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-primary">Linked Draft</p>
+                <p className="mt-2 text-sm text-foreground/70">{selectedDraft?.title || "No linked draft"}</p>
               </div>
             </div>
           </div>
@@ -258,6 +258,4 @@ export function PlannerTaskForm({
     </div>
   );
 }
-
-
 

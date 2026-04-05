@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -20,10 +20,10 @@ type KnowledgeNoteFormProps = {
 };
 
 export function KnowledgeNoteForm({ action, initialData, mode = "create" }: KnowledgeNoteFormProps) {
-  const [title, set标题] = useState(initialData.title);
-  const [summary, set摘要] = useState(initialData.summary);
-  const [domainName, set领域Name] = useState(initialData.domainName);
-  const [tags, set标签] = useState(initialData.tags);
+  const [title, setTitle] = useState(initialData.title);
+  const [summary, setSummary] = useState(initialData.summary);
+  const [domainName, setDomainName] = useState(initialData.domainName);
+  const [tags, setTags] = useState(initialData.tags);
   const [content, setContent] = useState(initialData.content);
 
   const previewState = useMemo(() => {
@@ -36,7 +36,7 @@ export function KnowledgeNoteForm({ action, initialData, mode = "create" }: Know
     } catch (error) {
       return {
         nodes: [] as RichTextNode[],
-        error: error instanceof Error ? error.message : "内容 JSON 无效。"
+        error: error instanceof Error ? error.message : "Content JSON is invalid."
       };
     }
   }, [content]);
@@ -45,67 +45,67 @@ export function KnowledgeNoteForm({ action, initialData, mode = "create" }: Know
     <div className="grid gap-8 xl:grid-cols-[1.05fr_0.95fr]">
       <section className="rounded-[2rem] bg-surface-container-low p-8 shadow-ambient">
         <div className="mb-8 space-y-2">
-          <p className="text-xs uppercase tracking-[0.2em] text-primary">知识表单</p>
-          <h2 className="font-headline text-3xl text-foreground">{mode === "edit" ? "编辑这条笔记" : "创建一条新笔记"}</h2>
+          <p className="text-xs uppercase tracking-[0.2em] text-primary">Knowledge Form</p>
+          <h2 className="font-headline text-3xl text-foreground">{mode === "edit" ? "Refine this note" : "Capture a new note"}</h2>
           <p className="text-sm leading-6 text-foreground/70">
             {mode === "edit"
-              ? "在不丢失知识库位置的前提下更新笔记。如果标题变化，slug 会一起迁移。"
-              : "创建带有领域、标签和富内容块的结构化笔记。"}
+              ? "Update the note without losing its place in the knowledge library. If the title changes, the note slug will move with it."
+              : "Capture a structured note with domains, tags, and rich content blocks."}
           </p>
         </div>
 
         <form action={action} className="space-y-6">
           <div className="space-y-2">
-            <label htmlFor="title" className="text-sm font-semibold text-foreground/70">标题</label>
+            <label htmlFor="title" className="text-sm font-semibold text-foreground/70">Title</label>
             <input
               id="title"
               name="title"
               value={title}
-              onChange={(event) => set标题(event.target.value)}
+              onChange={(event) => setTitle(event.target.value)}
               className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none"
             />
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="summary" className="text-sm font-semibold text-foreground/70">摘要</label>
+            <label htmlFor="summary" className="text-sm font-semibold text-foreground/70">Summary</label>
             <textarea
               id="summary"
               name="summary"
               rows={4}
               value={summary}
-              onChange={(event) => set摘要(event.target.value)}
+              onChange={(event) => setSummary(event.target.value)}
               className="w-full rounded-[1.5rem] border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none"
             />
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <label htmlFor="domainName" className="text-sm font-semibold text-foreground/70">领域</label>
+              <label htmlFor="domainName" className="text-sm font-semibold text-foreground/70">Domain</label>
               <input
                 id="domainName"
                 name="domainName"
                 value={domainName}
-                onChange={(event) => set领域Name(event.target.value)}
-                placeholder="思考、系统、阅读..."
+                onChange={(event) => setDomainName(event.target.value)}
+                placeholder="Thinking, Systems, Reading..."
                 className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none"
               />
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="tags" className="text-sm font-semibold text-foreground/70">标签</label>
+              <label htmlFor="tags" className="text-sm font-semibold text-foreground/70">Tags</label>
               <input
                 id="tags"
                 name="tags"
                 value={tags}
-                onChange={(event) => set标签(event.target.value)}
-                placeholder="反思、架构、笔记"
+                onChange={(event) => setTags(event.target.value)}
+                placeholder="reflection, architecture, notes"
                 className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="content" className="text-sm font-semibold text-foreground/70">内容 JSON</label>
+            <label htmlFor="content" className="text-sm font-semibold text-foreground/70">Content JSON</label>
             <textarea
               id="content"
               name="content"
@@ -114,15 +114,15 @@ export function KnowledgeNoteForm({ action, initialData, mode = "create" }: Know
               onChange={(event) => setContent(event.target.value)}
               className="w-full rounded-[1.5rem] border border-outline-variant/30 bg-white px-4 py-3 font-mono text-xs outline-none"
             />
-            {previewState.error ? <p className="text-xs text-rose-600">预览已暂停：{previewState.error}</p> : null}
+            {previewState.error ? <p className="text-xs text-rose-600">Preview paused: {previewState.error}</p> : null}
           </div>
 
           <div className="flex items-center gap-4">
             <button type="submit" className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white">
-              {mode === "edit" ? "保存笔记" : "创建笔记"}
+              {mode === "edit" ? "Save Note" : "Create Note"}
             </button>
             <Link href="/knowledge" className="text-sm font-semibold text-primary">
-              返回知识库
+              Back to knowledge
             </Link>
           </div>
         </form>
@@ -130,24 +130,23 @@ export function KnowledgeNoteForm({ action, initialData, mode = "create" }: Know
 
       <aside className="space-y-6">
         <div className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
-          <p className="text-xs uppercase tracking-[0.2em] text-primary">实时预览</p>
-          <h3 className="mt-3 font-headline text-2xl">知识笔记预览</h3>
+          <p className="text-xs uppercase tracking-[0.2em] text-primary">Live Preview</p>
+          <h3 className="mt-3 font-headline text-2xl">Rendered knowledge note</h3>
           <p className="mt-3 text-sm leading-6 text-foreground/70">
-            笔记复用共享的富内容渲染器，在保持模块独立的同时，与写作模块的阅读面保持一致。
+            Notes reuse the shared rich-content renderer, which keeps the reading surface aligned with Writing while preserving separate module behavior.
           </p>
         </div>
 
         <div className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
           <RichTextPreview
-            title={title || "未命名笔记"}
+            title={title || "Untitled note"}
             summary={summary}
             content={previewState.nodes}
             compact
-            emptyMessage="添加段落、标题、图片、引用或视频嵌入块来预览笔记内容流。"
+            emptyMessage="Add paragraph, heading, image, quote, or videoEmbed blocks to preview the note flow."
           />
         </div>
       </aside>
     </div>
   );
 }
-

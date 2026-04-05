@@ -36,12 +36,12 @@ export default async function EditPlannerTaskPage({
 
   return (
     <ShellLayout
-      title="编辑 Task"
-      description="规划任务现在支持原地编辑，包括执行工作周围的笔记和草稿上下文。"
+      title="Edit Task"
+      description="Planner tasks can now be revised in place, including the note and draft context that surrounds the execution work."
     >
       {resolvedSearchParams?.error === "update-failed" ? (
         <section className="rounded-[2rem] bg-rose-100 px-6 py-4 text-sm text-rose-700 shadow-ambient">
-          任务更新失败，请检查字段后重试。
+          The task could not be updated. Check the fields and try again.
         </section>
       ) : null}
 
@@ -50,9 +50,9 @@ export default async function EditPlannerTaskPage({
         taskId={task.id}
         mode="edit"
         linkOptions={linkOptions}
-        submitLabel="保存任务"
-        titleText="编辑 planner task"
-        introText="你可以调整表述、重新安排时间，或者把任务重新关联到不同的笔记或草稿，同时保留历史记录。"
+        submitLabel="Save Task"
+        titleText="Edit planner task"
+        introText="Tighten the wording, reschedule the work, or reconnect the task to a different note or draft without losing its history."
         initialData={{
           title: task.title,
           description: task.description,
@@ -67,6 +67,4 @@ export default async function EditPlannerTaskPage({
     </ShellLayout>
   );
 }
-
-
 

@@ -2384,3 +2384,22 @@ Remaining V2 work now centers on live regression and terminology consistency rat
 - `apps/web/src/app/page.tsx` and `apps/web/src/app/search/page.tsx` are intentionally held on stable repository baselines for later manual browser-side review or a dedicated translation pass.
 - Reason: repeated write-back instability on those two files under the current Windows + PowerShell replacement workflow.
 - Validation at closeout: `corepack pnpm --filter web typecheck` passed and `corepack pnpm --filter web build` passed.
+
+### Planner Duplicate Render Fix
+- Fixed a duplicated top block on `apps/web/src/app/planner/page.tsx` where the replay-context section, feedback banner, create-task CTA, and overview cards were rendered twice.
+- Root cause: the same JSX block existed twice in sequence on the planner page.
+- Resolution: removed the second duplicated block and kept the planning-view section intact.
+- Validation: `corepack pnpm --filter web typecheck` passed and `corepack pnpm --filter web build` passed.
+
+### 2026-04-05 Create Success False Failure Fix
+- Fixed a shared server-action bug where edirect() was called inside 	ry/catch blocks for knowledge, planner, writing, archive, and settings actions.
+- Because Next.js edirect() throws a control-flow exception, successful creates/updates were being caught and rewritten into create-failed / save-failed style redirects even after the data had already been saved.
+- Moved post-success edirect() calls outside the 	ry/catch blocks so only the actual service call is guarded.
+- Verified with corepack pnpm --filter web typecheck and corepack pnpm --filter web build.
+
+
+### 2026-04-05 English UI Baseline Restored
+- Rolled the workstation UI back to the stable English baseline from V1 while preserving post-V1 bug fixes, including the server-action redirect fix and the planner duplicate-section fix.
+- Restored app pages, shell, forms, and module labels from the V1 English source instead of continuing the partial Chinese UI rollout.
+- Verified with corepack pnpm --filter web typecheck and corepack pnpm --filter web build.
+

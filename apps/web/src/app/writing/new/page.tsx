@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 
 import { ShellLayout } from "@/components/shell/shell-layout";
 import { WritingDraftForm } from "@/components/writing/writing-draft-form";
@@ -9,7 +9,7 @@ import { createWritingDraftAction } from "./actions";
 function buildDraftSeedFromNote(note: NonNullable<Awaited<ReturnType<typeof getKnowledgeNoteBySlug>>>) {
   return {
     title: `${note.title} Draft`,
-    summary: note.summary || `A writing thread grown from the note '${note.title}”。`,
+    summary: note.summary || `A writing thread grown from the note '${note.title}'.`,
     coverImageUrl: "",
     sourceNoteSlug: note.slug,
     visibility: "PRIVATE" as const,
@@ -17,7 +17,7 @@ function buildDraftSeedFromNote(note: NonNullable<Awaited<ReturnType<typeof getK
       [
         {
           type: "paragraph",
-          content: `这篇草稿来自知识笔记“${note.title}”。`
+          content: `This draft grows out of the knowledge note '${note.title}'.`
         },
         ...note.content
       ],
@@ -38,7 +38,7 @@ function buildEmptyDraftSeed() {
       [
         {
           type: "paragraph",
-          content: "从这里开始写作。"
+          content: "Start writing here."
         }
       ],
       null,
@@ -59,27 +59,27 @@ export default async function NewWritingDraftPage({
 
   return (
     <ShellLayout
-      title="新建草稿"
-      description="创建一篇富媒体草稿，可以承接来源笔记、插入图片与视频，并在准备好后顺畅进入正式写作流。"
+      title="New Draft"
+      description="Start a rich-media draft that can grow from a source note, hold images and video embeds, and move cleanly into the live writing feed when it is ready."
     >
       {resolvedSearchParams?.error === "invalid-content-json" ? (
         <section className="rounded-[2rem] bg-rose-100 px-6 py-4 text-sm text-rose-700 shadow-ambient">
-          内容 JSON 无法解析，请修正结构后重试。
+          The content JSON could not be parsed. Please fix the JSON structure and try again.
         </section>
       ) : null}
 
       {resolvedSearchParams?.error === "create-failed" ? (
         <section className="rounded-[2rem] bg-rose-100 px-6 py-4 text-sm text-rose-700 shadow-ambient">
-          草稿创建失败，请检查标题、摘要、媒体链接和内容块后重试。
+          The draft could not be created. Check the title, summary, media links, and content blocks, then try again.
         </section>
       ) : null}
       {sourceNote ? (
         <section className="flex flex-wrap items-center justify-between gap-4 rounded-[2rem] bg-primary-container/30 px-6 py-4 text-sm text-primary shadow-ambient">
           <p>
-            这篇草稿会回链到知识库中的 <span className="font-semibold">{sourceNote.title}</span>。
+            This draft will be linked back to <span className="font-semibold">{sourceNote.title}</span> in Knowledge.
           </p>
           <Link href={`/knowledge/${sourceNote.slug}`} className="font-semibold underline">
-            打开来源笔记
+            Open source note
           </Link>
         </section>
       ) : null}
