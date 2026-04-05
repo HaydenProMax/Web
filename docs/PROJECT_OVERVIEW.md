@@ -15,6 +15,7 @@ From this point forward:
 For a concise archived snapshot of the current architecture, module design, implemented capability set, and next-step posture, read:
 
 - `docs/PROJECT_SNAPSHOT_2026-04-03.md`
+- `docs/V2_CHINESE_UI_TRACKING.md` for the current Chinese UI adaptation checklist
 
 Use this overview file as the detailed rolling log after reading the snapshot.
 
@@ -2340,3 +2341,46 @@ Live regression completed on a clean authenticated production instance (`3088`).
 - Added `docs/FIRST_DELIVERABLE.md` to define what is included in the first deliverable and what verification has already been completed.
 - Added `docs/V1_BOUNDARY.md` to separate first-deliverable scope from Phase 2 work.
 
+
+## V2 Chinese UI
+
+As of 2026-04-04, V2 has started with a Simplified Chinese desktop UI adaptation pass.
+
+Completed in this pass:
+
+- global metadata switched to Chinese
+- Chinese-capable fonts enabled in the main layout
+- module registry labels and descriptions translated
+- shell, sign-in, dashboard, planner, knowledge, writing, activity, search, settings, and modules received a first-pass Chinese UI adaptation
+- corepack pnpm --filter web typecheck passed
+- corepack pnpm --filter web build passed
+
+Remaining V2 Chinese UI work:
+
+- secondary create/edit/detail pages still need a consistency pass
+- server-generated search/meta copy still needs a deeper Chinese terminology review
+- a live regression pass should be run against the Chinese desktop UI before calling V2 complete
+
+
+### V2 Chinese UI Follow-up
+
+A second-pass Simplified Chinese UI adaptation has been completed for the main create, edit, detail, and form surfaces:
+
+- knowledge new/detail/edit pages and form
+- planner new/edit pages and form
+- writing new/draft/article pages and form
+
+Validation:
+
+- corepack pnpm --filter web typecheck passed
+- corepack pnpm --filter web build passed
+
+Remaining V2 work now centers on live regression and terminology consistency rather than broad page coverage.
+
+
+### V2 Stable Chinese Baseline
+- V2 has been closed as a stable Chinese baseline rather than a fully translated pass.
+- Stable Chinese UI coverage now includes shell/sign-in, settings, modules, activity hub, and the main planner/knowledge/writing surfaces plus most create/edit/detail/form pages.
+- `apps/web/src/app/page.tsx` and `apps/web/src/app/search/page.tsx` are intentionally held on stable repository baselines for later manual browser-side review or a dedicated translation pass.
+- Reason: repeated write-back instability on those two files under the current Windows + PowerShell replacement workflow.
+- Validation at closeout: `corepack pnpm --filter web typecheck` passed and `corepack pnpm --filter web build` passed.

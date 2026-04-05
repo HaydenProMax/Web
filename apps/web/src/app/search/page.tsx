@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { cookies } from "next/headers";
 import type { ReactNode } from "react";
 import type { ArchiveItemSummary, KnowledgeNoteSummary, ModuleKey, PlannerTaskSummary, SearchResultGroup, SearchResultItem, WritingDraftSummary } from "@workspace/types/index";

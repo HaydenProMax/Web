@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useMemo, useRef, useState, useTransition } from "react";
@@ -133,8 +133,8 @@ function normalizeVideoInput(raw: string) {
 }
 
 export function WritingDraftForm({ action, initialData, mode }: WritingDraftFormProps) {
-  const [title, setTitle] = useState(initialData.title);
-  const [summary, setSummary] = useState(initialData.summary);
+  const [title, set标题] = useState(initialData.title);
+  const [summary, set摘要] = useState(initialData.summary);
   const [coverImageUrl, setCoverImageUrl] = useState(initialData.coverImageUrl);
   const [sourceNoteSlug] = useState(initialData.sourceNoteSlug);
   const [content, setContent] = useState(initialData.content);
@@ -155,7 +155,7 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
     } catch (error) {
       return {
         nodes: [] as RichTextNode[],
-        error: error instanceof Error ? error.message : "Content JSON is invalid."
+        error: error instanceof Error ? error.message : "内容 JSON 无效。"
       };
     }
   }, [content]);
@@ -250,27 +250,27 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
 
             <div className="space-y-2">
               <label htmlFor="title" className="text-sm font-semibold text-foreground/70">
-                Title
+                标题
               </label>
               <input
                 id="title"
                 name="title"
                 value={title}
-                onChange={(event) => setTitle(event.target.value)}
+                onChange={(event) => set标题(event.target.value)}
                 className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none"
               />
             </div>
 
             <div className="space-y-2">
               <label htmlFor="summary" className="text-sm font-semibold text-foreground/70">
-                Summary
+                摘要
               </label>
               <textarea
                 id="summary"
                 name="summary"
                 rows={4}
                 value={summary}
-                onChange={(event) => setSummary(event.target.value)}
+                onChange={(event) => set摘要(event.target.value)}
                 className="w-full rounded-[1.5rem] border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none"
               />
             </div>
@@ -278,8 +278,8 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
             <div className="space-y-3 rounded-[1.5rem] bg-white/80 p-4">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-sm font-semibold text-foreground/70">Upload Cover / Inline Image</p>
-                  <p className="text-xs text-foreground/50">Images are stored locally for this workstation and registered as reusable media assets.</p>
+                  <p className="text-sm font-semibold text-foreground/70">上传封面 / 内嵌图片</p>
+                  <p className="text-xs text-foreground/50">图片会保存在本地工作站，并登记为可复用媒体资源。</p>
                 </div>
                 <button
                   type="button"
@@ -287,7 +287,7 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
                   className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
                   disabled={isUploading}
                 >
-                  {isUploading ? "Uploading..." : "Choose Image"}
+                  {isUploading ? "上传中..." : "选择图片"}
                 </button>
               </div>
               <input
@@ -316,20 +316,20 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
 
             <div className="space-y-3 rounded-[1.5rem] bg-white/80 p-4">
               <div>
-                <p className="text-sm font-semibold text-foreground/70">Add Video Embed</p>
-                <p className="text-xs text-foreground/50">Supports YouTube, Vimeo, Bilibili, and custom embeddable URLs.</p>
+                <p className="text-sm font-semibold text-foreground/70">添加视频嵌入</p>
+                <p className="text-xs text-foreground/50">支持 YouTube、Vimeo、Bilibili 以及自定义可嵌入链接。</p>
               </div>
               <div className="grid gap-3 md:grid-cols-[1fr_0.8fr]">
                 <input
                   value={videoUrl}
                   onChange={(event) => setVideoUrl(event.target.value)}
-                  placeholder="Paste a video URL"
+                  placeholder="粘贴视频链接"
                   className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none"
                 />
                 <input
                   value={videoCaption}
                   onChange={(event) => setVideoCaption(event.target.value)}
-                  placeholder="Optional caption"
+                  placeholder="可选说明"
                   className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none"
                 />
               </div>
@@ -348,7 +348,7 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
                   }}
                   className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
                 >
-                  {isUploading ? "Saving..." : "Insert Video"}
+                  {isUploading ? "保存中..." : "插入视频"}
                 </button>
               </div>
               {uploadMessage ? <p className="text-xs text-primary">{uploadMessage}</p> : null}
@@ -356,7 +356,7 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
 
             <div className="space-y-2">
               <label htmlFor="coverImageUrl" className="text-sm font-semibold text-foreground/70">
-                Cover Image URL
+                封面图 URL
               </label>
               <input
                 id="coverImageUrl"
@@ -369,7 +369,7 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
 
             <div className="space-y-2">
               <label htmlFor="visibility" className="text-sm font-semibold text-foreground/70">
-                Visibility
+                可见性
               </label>
               <select
                 id="visibility"
@@ -377,15 +377,15 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
                 defaultValue={initialData.visibility}
                 className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none"
               >
-                <option value="PRIVATE">Private</option>
-                <option value="UNLISTED">Unlisted</option>
-                <option value="PUBLIC">Public</option>
+                <option value="PRIVATE">私有</option>
+                <option value="UNLISTED">不公开</option>
+                <option value="PUBLIC">公开</option>
               </select>
             </div>
 
             <div className="space-y-2">
               <label htmlFor="content" className="text-sm font-semibold text-foreground/70">
-                Content JSON
+                内容 JSON
               </label>
               <textarea
                 id="content"
@@ -395,23 +395,23 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
                 onChange={(event) => setContent(event.target.value)}
                 className="w-full rounded-[1.5rem] border border-outline-variant/30 bg-white px-4 py-3 font-mono text-xs outline-none"
               />
-              {previewState.error ? <p className="text-xs text-rose-600">Preview paused: {previewState.error}</p> : null}
+              {previewState.error ? <p className="text-xs text-rose-600">预览已暂停：{previewState.error}</p> : null}
             </div>
 
             <div className="flex items-center gap-4">
               <button type="submit" className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white">
-                {mode === "create" ? "Create Draft" : "Save Draft"}
+                {mode === "create" ? "创建草稿" : "保存草稿"}
               </button>
               <Link href="/writing" className="text-sm font-semibold text-primary">
-                Back to writing
+                返回写作
               </Link>
             </div>
           </form>
         </div>
 
         <div className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
-          <p className="text-xs uppercase tracking-[0.2em] text-primary">Attached Assets</p>
-          <h3 className="mt-3 font-headline text-2xl">Local media queue</h3>
+          <p className="text-xs uppercase tracking-[0.2em] text-primary">已附加资源</p>
+          <h3 className="mt-3 font-headline text-2xl">本地媒体队列</h3>
           {uploadedAssets.length > 0 ? (
             <div className="mt-4 space-y-4">
               {uploadedAssets.map((asset) => (
@@ -420,7 +420,7 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
                     <img src={asset.url} alt={asset.altText || asset.originalFileName} className="h-40 w-full rounded-[1rem] object-cover" />
                   ) : (
                     <div className="flex h-40 items-center justify-center rounded-[1rem] bg-primary-container/30 text-center text-sm font-semibold text-primary">
-                      {asset.kind === "EMBED" ? "Video embed registered" : "Media attached"}
+                      {asset.kind === "EMBED" ? "已登记视频嵌入" : "已附加媒体"}
                     </div>
                   )}
                   <p className="mt-3 text-sm font-semibold text-foreground">{asset.originalFileName}</p>
@@ -432,7 +432,7 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
             </div>
           ) : (
             <p className="mt-3 text-sm leading-6 text-foreground/70">
-              Upload an image or insert a video URL to create the first media records for this draft workflow.
+              上传图片或插入视频链接后，会为这条草稿流程创建首批媒体记录。
             </p>
           )}
         </div>
@@ -440,24 +440,26 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
 
       <aside className="space-y-6">
         <div className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
-          <p className="text-xs uppercase tracking-[0.2em] text-primary">Live Preview</p>
-          <h3 className="mt-3 font-headline text-2xl">Rendered article</h3>
+          <p className="text-xs uppercase tracking-[0.2em] text-primary">实时预览</p>
+          <h3 className="mt-3 font-headline text-2xl">文章预览</h3>
           <p className="mt-3 text-sm leading-6 text-foreground/70">
-            The preview uses the same rich-content renderer as the published article page, so what you see here is close to the final reading surface.
+            预览使用与文章详情页相同的富内容渲染器，所以这里看到的效果会接近最终阅读面。
           </p>
         </div>
 
         <div className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
           <RichTextPreview
-            title={title || "Untitled draft"}
+            title={title || "未命名草稿"}
             summary={summary}
             coverImage={coverImageUrl || undefined}
             content={previewState.nodes}
             compact
-            emptyMessage="Add paragraph, heading, image, quote, or videoEmbed blocks to preview the reading flow."
+            emptyMessage="添加段落、标题、图片、引用或视频嵌入块来预览阅读流。"
           />
         </div>
       </aside>
     </div>
   );
 }
+
+

@@ -6,30 +6,16 @@ $ErrorActionPreference = "Stop"
 
 $workspaceRoot = Split-Path -Parent $PSScriptRoot
 $tmpDir = Join-Path $workspaceRoot "tmp"
-$appDir = Join-Path $workspaceRoot "apps\web"
+$runnerScript = Join-Path $workspaceRoot "scripts\run-regression-web.ps1"
 
 if (-not (Test-Path $tmpDir)) {
   New-Item -ItemType Directory -Path $tmpDir | Out-Null
 }
 
 $pidPath = Join-Path $tmpDir "regression-web-$Port.pid"
-$stdoutPath = Join-Path $tmpDir "regression-web-$Port.out.log"
-$stderrPath = Join-Path $tmpDir "regression-web-$Port.err.log"
-
-function Get-ListeningProcessId([int]$ListeningPort) {
-  $lines = cmd /c "netstat -ano -p tcp | findstr LISTENING | findstr :$ListeningPort"
-  foreach ($line in $lines) {
-    $parts = ($line -split "\s+") | Where-Object { $_ }
-    if ($parts.Length -ge 5) {
-      return $parts[-1]
-    }
-  }
-
-  return $null
-}
 
 if (Test-Path $pidPath) {
-  $existingPid = (Get-Content $pidPath -Raw).Trim()
+  $existingPid = [System.IO.File]::ReadAllText($pidPath).Trim()
   if ($existingPid) {
     $existing = Get-Process -Id ([int]$existingPid) -ErrorAction SilentlyContinue
     if ($existing) {
@@ -37,39 +23,40 @@ if (Test-Path $pidPath) {
       exit 0
     }
   }
-
   Remove-Item $pidPath -Force
 }
 
-if (Test-Path $stdoutPath) { Remove-Item $stdoutPath -Force }
-if (Test-Path $stderrPath) { Remove-Item $stderrPath -Force }
+$process = Start-Process -FilePath "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" `
+  -ArgumentList @("-ExecutionPolicy", "Bypass", "-File", $runnerScript, "-Port", "$Port") `
+  -WindowStyle Hidden `
+  -PassThru
 
-$inner = ('""C:\Program Files\nodejs\npm.cmd"" run start -- --port {0} 1>> ""{1}"" 2>> ""{2}""' -f $Port, $stdoutPath, $stderrPath)
-$launcher = ('start "" /min cmd /k {0}' -f $inner)
-Start-Process -FilePath "C:\Windows\System32\cmd.exe" -ArgumentList "/c", $launcher -WorkingDirectory $appDir -WindowStyle Hidden | Out-Null
+[System.IO.File]::WriteAllText($pidPath, $process.Id.ToString(), [System.Text.UTF8Encoding]::new($false))
 
-for ($attempt = 0; $attempt -lt 30; $attempt++) {
+for ($attempt = 0; $attempt -lt 40; $attempt++) {
   Start-Sleep -Milliseconds 500
-  $listenerPid = Get-ListeningProcessId $Port
-  if ($listenerPid) {
-    try {
-      $response = Invoke-WebRequest -Uri "http://127.0.0.1:$Port/sign-in" -UseBasicParsing -TimeoutSec 2
-      if ($response.StatusCode -eq 200) {
-        Set-Content -Path $pidPath -Value $listenerPid -NoNewline
-        Write-Output "READY:${listenerPid}:${Port}"
-        exit 0
-      }
-    } catch {
+
+  $running = Get-Process -Id $process.Id -ErrorAction SilentlyContinue
+  if (-not $running) {
+    break
+  }
+
+  try {
+    $response = Invoke-WebRequest -Uri "http://127.0.0.1:$Port/sign-in" -UseBasicParsing -TimeoutSec 2
+    if ($response.StatusCode -eq 200) {
+      Write-Output "READY:$($process.Id):$Port"
+      exit 0
     }
+  } catch {
   }
 }
 
-$listenerPid = Get-ListeningProcessId $Port
-if ($listenerPid) {
-  Set-Content -Path $pidPath -Value $listenerPid -NoNewline
-  Write-Output "STARTED:${listenerPid}:${Port}"
+$running = Get-Process -Id $process.Id -ErrorAction SilentlyContinue
+if ($running) {
+  Write-Output "STARTED:$($process.Id):$Port"
   exit 0
 }
 
-Write-Output "FAILED:${Port}"
+if (Test-Path $pidPath) { Remove-Item $pidPath -Force }
+Write-Output "FAILED:$Port"
 exit 1

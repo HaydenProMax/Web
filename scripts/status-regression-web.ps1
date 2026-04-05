@@ -5,35 +5,33 @@ param(
 $ErrorActionPreference = "Stop"
 
 $workspaceRoot = Split-Path -Parent $PSScriptRoot
-$pidPath = Join-Path (Join-Path $workspaceRoot "tmp") "regression-web-$Port.pid"
+$tmpDir = Join-Path $workspaceRoot "tmp"
+$pidPath = Join-Path $tmpDir "regression-web-$Port.pid"
 
-function Get-ListeningProcessId([int]$ListeningPort) {
-  $lines = cmd /c "netstat -ano -p tcp | findstr LISTENING | findstr :$ListeningPort"
-  foreach ($line in $lines) {
-    $parts = ($line -split "\s+") | Where-Object { $_ }
-    if ($parts.Length -ge 5) {
-      return $parts[-1]
-    }
-  }
-
-  return $null
+$processId = $null
+if (Test-Path $pidPath) {
+  $processId = [System.IO.File]::ReadAllText($pidPath).Trim()
 }
 
-$listenerPid = Get-ListeningProcessId $Port
-if (-not $listenerPid) {
+if (-not $processId) {
   Write-Output "NOT-RUNNING"
   exit 0
 }
 
-Set-Content -Path $pidPath -Value $listenerPid -NoNewline
+$process = Get-Process -Id ([int]$processId) -ErrorAction SilentlyContinue
+if (-not $process) {
+  if (Test-Path $pidPath) { Remove-Item $pidPath -Force }
+  Write-Output "NOT-RUNNING"
+  exit 0
+}
 
 try {
   $response = Invoke-WebRequest -Uri "http://127.0.0.1:$Port/sign-in" -UseBasicParsing -TimeoutSec 2
   if ($response.StatusCode -eq 200) {
-    Write-Output "READY:${listenerPid}:${Port}"
+    Write-Output "READY:${processId}:${Port}"
     exit 0
   }
 } catch {
 }
 
-Write-Output "RUNNING:${listenerPid}:${Port}"
+Write-Output "RUNNING:${processId}:${Port}"

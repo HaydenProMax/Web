@@ -1,4 +1,4 @@
-import { ShellLayout } from "@/components/shell/shell-layout";
+﻿import { ShellLayout } from "@/components/shell/shell-layout";
 import { PlannerTaskForm } from "@/components/planner/planner-task-form";
 import { listPlannerLinkOptions } from "@/server/planner/service";
 
@@ -16,25 +16,25 @@ export default async function NewPlannerTaskPage({
 
   const selectedNote = linkOptions.notes.find((option) => option.value === (resolvedSearchParams?.note ?? ""));
   const selectedDraft = linkOptions.drafts.find((option) => option.value === (resolvedSearchParams?.draft ?? ""));
-  const seededTitle = selectedDraft
-    ? `Move ${selectedDraft.title} forward`
+  const seeded标题 = selectedDraft
+    ? `推进 ${selectedDraft.title}`
     : selectedNote
-      ? `Follow up on ${selectedNote.title}`
+      ? `跟进 ${selectedNote.title}`
       : "";
-  const seededDescription = selectedDraft
-    ? "Capture the next execution step for this draft and keep the writing flow moving."
+  const seeded说明 = selectedDraft
+    ? "为这篇草稿记录下一步执行动作，让写作继续推进。"
     : selectedNote
-      ? "Turn the current note into a concrete next step so the idea keeps moving."
+      ? "把当前笔记转成明确的下一步动作，让思路继续推进。"
       : "";
 
   return (
     <ShellLayout
-      title="New Task"
-      description="Planner now supports linking work back to the notes and drafts that generated it, turning the task layer into a real coordination surface."
+      title="新建任务"
+      description="规划模块现在支持把任务回链到产生它的笔记和草稿，让任务层成为真正的协调面。"
     >
       {resolvedSearchParams?.error === "create-failed" ? (
         <section className="rounded-[2rem] bg-rose-100 px-6 py-4 text-sm text-rose-700 shadow-ambient">
-          The task could not be created. Check the required fields and try again.
+          任务创建失败，请检查必填项后重试。
         </section>
       ) : null}
 
@@ -42,8 +42,8 @@ export default async function NewPlannerTaskPage({
         action={createPlannerTaskAction}
         linkOptions={linkOptions}
         initialData={{
-          title: seededTitle,
-          description: seededDescription,
+          title: seeded标题,
+          description: seeded说明,
           priority: selectedDraft || selectedNote ? "HIGH" : "MEDIUM",
           status: "TODO",
           scheduledFor: "",

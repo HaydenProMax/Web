@@ -5,23 +5,12 @@ param(
 $ErrorActionPreference = "Stop"
 
 $workspaceRoot = Split-Path -Parent $PSScriptRoot
-$pidPath = Join-Path (Join-Path $workspaceRoot "tmp") "regression-web-$Port.pid"
+$tmpDir = Join-Path $workspaceRoot "tmp"
+$pidPath = Join-Path $tmpDir "regression-web-$Port.pid"
 
-function Get-ListeningProcessId([int]$ListeningPort) {
-  $lines = cmd /c "netstat -ano -p tcp | findstr LISTENING | findstr :$ListeningPort"
-  foreach ($line in $lines) {
-    $parts = ($line -split "\s+") | Where-Object { $_ }
-    if ($parts.Length -ge 5) {
-      return $parts[-1]
-    }
-  }
-
-  return $null
-}
-
-$processId = Get-ListeningProcessId $Port
-if (-not $processId -and (Test-Path $pidPath)) {
-  $processId = (Get-Content $pidPath -Raw).Trim()
+$processId = $null
+if (Test-Path $pidPath) {
+  $processId = [System.IO.File]::ReadAllText($pidPath).Trim()
 }
 
 if (-not $processId) {

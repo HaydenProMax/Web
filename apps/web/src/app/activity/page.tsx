@@ -234,7 +234,7 @@ function buildLensSnapshot(focus: ActivityFocusKey, counts: { activity: number; 
     return {
       title: "Execution is carrying the lens",
       description: `You have ${counts.activity} visible task moves and ${counts.threads} linked thread${counts.threads === 1 ? "" : "s"} in view. This is the best mode for deciding what should move next.`,
-      ctaLabel: "Open planner",
+      ctaLabel: "打开规划",
       ctaHref: "/planner"
     };
   }
@@ -242,8 +242,8 @@ function buildLensSnapshot(focus: ActivityFocusKey, counts: { activity: number; 
   if (focus === "knowledge") {
     return {
       title: "Thinking traces are in focus",
-      description: `This lens currently shows ${counts.activity} note updates, ${counts.threads} note-linked thread${counts.threads === 1 ? "" : "s"}, and ${counts.timelineRecords} knowledge archive record${counts.timelineRecords === 1 ? "" : "s"}.`,
-      ctaLabel: "Open knowledge",
+      description: `当前视角下有 ${counts.activity} 条笔记动态、${counts.threads} 条与笔记关联的线程，以及 ${counts.timelineRecords} 条知识归档记录可供回看。`,
+      ctaLabel: "打开知识库",
       ctaHref: "/knowledge"
     };
   }
@@ -252,7 +252,7 @@ function buildLensSnapshot(focus: ActivityFocusKey, counts: { activity: number; 
     return {
       title: "Publishing work is surfaced",
       description: `The hub is tracking ${counts.activity} writing motions across drafts and published entries, plus ${counts.threads} draft-linked thread${counts.threads === 1 ? "" : "s"} feeding that stream.`,
-      ctaLabel: "Open writing",
+      ctaLabel: "打开写作",
       ctaHref: "/writing"
     };
   }
@@ -260,16 +260,16 @@ function buildLensSnapshot(focus: ActivityFocusKey, counts: { activity: number; 
   if (focus === "archive") {
     return {
       title: "Durable history is leading",
-      description: `You currently have ${counts.activity} archive activity card${counts.activity === 1 ? "" : "s"} and ${counts.timelineRecords} replayable record${counts.timelineRecords === 1 ? "" : "s"} spread across ${counts.timelineGroups} day group${counts.timelineGroups === 1 ? "" : "s"}.`,
-      ctaLabel: "Open archive",
+      description: `当前视角下有 ${counts.activity} 条归档动态、${counts.timelineRecords} 条可回放记录，分布在 ${counts.timelineGroups} 个时间分组中。`,
+      ctaLabel: "打开归档",
       ctaHref: "/archive"
     };
   }
 
   return {
     title: "The whole workstation is visible",
-    description: `This mixed lens currently surfaces ${counts.activity} activity cards, ${counts.threads} linked thread${counts.threads === 1 ? "" : "s"}, and ${counts.timelineRecords} archive record${counts.timelineRecords === 1 ? "" : "s"} across ${counts.timelineGroups} day group${counts.timelineGroups === 1 ? "" : "s"}.`,
-    ctaLabel: "Open Command Center",
+    description: `当前混合视角下有 ${counts.activity} 条活动卡片、${counts.threads} 条关联线程，以及 ${counts.timelineRecords} 条归档记录，分布在 ${counts.timelineGroups} 个时间分组中。`,
+    ctaLabel: "打开指令中心",
     ctaHref: "/search"
   };
 }
@@ -293,7 +293,7 @@ function buildLensActions(input: {
       { label: "Create task", href: "/planner/new", description: "Start a fresh execution thread from the planner." },
       latestTask
         ? { label: "Refine latest task", href: `/planner/${latestTask.id}/edit`, description: `Re-enter '${latestTask.title}' while its execution context is still fresh.` }
-        : { label: "Open planner", href: "/planner", description: "Review the full execution queue." },
+        : { label: "打开规划", href: "/planner", description: "查看完整执行队列。" },
       latestNote
         ? { label: "Task from latest note", href: `/planner/new?note=${latestNote.slug}`, description: `Turn '${latestNote.title}' into an actionable thread.` }
         : { label: "Capture note first", href: "/knowledge/new", description: "Seed the planner from a new knowledge note." }
@@ -305,10 +305,10 @@ function buildLensActions(input: {
       { label: "Capture note", href: "/knowledge/new", description: "Start a new note while this thinking lens is active." },
       latestNote
         ? { label: "Re-open latest note", href: `/knowledge/${latestNote.slug}`, description: `Continue shaping '${latestNote.title}'.` }
-        : { label: "Open knowledge", href: "/knowledge", description: "Browse the full note library." },
+        : { label: "打开知识库", href: "/knowledge", description: "查看完整笔记库。" },
       latestDraft && latestNote
         ? { label: "Thread note into draft", href: `/writing/new?sourceNote=${latestNote.slug}`, description: `Carry '${latestNote.title}' forward into the writing stream.` }
-        : { label: "Open writing", href: "/writing", description: "Move recent thinking toward writing when you're ready." }
+        : { label: "打开写作", href: "/writing", description: "在准备好时把近期思路推进到写作线。" }
     ];
   }
 
@@ -317,25 +317,25 @@ function buildLensActions(input: {
       { label: "Create draft", href: "/writing/new", description: "Start a new draft directly from the publishing lens." },
       latestDraft
         ? { label: "Continue latest draft", href: `/writing/drafts/${latestDraft.id}`, description: `Keep '${latestDraft.title}' moving toward publish.` }
-        : { label: "Open writing", href: "/writing", description: "Review all drafts and published writing." },
+        : { label: "打开写作", href: "/writing", description: "查看全部草稿和已发布内容。" },
       latestPost
         ? { label: "Read latest post", href: `/writing/${latestPost.slug}`, description: `Revisit '${latestPost.title}' from the published stream.` }
-        : { label: "Publish next piece", href: "/writing", description: "Open the writing feed and push a draft across the line." }
+        : { label: "推进下一篇发布", href: "/writing", description: "打开写作面板，把一篇草稿推过发布线。" }
     ];
   }
 
   if (input.focus === "archive") {
     return [
-      { label: "Open archive", href: "/archive", description: "Step into the full record layer with filters and favorites." },
+      { label: "打开归档", href: "/archive", description: "进入完整记录层，查看筛选和收藏。" },
       latestArchive?.href
         ? { label: "Re-open latest record", href: latestArchive.href, description: `Return to '${latestArchive.title}' from the archive stream.` }
-        : { label: "Open archive", href: "/archive", description: "Open the archive now and let records accumulate into a stronger replay surface over time." },
+        : { label: "打开归档", href: "/archive", description: "回到归档层，让记录逐步沉淀成更稳的回放界面。" },
       { label: "Review history timeline", href: "/activity?focus=archive#history-timeline", description: "Jump straight to the slower day-grouped replay lane." }
     ];
   }
 
   return [
-    { label: "Open Command Center", href: "/search", description: "Switch from replay into a search-or-command flow." },
+    { label: "打开指令中心", href: "/search", description: "从回放切换到搜索与指令流。" },
     latestTask
       ? { label: "Refine latest task", href: `/planner/${latestTask.id}/edit`, description: `Move '${latestTask.title}' while the whole workstation is visible.` }
       : { label: "Plan new task", href: "/planner/new", description: "Create the next unit of work from the mixed lens." },
@@ -468,27 +468,27 @@ export default async function ActivityHubPage({ searchParams }: ActivityPageProp
 
   return (
     <ShellLayout
-      title="Activity Hub"
-      description="A dedicated replay surface for the workstation, bringing together cross-module activity, linked work threads, and archive history in one place."
+      title="活动中心"
+      description="这是工作站的专用回放界面，把跨模块动态、关联工作线程和归档历史汇总到同一个入口。"
     >
       <WorkspaceViewNav
-        eyebrow="Replay Views"
-        title="Move between live motion, linked work, and durable history"
+        eyebrow="回放视图"
+        title="在实时动态、关联工作和历史沉淀之间切换"
         items={[
           {
-            label: "Recent Activity",
+            label: "近期活动",
             href: buildActivityHref(focus, "#recent-activity"),
-            description: "Start with the broadest cross-module stream of what changed most recently."
+            description: "从最近发生变化的跨模块总流开始回看。"
           },
           {
-            label: "Work Threads",
+            label: "关联线程",
             href: buildActivityHref(focus, "#work-threads"),
-            description: "Jump straight into tasks that still carry note and draft context."
+            description: "直接进入仍然带有笔记与草稿上下文的任务线程。"
           },
           {
-            label: "History Timeline",
+            label: "历史时间线",
             href: buildActivityHref(focus, "#history-timeline"),
-            description: "Step back into the archive's day-grouped replay when you need slower context."
+            description: "当你需要更慢节奏的上下文时，回到按天分组的归档时间线。"
           }
         ]}
       />
@@ -496,10 +496,10 @@ export default async function ActivityHubPage({ searchParams }: ActivityPageProp
       <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-primary">Focus Lens</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-primary">视角切换</p>
             <h2 className="mt-3 font-headline text-3xl text-foreground">Tune the replay surface without leaving the hub</h2>
           </div>
-          <span className="text-sm text-foreground/50">Active lens: {activeFocus.label} {focus === storedFocus ? "| saved for re-entry" : "| resume target was " + getActivityFocusLabel(storedFocus)}</span>
+          <span className="text-sm text-foreground/50">当前视角：{activeFocus.label} {focus === storedFocus ? "| 已保存为回到入口" : "| 之前的恢复目标是 " + getActivityFocusLabel(storedFocus)}</span>
         </div>
         <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
           {focusOptions.map((option) => {
@@ -526,11 +526,11 @@ export default async function ActivityHubPage({ searchParams }: ActivityPageProp
       <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-primary">Remembered Workflow</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-primary">记忆工作流</p>
             <h2 className="mt-3 font-headline text-3xl text-foreground">{rememberedWorkflow.active ? `${rememberedWorkflow.title} is still riding underneath this replay` : "This replay is currently running without a pinned workflow"}</h2>
           </div>
           <Link href={rememberedWorkflow.href} className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-ambient">
-            {rememberedWorkflow.active ? "Open Workflow" : "Open Command Desk"}
+            {rememberedWorkflow.active ? "打开工作流" : "打开指令台"}
           </Link>
         </div>
         <p className="mt-4 max-w-4xl text-sm leading-7 text-foreground/70">{rememberedWorkflow.summary} {rememberedWorkflow.active ? "The hub keeps that workflow visible so the active lens never fully erases the lane you pinned on purpose." : "Without a pinned workflow, the hub will follow the active lens and replay habit more directly."}</p>
@@ -540,21 +540,21 @@ export default async function ActivityHubPage({ searchParams }: ActivityPageProp
         <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-primary">Workflow Suggestion</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-primary">工作流建议</p>
               <h2 className="mt-3 font-headline text-3xl text-foreground">Pin {suggestedWorkflow.title} if this lens should keep shaping the desk</h2>
             </div>
             <Link href={buildSearchModuleStackHref(focus, "/activity")} className="rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-ambient">
               Pin {suggestedWorkflow.title}
             </Link>
           </div>
-          <p className="mt-4 max-w-4xl text-sm leading-7 text-foreground/70">{suggestedWorkflow.summary} You are already in the {activeFocus.label.toLowerCase()} lens, so pinning this workflow would keep that lane warm across the desk instead of leaving replay posture to work alone.</p>
+          <p className="mt-4 max-w-4xl text-sm leading-7 text-foreground/70">{suggestedWorkflow.summary} 当前你已经位于 {activeFocus.label} 视角，固定这条工作流后，整张桌面会持续保留这条通道的热度，而不只是依赖回放姿态自行推断。</p>
         </section>
       ) : null}
       <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <div className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
-          <p className="text-xs uppercase tracking-[0.2em] text-primary">Lens Snapshot</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-primary">视角快照</p>
           <h2 className="mt-3 font-headline text-3xl text-foreground">{lensSnapshot.title}</h2>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-foreground/70">{lensSnapshot.description} {rememberedWorkflow.active ? `${rememberedWorkflow.title} remains the pinned workflow beneath this lens.` : "No pinned workflow is overriding this lens right now."}</p>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-foreground/70">{lensSnapshot.description} {rememberedWorkflow.active ? `${rememberedWorkflow.title} 仍在这条视角下持续影响回放顺序。` : "当前没有固定工作流覆盖这条视角。"}</p>
           <Link href={lensSnapshot.ctaHref} className="mt-5 inline-flex rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-ambient">
             {lensSnapshot.ctaLabel}
           </Link>
@@ -562,12 +562,12 @@ export default async function ActivityHubPage({ searchParams }: ActivityPageProp
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-2">
           <div className="rounded-[1.5rem] bg-surface-container-low p-5 shadow-ambient">
-            <p className="text-xs uppercase tracking-[0.2em] text-primary">Activity</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-primary">动态</p>
             <p className="mt-3 font-headline text-3xl text-foreground">{recentActivity.length}</p>
-            <p className="mt-2 text-sm text-foreground/60">Visible cards in this lens.</p>
+            <p className="mt-2 text-sm text-foreground/60">当前视角下可见的活动卡片数。</p>
           </div>
           <div className="rounded-[1.5rem] bg-surface-container-low p-5 shadow-ambient">
-            <p className="text-xs uppercase tracking-[0.2em] text-primary">Threads</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-primary">线程</p>
             <p className="mt-3 font-headline text-3xl text-foreground">{linkedTasks.length}</p>
             <p className="mt-2 text-sm text-foreground/60">Linked tasks still carrying upstream context.</p>
           </div>
@@ -577,7 +577,7 @@ export default async function ActivityHubPage({ searchParams }: ActivityPageProp
             <p className="mt-2 text-sm text-foreground/60">Timeline day groups visible right now.</p>
           </div>
           <div className="rounded-[1.5rem] bg-surface-container-low p-5 shadow-ambient">
-            <p className="text-xs uppercase tracking-[0.2em] text-primary">Records</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-primary">记录</p>
             <p className="mt-3 font-headline text-3xl text-foreground">{timelineRecordCount}</p>
             <p className="mt-2 text-sm text-foreground/60">Replayable archive records in this lens.</p>
           </div>
@@ -586,17 +586,17 @@ export default async function ActivityHubPage({ searchParams }: ActivityPageProp
 
       <section className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
         <div className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
-          <p className="text-xs uppercase tracking-[0.2em] text-primary">Lens Launch Surface</p>
-          <h2 className="mt-3 font-headline text-3xl text-foreground">Make the next move from {activeFocus.label}</h2>
+          <p className="text-xs uppercase tracking-[0.2em] text-primary">视角启动面</p>
+          <h2 className="mt-3 font-headline text-3xl text-foreground">从 {activeFocus.label} 视角继续</h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-foreground/70">{primaryLaunch.description}</p>
           <div className="mt-5 flex flex-wrap gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
             {rememberedWorkflow.active ? (
               <>
-                <span className="rounded-full bg-white px-3 py-1 text-[10px] shadow-ambient">Pinned {rememberedWorkflow.title}</span>
-                <Link href={rememberedWorkflow.href}>Return to workflow</Link>
+                <span className="rounded-full bg-white px-3 py-1 text-[10px] shadow-ambient">固定 {rememberedWorkflow.title}</span>
+                <Link href={rememberedWorkflow.href}>返回工作流</Link>
               </>
             ) : (
-              <span className="rounded-full bg-white px-3 py-1 text-[10px] shadow-ambient">No pinned workflow</span>
+              <span className="rounded-full bg-white px-3 py-1 text-[10px] shadow-ambient">当前未固定工作流</span>
             )}
           </div>
           <Link href={primaryLaunch.href} className="mt-5 inline-flex rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-ambient">
@@ -635,10 +635,10 @@ export default async function ActivityHubPage({ searchParams }: ActivityPageProp
       <section id="recent-activity" className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-primary">Recent Activity</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-primary">近期活动</p>
             <h2 className="mt-3 font-headline text-3xl text-foreground">The latest movement across the workstation</h2>
           </div>
-          <span className="text-sm text-foreground/50">{recentActivity.length} visible activity cards</span>
+          <span className="text-sm text-foreground/50">{recentActivity.length} 条可见活动</span>
         </div>
         {recentActivity.length > 0 ? (
           <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -666,7 +666,7 @@ export default async function ActivityHubPage({ searchParams }: ActivityPageProp
       <section id="work-threads" className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-primary">Work Threads</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-primary">关联线程</p>
             <h2 className="mt-3 font-headline text-3xl text-foreground">Tasks that still remember where they came from</h2>
           </div>
           <span className="text-sm text-foreground/50">{linkedTasks.length} linked tasks</span>
@@ -694,7 +694,7 @@ export default async function ActivityHubPage({ searchParams }: ActivityPageProp
                   ) : null}
                 </div>
                 <Link href={`/planner/${task.id}/edit`} className="mt-4 inline-flex text-sm font-semibold text-primary">
-                  Open thread task
+                  打开线程任务
                 </Link>
               </article>
             ))}
@@ -709,7 +709,7 @@ export default async function ActivityHubPage({ searchParams }: ActivityPageProp
       <section id="history-timeline" className="space-y-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-primary">History Timeline</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-primary">历史时间线</p>
             <h2 className="mt-3 font-headline text-3xl text-foreground">Archive history grouped by day</h2>
           </div>
           <span className="text-sm text-foreground/50">{filteredTimelineGroups.length} day groups</span>
@@ -754,6 +754,11 @@ export default async function ActivityHubPage({ searchParams }: ActivityPageProp
     </ShellLayout>
   );
 }
+
+
+
+
+
 
 
 
