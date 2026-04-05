@@ -1,10 +1,10 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { cookies } from "next/headers";
 import type { ReactNode } from "react";
 import type { ArchiveItemSummary, KnowledgeNoteSummary, ModuleKey, PlannerTaskSummary, SearchResultGroup, SearchResultItem, WritingDraftSummary } from "@workspace/types/index";
 
 import type { ActivityFocusKey } from "@/lib/activity-focus";
-import { SEARCH_DENSITY_COOKIE, normalizeDeskDensity } from "@/lib/search-density";
+import { SEARCH_DENSITY_COOKIE, normalizeDeskDensity, parseSearchDeskDensity } from "@/lib/search-density";
 import { buildClearSearchModuleStackHref, SEARCH_MODULE_STACK_COOKIE, parseSearchModuleStack } from "@/lib/search-module-stack";
 import { ShellLayout } from "@/components/shell/shell-layout";
 import { getPreferredActivityReentry } from "@/server/activity/preferences";
@@ -612,7 +612,10 @@ export default async function SearchPage({
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const cookieStore = await cookies();
   const query = resolvedSearchParams?.q ?? "";
-  const deskDensity = normalizeDeskDensity(resolvedSearchParams?.density ?? cookieStore.get(SEARCH_DENSITY_COOKIE)?.value);
+  const densityParam = resolvedSearchParams?.density;
+  const deskDensity = densityParam === "compact" || densityParam === "comfortable"
+    ? densityParam
+    : normalizeDeskDensity(cookieStore.get(SEARCH_DENSITY_COOKIE)?.value);
   const rememberedModuleStack = parseSearchModuleStack(cookieStore.get(SEARCH_MODULE_STACK_COOKIE)?.value);
   const compactDesk = deskDensity === "compact";
   const [results, activityReentry, postureSnapshot, tasks, notes, drafts, archiveItems] = await Promise.all([
@@ -1306,6 +1309,7 @@ export default async function SearchPage({
     </ShellLayout>
   );
 }
+
 
 
 

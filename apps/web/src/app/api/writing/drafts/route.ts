@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 
 import { requireApiSession } from "@/app/api/auth-guard";
-import { createWritingDraft, listWritingDrafts } from "@/server/writing/service";
+import { createWritingDraft, getWritingOverview, listWritingDrafts } from "@/server/writing/service";
 
 export async function GET() {
   const unauthorized = await requireApiSession();
@@ -9,13 +9,17 @@ export async function GET() {
     return unauthorized;
   }
 
-  const drafts = await listWritingDrafts();
+  const [drafts, overview] = await Promise.all([
+    listWritingDrafts(),
+    getWritingOverview()
+  ]);
 
   return NextResponse.json({
     ok: true,
     data: {
       drafts,
-      count: drafts.length
+      count: drafts.length,
+      totalCount: overview.draftCount
     }
   });
 }
@@ -42,7 +46,7 @@ export async function POST(request: Request) {
         summary: formData.get("summary")?.toString() ?? "",
         coverImageUrl: formData.get("coverImageUrl")?.toString() ?? "",
         sourceNoteSlug: formData.get("sourceNoteSlug")?.toString() ?? "",
-        visibility: formData.get("visibility")?.toString() ?? "PRIVATE",
+        visibility: formData.get("visibility")?.toString() ?? "",
         content: JSON.parse(rawContent)
       };
     }

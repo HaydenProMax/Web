@@ -1,6 +1,8 @@
 import { cookies } from "next/headers";
 
-import { ACTIVITY_FOCUS_COOKIE, ACTIVITY_FOCUS_DEFAULT_COOKIE, buildActivityHref, getActivityFocusLabel, getActivityFocusNextStep, resolveActivityFocus } from "@/lib/activity-focus";
+import { ACTIVITY_FOCUS_COOKIE, ACTIVITY_FOCUS_DEFAULT_COOKIE, buildActivityHref, getActivityFocusLabel, getActivityFocusNextStep, parseActivityFocus, resolveActivityFocus } from "@/lib/activity-focus";
+import { getCurrentUserId } from "@/server/auth/current-user";
+import { getDb } from "@/server/db";
 
 export {
   ACTIVITY_FOCUS_COOKIE,
@@ -15,16 +17,29 @@ export {
 } from "@/lib/activity-focus";
 export type { ActivityFocusKey } from "@/lib/activity-focus";
 
+async function getPersistedDefaultActivityFocus() {
+  const db = getDb();
+  const ownerId = await getCurrentUserId();
+  const preferences = await db.userPreference.findUnique({
+    where: { userId: ownerId },
+    select: { defaultActivityFocus: true }
+  });
+
+  return parseActivityFocus(preferences?.defaultActivityFocus) ?? null;
+}
+
 export async function getPreferredActivityFocus() {
   const cookieStore = await cookies();
-  const currentFocus = cookieStore.get(ACTIVITY_FOCUS_COOKIE)?.value;
-  const defaultFocus = cookieStore.get(ACTIVITY_FOCUS_DEFAULT_COOKIE)?.value;
-  return resolveActivityFocus(currentFocus ?? defaultFocus);
+  const currentFocus = parseActivityFocus(cookieStore.get(ACTIVITY_FOCUS_COOKIE)?.value);
+  const persistedDefaultFocus = await getPersistedDefaultActivityFocus();
+  const defaultFocus = parseActivityFocus(cookieStore.get(ACTIVITY_FOCUS_DEFAULT_COOKIE)?.value);
+  return currentFocus ?? persistedDefaultFocus ?? defaultFocus ?? "all";
 }
 
 export async function getDefaultActivityFocus() {
   const cookieStore = await cookies();
-  return resolveActivityFocus(cookieStore.get(ACTIVITY_FOCUS_DEFAULT_COOKIE)?.value);
+  const persistedDefaultFocus = await getPersistedDefaultActivityFocus();
+  return persistedDefaultFocus ?? resolveActivityFocus(cookieStore.get(ACTIVITY_FOCUS_DEFAULT_COOKIE)?.value);
 }
 
 export async function getPreferredActivityHref(hash?: string) {

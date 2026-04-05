@@ -4,19 +4,19 @@ const MAX_UPLOAD_SIZE = 10 * 1024 * 1024;
 
 export const mediaUploadMetadataSchema = z.object({
   altText: z.string().max(200).optional().default(""),
-  fieldName: z.string().max(100).optional().default("content"),
-  entityType: z.string().max(100).optional().default("draft"),
-  entityId: z.string().max(100).optional().default("pending"),
-  moduleKey: z.enum(["dashboard", "planner", "knowledge", "writing", "archive", "modules", "settings"]).default("writing")
+  fieldName: z.string().min(1).max(100),
+  entityType: z.string().min(1).max(100),
+  entityId: z.string().min(1).max(100),
+  moduleKey: z.enum(["dashboard", "planner", "knowledge", "writing", "archive", "modules", "settings"])
 });
 
 export const mediaEmbedInputSchema = z.object({
   embedUrl: z.string().url(),
   altText: z.string().max(200).optional().default(""),
-  fieldName: z.string().max(100).optional().default("content"),
-  entityType: z.string().max(100).optional().default("draft"),
-  entityId: z.string().max(100).optional().default("pending"),
-  moduleKey: z.enum(["dashboard", "planner", "knowledge", "writing", "archive", "modules", "settings"]).default("writing")
+  fieldName: z.string().min(1).max(100),
+  entityType: z.string().min(1).max(100),
+  entityId: z.string().min(1).max(100),
+  moduleKey: z.enum(["dashboard", "planner", "knowledge", "writing", "archive", "modules", "settings"])
 });
 
 export function assertUploadableFile(file: File) {

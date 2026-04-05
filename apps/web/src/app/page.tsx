@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic";
+﻿export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 
@@ -367,7 +367,7 @@ export default async function DashboardPage() {
   ]);
 
   const enabledModules = moduleRegistry.filter((module) =>
-    settingsSnapshot.modules.some((item) => item.key === module.key && item.enabled)
+    settingsSnapshot.modules.some((item) => item.key === module.key && item.visibleInNavigation)
   );
   const dashboardHighlights = buildDashboardHighlights({
     rememberedWorkflowKey: rememberedWorkflow.key,
@@ -828,6 +828,7 @@ export default async function DashboardPage() {
       </section>    </ShellLayout>
   );
 }
+
 
 
 

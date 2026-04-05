@@ -95,7 +95,7 @@ export default async function SettingsPage({
             <h2 className="mt-3 font-headline text-3xl text-foreground">Pin the workflow lane you want the shell to keep warm</h2>
           </div>
           {alignedWorkflowMeta ? (
-            <Link href={buildSearchModuleStackHref(alignedWorkflowKey, "/settings")} className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-ambient">
+            <Link href={buildSearchModuleStackHref(alignedWorkflowKey!, "/settings")} className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-ambient">
               Follow {alignedWorkflowMeta.title}
             </Link>
           ) : null}
@@ -103,7 +103,7 @@ export default async function SettingsPage({
         <p className="mt-4 max-w-3xl text-sm leading-7 text-foreground/70">Workflow memory should be steerable from system controls too. Use these overrides to tell the desk which lane should keep influencing quick actions, highlights, search posture, and replay entry.</p>
         {!rememberedWorkflow.active && alignedWorkflowMeta ? (
           <div className="mt-5 flex flex-wrap gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
-            <Link href={buildSearchModuleStackHref(alignedWorkflowKey, "/settings")} className="rounded-full bg-white px-4 py-2 shadow-ambient">
+            <Link href={buildSearchModuleStackHref(alignedWorkflowKey!, "/settings")} className="rounded-full bg-white px-4 py-2 shadow-ambient">
               Suggest {alignedWorkflowMeta.title}
             </Link>
           </div>

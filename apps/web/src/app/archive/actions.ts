@@ -5,21 +5,42 @@ import { redirect } from "next/navigation";
 
 import { setArchiveItemFavorite } from "@/server/archive/service";
 
-function resolveArchiveCollection(value: string | null | undefined) {
-  if (value === "favorites" || value === "resources") {
+function parseArchiveCollection(value: string | null | undefined) {
+  if (value === "all" || value === "favorites" || value === "resources") {
     return value;
   }
 
-  return "all";
+  return undefined;
+}
+
+function parseFavoriteToggle(value: string | null | undefined) {
+  if (value === "1") {
+    return true;
+  }
+
+  if (value === "0") {
+    return false;
+  }
+
+  return undefined;
 }
 
 export async function toggleArchiveFavoriteAction(formData: FormData) {
   const itemId = formData.get("itemId")?.toString() ?? "";
-  const nextValue = formData.get("nextValue")?.toString() === "1";
-  const collection = resolveArchiveCollection(formData.get("collection")?.toString());
+  const nextValue = parseFavoriteToggle(formData.get("nextValue")?.toString());
+  const parsedCollection = parseArchiveCollection(formData.get("collection")?.toString());
+  const collection = parsedCollection ?? "all";
+
+  if (!parsedCollection && formData.get("collection") !== null) {
+    redirect(`/archive?collection=${collection}&error=invalid-collection`);
+  }
 
   if (!itemId) {
     redirect(`/archive?collection=${collection}&error=missing-item`);
+  }
+
+  if (nextValue === undefined) {
+    redirect(`/archive?collection=${collection}&error=favorite-failed`);
   }
 
   try {

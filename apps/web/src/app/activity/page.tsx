@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic";
+﻿export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 
@@ -431,7 +431,10 @@ function focusEmptyState(focus: ActivityFocusKey, section: "activity" | "threads
 export default async function ActivityHubPage({ searchParams }: ActivityPageProps) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const storedFocus = await getPreferredActivityFocus();
-  const focus = resolvedSearchParams?.focus ? resolveActivityFocus(resolvedSearchParams.focus) : storedFocus;
+  const requestedFocus = resolvedSearchParams?.focus;
+  const focus = requestedFocus === "all" || requestedFocus === "planner" || requestedFocus === "knowledge" || requestedFocus === "writing" || requestedFocus === "archive"
+    ? resolveActivityFocus(requestedFocus)
+    : storedFocus;
 
   const [tasks, notes, drafts, posts, archiveItems, timelineGroups, rememberedWorkflow] = await Promise.all([
     listPlannerTasks(12),
@@ -464,7 +467,8 @@ export default async function ActivityHubPage({ searchParams }: ActivityPageProp
   });
   const primaryLaunch = getActivityFocusNextStep(focus);
   const secondaryLaunches = lensActions.filter((action) => action.href !== primaryLaunch.href).slice(0, 2);
-  const suggestedWorkflow = focus === "planner" ? getSearchModuleStackMeta("planner") : focus === "knowledge" ? getSearchModuleStackMeta("knowledge") : focus === "writing" ? getSearchModuleStackMeta("writing") : focus === "archive" ? getSearchModuleStackMeta("archive") : null;
+  const suggestedWorkflowKey = focus === "planner" || focus === "knowledge" || focus === "writing" || focus === "archive" ? focus : null;
+  const suggestedWorkflow = suggestedWorkflowKey ? getSearchModuleStackMeta(suggestedWorkflowKey) : null;
 
   return (
     <ShellLayout
@@ -543,7 +547,7 @@ export default async function ActivityHubPage({ searchParams }: ActivityPageProp
               <p className="text-xs uppercase tracking-[0.2em] text-primary">Workflow Suggestion</p>
               <h2 className="mt-3 font-headline text-3xl text-foreground">Pin {suggestedWorkflow.title} if this lens should keep shaping the desk</h2>
             </div>
-            <Link href={buildSearchModuleStackHref(focus, "/activity")} className="rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-ambient">
+            <Link href={buildSearchModuleStackHref(suggestedWorkflowKey!, "/activity")} className="rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-ambient">
               Pin {suggestedWorkflow.title}
             </Link>
           </div>
@@ -754,6 +758,7 @@ export default async function ActivityHubPage({ searchParams }: ActivityPageProp
     </ShellLayout>
   );
 }
+
 
 
 

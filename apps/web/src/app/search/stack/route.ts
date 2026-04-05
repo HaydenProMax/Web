@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 
-import { getSearchModuleStackClearCookieConfig, getSearchModuleStackCookieConfig, normalizeSearchModuleStack } from "@/lib/search-module-stack";
+import { getSearchModuleStackClearCookieConfig, getSearchModuleStackCookieConfig, parseSearchModuleStack } from "@/lib/search-module-stack";
 
 function resolveSafeNextPath(value: string | null) {
   if (!value || !value.startsWith("/") || value.startsWith("//")) {
@@ -12,7 +12,8 @@ function resolveSafeNextPath(value: string | null) {
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const clear = url.searchParams.get("clear") === "1" || url.searchParams.get("value") === "clear";
+  const rawValue = url.searchParams.get("value");
+  const clear = url.searchParams.get("clear") === "1" || rawValue === "clear";
   const nextPath = resolveSafeNextPath(url.searchParams.get("next"));
   const nextUrl = new URL(nextPath, url.origin);
 
@@ -24,7 +25,11 @@ export async function GET(request: Request) {
     return response;
   }
 
-  const stack = normalizeSearchModuleStack(url.searchParams.get("value"));
+  const stack = parseSearchModuleStack(rawValue);
+  if (!stack) {
+    return response;
+  }
+
   const cookie = getSearchModuleStackCookieConfig(stack);
   response.cookies.set(cookie.name, cookie.value, cookie.options);
   return response;

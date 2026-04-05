@@ -15,7 +15,7 @@ function safeParseDraftPayload(formData: FormData) {
         summary: formData.get("summary")?.toString() ?? "",
         coverImageUrl: formData.get("coverImageUrl")?.toString() ?? "",
         sourceNoteSlug: formData.get("sourceNoteSlug")?.toString() ?? "",
-        visibility: formData.get("visibility")?.toString() ?? "PRIVATE",
+        visibility: formData.get("visibility")?.toString() ?? "",
         content: JSON.parse(rawContent)
       }
     };

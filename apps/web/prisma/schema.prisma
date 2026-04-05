@@ -113,16 +113,17 @@ model UserProfile {
 }
 
 model UserPreference {
-  id             String   @id @default(cuid())
-  userId         String   @unique
-  theme          String?  @default("light")
-  accentColor    String?
-  typographyMode String?
-  locale         String?
-  timezone       String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  theme               String?  @default("light")
+  accentColor         String?
+  typographyMode      String?
+  locale              String?
+  timezone            String?
+  defaultActivityFocus String? @default("all")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model ModuleRegistry {

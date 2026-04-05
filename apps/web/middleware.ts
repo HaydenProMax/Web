@@ -3,8 +3,8 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 import { auth } from "@/auth";
-import { getActivityFocusCookieConfig, resolveActivityFocus } from "@/lib/activity-focus";
-import { getSearchDensityCookieConfig } from "@/lib/search-density";
+import { getActivityFocusCookieConfig, parseActivityFocus } from "@/lib/activity-focus";
+import { getSearchDensityCookieConfig, parseSearchDeskDensity } from "@/lib/search-density";
 
 function resolveSafeCallbackPath(pathname: string, search: string) {
   const candidate = `${pathname}${search}`;
@@ -22,15 +22,15 @@ export default auth((req: NextRequest & { auth: Session | null }) => {
 
   function withActivityFocusSync(response: NextResponse) {
     if (pathname === "/activity") {
-      const requestedFocus = req.nextUrl.searchParams.get("focus");
+      const requestedFocus = parseActivityFocus(req.nextUrl.searchParams.get("focus"));
       if (requestedFocus) {
-        const cookie = getActivityFocusCookieConfig(resolveActivityFocus(requestedFocus));
+        const cookie = getActivityFocusCookieConfig(requestedFocus);
         response.cookies.set(cookie.name, cookie.value, cookie.options);
       }
     }
 
     if (pathname === "/search") {
-      const requestedDensity = req.nextUrl.searchParams.get("density");
+      const requestedDensity = parseSearchDeskDensity(req.nextUrl.searchParams.get("density"));
       if (requestedDensity) {
         const cookie = getSearchDensityCookieConfig(requestedDensity);
         response.cookies.set(cookie.name, cookie.value, cookie.options);

@@ -40,8 +40,9 @@ function mapPreference(input: {
     typographyMode: string | null;
     locale: string | null;
     timezone: string | null;
+    defaultActivityFocus: string | null;
   } | null;
-  defaultActivityFocus?: string | null;
+  legacyDefaultActivityFocus?: string | null;
 }): UserPreferenceSummary {
   return {
     displayName: input.profile?.displayName ?? "Workspace Owner",
@@ -51,7 +52,7 @@ function mapPreference(input: {
     typographyMode: input.preferences?.typographyMode ?? "serif-focus",
     locale: input.preferences?.locale ?? "zh-CN",
     timezone: input.preferences?.timezone ?? "Asia/Shanghai",
-    defaultActivityFocus: resolveActivityFocus(input.defaultActivityFocus)
+    defaultActivityFocus: resolveActivityFocus(input.preferences?.defaultActivityFocus ?? input.legacyDefaultActivityFocus)
   };
 }
 
@@ -111,7 +112,8 @@ export async function getSettingsSnapshot(): Promise<SettingsSnapshot> {
             accentColor: true,
             typographyMode: true,
             locale: true,
-            timezone: true
+            timezone: true,
+            defaultActivityFocus: true
           }
         }
       }
@@ -140,7 +142,7 @@ export async function getSettingsSnapshot(): Promise<SettingsSnapshot> {
   const preferences = mapPreference({
     profile: user?.profile ?? null,
     preferences: user?.preferences ?? null,
-    defaultActivityFocus
+    legacyDefaultActivityFocus: defaultActivityFocus
   });
   const replayAlignedKey = getReplayAlignedModuleKey(preferences.defaultActivityFocus);
 
@@ -216,7 +218,8 @@ export async function updateUserPreferences(input: UserPreferenceSummary) {
       accentColor: input.accentColor,
       typographyMode: input.typographyMode,
       locale: input.locale,
-      timezone: input.timezone
+      timezone: input.timezone,
+      defaultActivityFocus: input.defaultActivityFocus
     },
     create: {
       userId: ownerId,
@@ -224,7 +227,8 @@ export async function updateUserPreferences(input: UserPreferenceSummary) {
       accentColor: input.accentColor,
       typographyMode: input.typographyMode,
       locale: input.locale,
-      timezone: input.timezone
+      timezone: input.timezone,
+      defaultActivityFocus: input.defaultActivityFocus
     }
   });
 }

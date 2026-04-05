@@ -1,4 +1,4 @@
-"use server";
+﻿"use server";
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -18,8 +18,8 @@ function plannerPayload(formData: FormData) {
   return {
     title: formData.get("title")?.toString() ?? "",
     description: formData.get("description")?.toString() ?? "",
-    priority: formData.get("priority")?.toString() ?? "MEDIUM",
-    status: formData.get("status")?.toString() ?? "TODO",
+    priority: formData.get("priority")?.toString() ?? "",
+    status: formData.get("status")?.toString() ?? "",
     scheduledFor: normalizeDateTimeLocal(formData.get("scheduledFor")?.toString() ?? ""),
     dueAt: normalizeDateTimeLocal(formData.get("dueAt")?.toString() ?? ""),
     relatedNoteSlug: formData.get("relatedNoteSlug")?.toString() ?? "",
@@ -60,10 +60,14 @@ export async function updatePlannerTaskAction(formData: FormData) {
 
 export async function updatePlannerTaskStatusAction(formData: FormData) {
   const taskId = formData.get("taskId")?.toString() ?? "";
-  const status = formData.get("status")?.toString() ?? "TODO";
+  const status = formData.get("status")?.toString() ?? "";
 
   if (!taskId) {
     redirect("/planner?error=missing-task");
+  }
+
+  if (!status) {
+    redirect("/planner?error=update-failed");
   }
 
   try {
@@ -77,3 +81,4 @@ export async function updatePlannerTaskStatusAction(formData: FormData) {
   revalidatePath(`/planner/${taskId}/edit`);
   redirect("/planner?updated=1");
 }
+

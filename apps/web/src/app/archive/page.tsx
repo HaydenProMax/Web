@@ -13,12 +13,12 @@ type ArchivePageProps = {
   searchParams?: Promise<{ collection?: string; updated?: string; error?: string }>;
 };
 
-function resolveFilterKey(value?: string) {
-  if (value === "favorites" || value === "resources") {
+function parseArchiveFilterKey(value?: string) {
+  if (value === "all" || value === "favorites" || value === "resources") {
     return value;
   }
 
-  return "all" as const;
+  return undefined;
 }
 
 function filterHeading(filter: "all" | "favorites" | "resources") {
@@ -35,7 +35,8 @@ function filterHeading(filter: "all" | "favorites" | "resources") {
 
 export default async function ArchivePage({ searchParams }: ArchivePageProps) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
-  const activeFilter = resolveFilterKey(resolvedSearchParams?.collection);
+  const parsedFilter = parseArchiveFilterKey(resolvedSearchParams?.collection);
+  const activeFilter = parsedFilter ?? "all";
 
   const [collections, items, timelineGroups, historyTimelineHref, recentActivityHref, workThreadsHref, activityReentry] = await Promise.all([
     listArchiveCollectionSummaries(),
@@ -56,7 +57,9 @@ export default async function ArchivePage({ searchParams }: ArchivePageProps) {
         ? "Archive favorite update failed."
         : resolvedSearchParams?.error === "missing-item"
           ? "Archive item is missing."
-          : null;
+          : resolvedSearchParams?.error === "invalid-collection" || (resolvedSearchParams?.collection && !parsedFilter)
+            ? "Archive collection is invalid."
+            : null;
 
   return (
     <ShellLayout
@@ -236,3 +239,5 @@ export default async function ArchivePage({ searchParams }: ArchivePageProps) {
     </ShellLayout>
   );
 }
+
+

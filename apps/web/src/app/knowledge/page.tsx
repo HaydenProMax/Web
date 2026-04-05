@@ -7,10 +7,6 @@ import { getKnowledgeLibrarySummary, listKnowledgeNotes } from "@/server/knowled
 
 export const dynamic = "force-dynamic";
 
-function toKnowledgeSlug(value: string) {
-  return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-}
-
 function buildKnowledgeFilterHref(next: { domain?: string; tag?: string }) {
   const params = new URLSearchParams();
   if (next.domain) {
@@ -39,15 +35,18 @@ export default async function KnowledgePage({
   searchParams?: Promise<{ created?: string; domain?: string; tag?: string }>;
 }) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const [baseLibrary, activityReentry] = await Promise.all([
+    getKnowledgeLibrarySummary(),
+    getPreferredActivityReentry()
+  ]);
   const activeFilters = {
-    domain: resolvedSearchParams?.domain,
-    tag: resolvedSearchParams?.tag
+    domain: baseLibrary.domains.some((domain) => domain.slug === resolvedSearchParams?.domain) ? resolvedSearchParams?.domain : undefined,
+    tag: baseLibrary.tags.some((tag) => tag.slug === resolvedSearchParams?.tag) ? resolvedSearchParams?.tag : undefined
   };
 
-  const [library, notes, activityReentry] = await Promise.all([
+  const [library, notes] = await Promise.all([
     getKnowledgeLibrarySummary(activeFilters),
-    listKnowledgeNotes(9, activeFilters),
-    getPreferredActivityReentry()
+    listKnowledgeNotes(9, activeFilters)
   ]);
 
   const activeDomainLabel = library.domains.find((domain) => domain.slug === activeFilters.domain)?.label ?? activeFilters.domain;
@@ -197,33 +196,48 @@ export default async function KnowledgePage({
 
           {notes.length > 0 ? (
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-2">
-              {notes.map((note) => (
-                <article key={note.id} className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
-                  <div className="flex flex-wrap gap-2 text-xs uppercase tracking-[0.2em] text-primary">
-                    {note.domainName ? (
-                      <Link href={buildKnowledgeFilterHref({ domain: toKnowledgeSlug(note.domainName), tag: activeFilters.tag })}>
-                        {note.domainName}
-                      </Link>
-                    ) : null}
-                    <span>{note.contentBlockCount} blocks</span>
-                  </div>
-                  <h3 className="mt-3 font-headline text-2xl text-foreground">{note.title}</h3>
-                  <p className="mt-3 text-sm leading-6 text-foreground/70">{note.summary || "No summary yet."}</p>
-                  {note.tags.length > 0 ? (
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {note.tags.map((tag) => (
-                        <Link key={tag} href={buildKnowledgeFilterHref({ domain: activeFilters.domain, tag: toKnowledgeSlug(tag) || undefined })} className="rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-primary">
-                          {tag}
-                        </Link>
-                      ))}
+              {notes.map((note) => {
+                const domainSlug = note.domainName
+                  ? library.domains.find((domain) => domain.label === note.domainName)?.slug
+                  : undefined;
+
+                return (
+                  <article key={note.id} className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
+                    <div className="flex flex-wrap gap-2 text-xs uppercase tracking-[0.2em] text-primary">
+                      {note.domainName ? (
+                        domainSlug ? (
+                          <Link href={buildKnowledgeFilterHref({ domain: domainSlug, tag: activeFilters.tag })}>
+                            {note.domainName}
+                          </Link>
+                        ) : <span>{note.domainName}</span>
+                      ) : null}
+                      <span>{note.contentBlockCount} blocks</span>
                     </div>
-                  ) : null}
-                  <p className="mt-4 text-xs text-foreground/50">Updated {new Date(note.updatedAt).toLocaleString("zh-CN")}</p>
-                  <Link href={`/knowledge/${note.slug}`} className="mt-4 inline-flex text-sm font-semibold text-primary">
-                    Open note
-                  </Link>
-                </article>
-              ))}
+                    <h3 className="mt-3 font-headline text-2xl text-foreground">{note.title}</h3>
+                    <p className="mt-3 text-sm leading-6 text-foreground/70">{note.summary || "No summary yet."}</p>
+                    {note.tags.length > 0 ? (
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {note.tags.map((tag) => {
+                          const tagSlug = library.tags.find((item) => item.label === tag)?.slug;
+                          return tagSlug ? (
+                            <Link key={tagSlug} href={buildKnowledgeFilterHref({ domain: activeFilters.domain, tag: tagSlug })} className="rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-primary">
+                              {tag}
+                            </Link>
+                          ) : (
+                            <span key={tag} className="rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-primary">
+                              {tag}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    ) : null}
+                    <p className="mt-4 text-xs text-foreground/50">Updated {new Date(note.updatedAt).toLocaleString("zh-CN")}</p>
+                    <Link href={`/knowledge/${note.slug}`} className="mt-4 inline-flex text-sm font-semibold text-primary">
+                      Open note
+                    </Link>
+                  </article>
+                );
+              })}
             </div>
           ) : (
             <div className="rounded-[2rem] bg-surface-container-low p-6 text-sm text-foreground/60 shadow-ambient">
@@ -235,3 +249,4 @@ export default async function KnowledgePage({
     </ShellLayout>
   );
 }
+

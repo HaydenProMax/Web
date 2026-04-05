@@ -1,4 +1,4 @@
-import type { PlannerOverview, PlannerTaskLinkOptions, PlannerTaskSummary } from "@workspace/types/index";
+﻿import type { PlannerOverview, PlannerTaskLinkOptions, PlannerTaskSummary } from "@workspace/types/index";
 
 import { getCurrentUserId } from "@/server/auth/current-user";
 import { getDb } from "@/server/db";
@@ -69,6 +69,26 @@ function comparePlannerTasks(left: PlannerTaskSummary, right: PlannerTaskSummary
   return new Date(right.updatedAt).getTime() - new Date(left.updatedAt).getTime();
 }
 
+async function fetchActivePlannerTasks(ownerId: string) {
+  const db = getDb();
+  return db.plannerTask.findMany({
+    where: {
+      ownerId,
+      status: {
+        not: "ARCHIVED"
+      }
+    },
+    include: {
+      relatedNote: {
+        select: { slug: true, title: true }
+      },
+      relatedDraft: {
+        select: { id: true, title: true }
+      }
+    }
+  });
+}
+
 function resolveCompletedAt(status: PlannerTaskEditableStatus | PlannerTaskInput["status"], existingCompletedAt?: Date | null) {
   if (status === "DONE") {
     return existingCompletedAt ?? new Date();
@@ -87,6 +107,12 @@ function endOfToday() {
   const value = startOfToday();
   value.setDate(value.getDate() + 1);
   value.setMilliseconds(-1);
+  return value;
+}
+
+function startOfTomorrow() {
+  const value = startOfToday();
+  value.setDate(value.getDate() + 1);
   return value;
 }
 
@@ -197,30 +223,17 @@ export async function listPlannerLinkOptions(limit = 8): Promise<PlannerTaskLink
 export async function listPlannerTasks(limit = 12): Promise<PlannerTaskSummary[]> {
   const db = getDb();
   const ownerId = await getCurrentUserId();
-  const tasks = await db.plannerTask.findMany({
-    where: {
-      ownerId,
-      status: {
-        not: "ARCHIVED"
-      }
-    },
-    include: {
-      relatedNote: {
-        select: { slug: true, title: true }
-      },
-      relatedDraft: {
-        select: { id: true, title: true }
-      }
-    }
-  });
+  const tasks = await fetchActivePlannerTasks(ownerId);
 
   return tasks.map(mapPlannerTask).sort(comparePlannerTasks).slice(0, limit);
 }
 
 export async function getPlannerPlanningView(limitPerLane = 5) {
-  const tasks = await listPlannerTasks(40);
+  const ownerId = await getCurrentUserId();
+  const tasks: PlannerTaskSummary[] = (await fetchActivePlannerTasks(ownerId)).map(mapPlannerTask).sort(comparePlannerTasks);
   const todayStart = startOfToday();
   const todayEnd = endOfToday();
+  const weekStart = startOfTomorrow();
   const weekEnd = endOfPlanningWeek();
 
   const activeTasks = tasks.filter((task) => task.status !== "DONE");
@@ -231,7 +244,7 @@ export async function getPlannerPlanningView(limitPerLane = 5) {
   const weekTasks = sortByRelevantDate(
     activeTasks.filter((task) => {
       const candidate = task.scheduledFor ?? task.dueAt;
-      return isWithinRange(candidate, todayEnd, weekEnd);
+      return isWithinRange(candidate, weekStart, weekEnd);
     })
   ).slice(0, limitPerLane);
 
@@ -415,3 +428,8 @@ export async function getPlannerOverview(): Promise<PlannerOverview> {
     doneCount
   };
 }
+
+
+
+
+

@@ -2403,3 +2403,125 @@ Remaining V2 work now centers on live regression and terminology consistency rat
 - Restored app pages, shell, forms, and module labels from the V1 English source instead of continuing the partial Chinese UI rollout.
 - Verified with corepack pnpm --filter web typecheck and corepack pnpm --filter web build.
 
+
+## 2026-04-05 V3 Bugfix Pass
+
+- Repaired a broken pps/web/src/app/writing/page.tsx Promise tuple after a partial refactor so the app returned to a green 	ypecheck and uild baseline.
+- Fixed Knowledge filter links so note cards and note detail pages resolve domain/tag slugs from the real library summary instead of reconstructing them from display labels. This prevents broken filter links for non-Latin or punctuation-heavy labels.
+- Hardened pps/web/src/app/search/stack/route.ts so invalid alue query params no longer silently pin the remembered workflow to Planner.
+- Hardened pps/web/src/app/search/density/route.ts so invalid alue query params no longer silently overwrite the remembered desk density with comfortable.
+- Verification: corepack pnpm --filter web typecheck and corepack pnpm --filter web build both passed after each fix.
+- Hardened middleware.ts so invalid /activity?focus=... values no longer silently overwrite the replay lens cookie, and invalid /search?density=... values no longer silently overwrite the desk density cookie.
+- Hardened pps/web/src/app/settings/actions.ts so tampered requests can no longer report a successful module toggle for locked modules (dashboard, modules, settings).
+- Fixed GET /api/writing/drafts so it now returns 	otalCount in addition to the limited list length, avoiding a misleading API count when more drafts exist than the default page-size.
+- Hardened pps/web/src/app/activity/page.tsx so invalid ocus query params no longer temporarily force the page into ll lens; invalid values now fall back to the stored replay focus.
+- Hardened pps/web/src/app/search/page.tsx so invalid density query params no longer temporarily force the desk into comfortable; invalid values now fall back to the stored density cookie.
+- Hardened pps/web/src/app/settings/actions.ts so invalid enabled toggle values no longer silently coerce to alse; tampered module toggle requests now fail instead of quietly disabling modules.
+- Hardened pps/web/src/app/archive/actions.ts so invalid 
+extValue inputs no longer silently coerce to alse; tampered favorite toggles now fail instead of quietly unfavoriting records.
+- Hardened pps/web/src/app/settings/actions.ts so invalid defaultActivityFocus values no longer silently reset the default replay lens to ll; malformed input now fails the save instead.
+- Restored the earlier GET /api/writing/drafts API fix after it regressed: the endpoint now returns both the current page-size (count) and the real database-backed draft total (	otalCount).
+- Hardened pps/web/src/app/planner/actions.ts so missing status no longer silently reopens a task to TODO; malformed status submissions now fail instead.
+
+- Hardened apps/web/src/app/knowledge/page.tsx so invalid domain/tag query values no longer create a misleading filtered empty state or echo unknown raw slugs back as active filters; the page now validates incoming filters against the real knowledge taxonomy before applying them.
+
+- Hardened apps/web/src/app/writing/new/actions.ts and apps/web/src/app/api/writing/drafts/route.ts so missing visibility values no longer silently default to PRIVATE; malformed create/update submissions now fail schema validation instead of quietly changing publication scope.
+
+- Re-applied and verified hardening in apps/web/src/app/settings/actions.ts, apps/web/src/app/archive/actions.ts, and apps/web/src/app/planner/actions.ts after a drift check showed those files had fallen back to permissive defaults. Locked modules now reject tampered toggles, archive favorite toggles reject invalid nextValue inputs, planner form payloads no longer silently default priority/status, and status updates no longer reopen tasks when status is missing.
+
+- Hardened apps/web/src/app/settings/actions.ts further so theme, accentColor, and typographyMode no longer silently fall back to default values when malformed form submissions are received; invalid enum values now fail the preference save instead.
+
+- Hardened apps/web/src/app/api/media/uploads/route.ts and apps/web/src/server/media/schema.ts so media uploads no longer silently default missing metadata to writing/draft/pending/content. Existing draft editor callers already send explicit metadata, and malformed upload requests now fail validation instead of quietly attaching assets to the wrong workflow context.
+
+- Hardened apps/web/src/app/settings/actions.ts again so missing locale/timezone values no longer silently reset preferences to zh-CN and Asia/Shanghai; malformed settings submissions now fail instead of overwriting those fields with defaults.
+- 2026-04-05 V3 preference fallback hardening:
+  - Fixed `apps/web/src/server/activity/preferences.ts` so an invalid `activity-focus` cookie no longer masks a valid default lens cookie and forces `all`.
+  - Added explicit `parseActivityFocus()` in `apps/web/src/lib/activity-focus.ts` and reused it in preference resolution.
+  - Hardened `apps/web/src/lib/search-density.ts` with `parseSearchDeskDensity()` and made `getSearchDensityCookieConfig()` accept only validated density values.
+  - Updated `apps/web/src/app/search/density/route.ts`, `apps/web/src/app/search/page.tsx`, and `middleware.ts` to use validated density parsing instead of silently coercing invalid values.
+  - Verification: `corepack pnpm --filter web typecheck`, `corepack pnpm --filter web build`.
+- 2026-04-05 V3 middleware focus sync fix:
+  - Fixed `middleware.ts` so `/activity?focus=...` only syncs the activity-focus cookie when the query is a valid focus key.
+  - This closes the last known hole where an invalid focus query could still overwrite the current replay lens to `all` during middleware sync.
+  - Verification: `corepack pnpm --filter web typecheck`, `corepack pnpm --filter web build`.
+- 2026-04-05 V3 workflow stack helper hardening:
+  - Tightened `apps/web/src/lib/search-module-stack.ts` so stack meta, cookie config, and href builders only accept validated `SearchModuleStackKey` values.
+  - Fixed `apps/web/src/app/activity/page.tsx` so the workflow suggestion CTA no longer falls back to pinning `Planner Stack` when the current lens is not itself a valid stack key.
+  - Updated `apps/web/src/app/settings/page.tsx` and `apps/web/src/app/modules/page.tsx` call sites to use explicit validated keys, making future invalid workflow stack usage surface at compile time.
+  - Verification: `corepack pnpm --filter web typecheck`, `corepack pnpm --filter web build`.
+- 2026-04-05 V3 writing feed count fix:
+  - Fixed `apps/web/src/app/writing/page.tsx` so the `Recent Entries` section reports `recentPosts.length` instead of full `posts.length` after the featured post is split out.
+  - This removes the off-by-one mismatch where the section could say it was showing more posts than were actually listed.
+  - Verification: `corepack pnpm --filter web typecheck`, `corepack pnpm --filter web build`.
+
+
+### 2026-04-05 V3 Dashboard Hidden Module Sweep
+- Fixed a dashboard/system-posture consistency bug in pps/web/src/app/page.tsx.
+- Dashboard highlight cards were filtering by enabled, which could still surface modules hidden from navigation.
+- The homepage now filters against isibleInNavigation, keeping highlight visibility aligned with the shell/module registry contract.
+- Verification:
+  - corepack pnpm --filter web typecheck`r
+  - corepack pnpm --filter web build`r
+
+
+
+### 2026-04-05 V3 Planner Lane Boundary Sweep
+- Fixed a planning-lane boundary bug in pps/web/src/server/planner/service.ts.
+- This Week was previously starting at endOfToday(), which could let a task scheduled exactly at the end-of-day boundary appear in both Today and This Week.
+- The weekly lane now starts at startOfTomorrow(), removing the overlap and keeping planning buckets mutually exclusive.
+- Verification:
+  - corepack pnpm --filter web typecheck`r
+  - corepack pnpm --filter web build`r
+
+
+
+### 2026-04-05 V3 Planner Truncation Sweep
+- Fixed a planning-view truncation bug in pps/web/src/server/planner/service.ts.
+- getPlannerPlanningView() was previously calling listPlannerTasks(40) and then splitting lanes from an already-truncated task set, which meant Today / This Week / Overdue could miss valid tasks once the active planner grew past 40 items.
+- Added a shared active-task fetch helper and now build planning lanes from the full active task set before trimming each lane individually.
+- Verification:
+  - corepack pnpm --filter web typecheck`r
+  - corepack pnpm --filter web build`r
+
+
+
+### 2026-04-05 V3 Persisted Default Replay Lens
+- Fixed a real preference-persistence bug across pps/web/src/server/settings/service.ts, pps/web/src/server/activity/preferences.ts, and pps/web/prisma/schema.prisma.
+- Default Replay Lens previously behaved like a saved user setting in the UI, but was only stored in cookies. Clearing cookies or switching browsers silently reset the saved lens back to ll.
+- The default replay lens is now persisted on UserPreference.defaultActivityFocus, with cookie values kept as a compatibility/current-session layer instead of the source of truth.
+- Added migration file: prisma/migrations/20260405153000_persist_default_activity_focus/migration.sql.
+- Applied the column to the local Docker PostgreSQL dev database directly because Prisma schema engine is still intermittently blocked by Windows EPERM.
+- Verification:
+  - corepack pnpm --filter web prisma validate`r
+  - corepack pnpm --filter web prisma generate`r
+  - corepack pnpm --filter web typecheck`r
+  - corepack pnpm --filter web build`r
+
+
+## 2026-04-05 V3 Media File Guardrail
+
+- Fixed a private media access bug in `apps/web/src/app/api/media/files/[...segments]/route.ts`.
+- The local media file route previously served any matching `storageKey` without session checks and used public immutable cache headers.
+- It now requires an authenticated session, scopes the asset lookup by `ownerId`, and returns private revalidated cache headers.
+- Validation: `corepack pnpm --filter web typecheck` and `corepack pnpm --filter web build` both passed.
+
+## 2026-04-05 V3 Archive Filter Guardrail
+
+- Fixed another silent-defaulting issue in `apps/web/src/app/archive/page.tsx`.
+- Invalid `collection` query values no longer silently masquerade as `all` without feedback.
+- The page now parses archive filters explicitly, falls back to `all` only for rendering, and surfaces an `Archive collection is invalid.` message when the query value is unknown.
+- Validation: `corepack pnpm --filter web typecheck` and `corepack pnpm --filter web build` both passed.
+
+## 2026-04-05 V3 Archive Action Guardrail
+
+- Fixed the matching archive action-side guardrail in `apps/web/src/app/archive/actions.ts`.
+- Invalid archive `collection` values no longer silently redirect through the `all` lane when toggling favorites.
+- The action now parses the collection explicitly, rejects invalid values with `error=invalid-collection`, and stays aligned with the archive page-side parsing rules.
+- Validation: `corepack pnpm --filter web typecheck` and `corepack pnpm --filter web build` both passed.
+
+## 2026-04-05 V3 Knowledge Slug Integrity Follow-up
+
+- Fixed another slug-integrity issue across `apps/web/src/server/knowledge/service.ts`, `packages/types/src/index.ts`, `apps/web/src/app/knowledge/page.tsx`, and `apps/web/src/app/knowledge/[slug]/page.tsx`.
+- Knowledge note summaries/details now carry `domainSlug` and `tagLinks` directly instead of forcing pages to reverse-map slugs from display labels.
+- This removes another hidden dependency on mutable labels and keeps note cards/detail pages aligned with the earlier Knowledge filter hardening work.
+- Validation: `corepack pnpm --filter web typecheck` and `corepack pnpm --filter web build` both passed.

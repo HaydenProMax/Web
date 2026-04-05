@@ -17,10 +17,10 @@ export async function POST(request: Request) {
     if (file instanceof File) {
       const asset = await createUploadedImageAsset(file, {
         altText: formData.get("altText")?.toString() ?? "",
-        fieldName: formData.get("fieldName")?.toString() ?? "content",
-        entityType: formData.get("entityType")?.toString() ?? "draft",
-        entityId: formData.get("entityId")?.toString() ?? "pending",
-        moduleKey: formData.get("moduleKey")?.toString() ?? "writing"
+        fieldName: formData.get("fieldName")?.toString() ?? "",
+        entityType: formData.get("entityType")?.toString() ?? "",
+        entityId: formData.get("entityId")?.toString() ?? "",
+        moduleKey: formData.get("moduleKey")?.toString() ?? ""
       });
 
       return NextResponse.json({ ok: true, data: asset }, { status: 201 });
@@ -30,10 +30,10 @@ export async function POST(request: Request) {
       const asset = await createEmbedMediaAsset({
         embedUrl,
         altText: formData.get("altText")?.toString() ?? "",
-        fieldName: formData.get("fieldName")?.toString() ?? "content",
-        entityType: formData.get("entityType")?.toString() ?? "draft",
-        entityId: formData.get("entityId")?.toString() ?? "pending",
-        moduleKey: formData.get("moduleKey")?.toString() ?? "writing"
+        fieldName: formData.get("fieldName")?.toString() ?? "",
+        entityType: formData.get("entityType")?.toString() ?? "",
+        entityId: formData.get("entityId")?.toString() ?? "",
+        moduleKey: formData.get("moduleKey")?.toString() ?? ""
       });
 
       return NextResponse.json({ ok: true, data: asset }, { status: 201 });

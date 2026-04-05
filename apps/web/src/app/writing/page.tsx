@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { ShellLayout } from "@/components/shell/shell-layout";
 import { getPreferredActivityReentry } from "@/server/activity/preferences";
-import { listPublishedWritingPosts, listWritingDrafts } from "@/server/writing/service";
+import { getWritingOverview, listPublishedWritingPosts, listWritingDrafts } from "@/server/writing/service";
 
 function PostCover({ coverImage, coverAlt, title, priority = false }: { coverImage?: string; coverAlt: string; title: string; priority?: boolean }) {
   if (!coverImage) {
@@ -89,7 +89,8 @@ export default async function WritingPage({
 }: {
   searchParams?: Promise<{ created?: string; published?: string }>;
 }) {
-  const [posts, drafts, activityReentry, resolvedSearchParams] = await Promise.all([
+  const [overview, posts, drafts, activityReentry, resolvedSearchParams] = await Promise.all([
+    getWritingOverview(),
     listPublishedWritingPosts(),
     listWritingDrafts(),
     getPreferredActivityReentry(),
@@ -296,7 +297,7 @@ export default async function WritingPage({
       <section className="space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="font-headline text-3xl">Recent Drafts</h2>
-          <span className="text-sm text-foreground/50">{drafts.length} draft records</span>
+          <span className="text-sm text-foreground/50">Showing {drafts.length} of {overview.draftCount} drafts</span>
         </div>
         {drafts.length > 0 ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -331,7 +332,7 @@ export default async function WritingPage({
       <section className="space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="font-headline text-3xl">Recent Entries</h2>
-          <span className="text-sm text-foreground/50">{posts.length} available posts</span>
+          <span className="text-sm text-foreground/50">Showing {recentPosts.length} of {overview.publishedCount} posts</span>
         </div>
         {recentPosts.length > 0 ? (
           <div className="grid gap-6 md:grid-cols-2">
@@ -372,3 +373,6 @@ export default async function WritingPage({
     </ShellLayout>
   );
 }
+
+
+

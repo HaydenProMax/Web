@@ -12,12 +12,16 @@ const activityFocusLabels: Record<ActivityFocusKey, string> = {
   archive: "History"
 };
 
-export function resolveActivityFocus(value?: string | null): ActivityFocusKey {
-  if (value === "planner" || value === "knowledge" || value === "writing" || value === "archive") {
+export function parseActivityFocus(value?: string | null): ActivityFocusKey | null {
+  if (value === "all" || value === "planner" || value === "knowledge" || value === "writing" || value === "archive") {
     return value;
   }
 
-  return "all";
+  return null;
+}
+
+export function resolveActivityFocus(value?: string | null): ActivityFocusKey {
+  return parseActivityFocus(value) ?? "all";
 }
 
 export function getActivityFocusLabel(focus: ActivityFocusKey) {
@@ -98,7 +102,6 @@ export function getActivityFocusNextStep(focus: ActivityFocusKey): ActivityFocus
     description: "Return to the full workstation replay and pick up whatever moved most recently."
   };
 }
-
 
 export type ActivityFocusSurface = "dashboard" | "settings" | "modules";
 

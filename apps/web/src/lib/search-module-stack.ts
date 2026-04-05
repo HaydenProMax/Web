@@ -1,4 +1,4 @@
-﻿export type SearchModuleStackKey = "planner" | "knowledge" | "writing" | "archive";
+export type SearchModuleStackKey = "planner" | "knowledge" | "writing" | "archive";
 
 export const SEARCH_MODULE_STACK_COOKIE = "command-module-stack";
 export const SEARCH_MODULE_STACK_MAX_AGE = 60 * 60 * 24 * 365;
@@ -39,18 +39,14 @@ export function parseSearchModuleStack(value?: string | null): SearchModuleStack
   return null;
 }
 
-export function normalizeSearchModuleStack(value?: string | null): SearchModuleStackKey {
-  return parseSearchModuleStack(value) ?? "planner";
+export function getSearchModuleStackMeta(value: SearchModuleStackKey) {
+  return SEARCH_MODULE_STACK_META[value];
 }
 
-export function getSearchModuleStackMeta(value?: string | null) {
-  return SEARCH_MODULE_STACK_META[normalizeSearchModuleStack(value)];
-}
-
-export function getSearchModuleStackCookieConfig(value?: string | null) {
+export function getSearchModuleStackCookieConfig(value: SearchModuleStackKey) {
   return {
     name: SEARCH_MODULE_STACK_COOKIE,
-    value: normalizeSearchModuleStack(value),
+    value,
     options: {
       path: "/",
       sameSite: "lax" as const,
@@ -73,9 +69,8 @@ export function getSearchModuleStackClearCookieConfig() {
   };
 }
 
-export function buildSearchModuleStackHref(value?: string | null, nextPath = "/search") {
-  const stack = normalizeSearchModuleStack(value);
-  return "/search/stack?value=" + stack + "&next=" + encodeURIComponent(nextPath);
+export function buildSearchModuleStackHref(value: SearchModuleStackKey, nextPath = "/search") {
+  return "/search/stack?value=" + value + "&next=" + encodeURIComponent(nextPath);
 }
 
 export function buildClearSearchModuleStackHref(nextPath = "/search") {

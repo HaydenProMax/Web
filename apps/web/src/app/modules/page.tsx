@@ -158,7 +158,7 @@ export default async function ModulesPage({
             <h2 className="mt-3 font-headline text-3xl text-foreground">Switch which module stack the registry should keep in front</h2>
           </div>
           {alignedWorkflowMeta ? (
-            <Link href={buildSearchModuleStackHref(alignedWorkflowKey, "/modules")} className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-ambient">
+            <Link href={buildSearchModuleStackHref(alignedWorkflowKey!, "/modules")} className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-ambient">
               Follow {alignedWorkflowMeta.title}
             </Link>
           ) : null}
@@ -166,7 +166,7 @@ export default async function ModulesPage({
         <p className="mt-4 max-w-3xl text-sm leading-7 text-foreground/70">Use the registry to explicitly repin the stack you want the desk to favor. This lets you switch workflow memory without hunting through the command desk first.</p>
         {!rememberedWorkflow.active && alignedWorkflowMeta ? (
           <div className="mt-5 flex flex-wrap gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
-            <Link href={buildSearchModuleStackHref(alignedWorkflowKey, "/modules")} className="rounded-full bg-white px-4 py-2 shadow-ambient">
+            <Link href={buildSearchModuleStackHref(alignedWorkflowKey!, "/modules")} className="rounded-full bg-white px-4 py-2 shadow-ambient">
               Suggest {alignedWorkflowMeta.title}
             </Link>
           </div>
@@ -215,8 +215,9 @@ export default async function ModulesPage({
 
       <div className="grid gap-6 md:grid-cols-2">
         {snapshot.modules.map((module) => {
-          const stackModule = isSearchModuleStackKey(module.key) ? getSearchModuleStackMeta(module.key) : null;
-          const isRemembered = stackModule ? module.key === rememberedWorkflow.key : false;
+          const stackModuleKey = isSearchModuleStackKey(module.key) ? module.key : null;
+          const stackModule = stackModuleKey ? getSearchModuleStackMeta(stackModuleKey) : null;
+          const isRemembered = stackModuleKey ? stackModuleKey === rememberedWorkflow.key : false;
 
           return (
             <ModuleCard
@@ -243,7 +244,7 @@ export default async function ModulesPage({
                   {moduleReplayLabel(module.key, activityReentry.defaultFocus)}
                 </Link>
                 {stackModule ? (
-                  <Link href={buildSearchModuleStackHref(module.key, "/modules")} className="block rounded-[1.5rem] bg-white/80 px-4 py-3 font-semibold text-primary shadow-ambient">
+                  <Link href={buildSearchModuleStackHref(stackModuleKey!, "/modules")} className="block rounded-[1.5rem] bg-white/80 px-4 py-3 font-semibold text-primary shadow-ambient">
                     {isRemembered ? `Keep ${stackModule.title}` : `Pin ${stackModule.title}`}
                   </Link>
                 ) : null}
@@ -269,6 +270,7 @@ export default async function ModulesPage({
     </ShellLayout>
   );
 }
+
 
 
 
