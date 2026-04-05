@@ -4,7 +4,7 @@ import { KnowledgeNoteForm } from "@/components/knowledge/knowledge-note-form";
 import { ShellLayout } from "@/components/shell/shell-layout";
 import { getKnowledgeNoteBySlug } from "@/server/knowledge/service";
 
-import { updateKnowledgeNoteAction } from "../../new/actions";
+import { archiveKnowledgeNoteAction, updateKnowledgeNoteAction } from "../../new/actions";
 
 export default async function EditKnowledgeNotePage({
   params,
@@ -37,6 +37,20 @@ export default async function EditKnowledgeNotePage({
           The note could not be saved. Check the fields and try again.
         </section>
       ) : null}
+
+      {resolvedSearchParams?.error === "delete-failed" ? (
+        <section className="rounded-[2rem] bg-rose-100 px-6 py-4 text-sm text-rose-700 shadow-ambient">
+          The note could not be archived. Please try again.
+        </section>
+      ) : null}
+
+      <div className="flex justify-end">
+        <form action={archiveKnowledgeNoteAction.bind(null, note.slug)}>
+          <button type="submit" className="rounded-full bg-rose-600 px-5 py-2 text-sm font-semibold text-white shadow-ambient">
+            Archive Note
+          </button>
+        </form>
+      </div>
 
       <KnowledgeNoteForm
         action={updateKnowledgeNoteAction.bind(null, note.slug)}

@@ -29,10 +29,10 @@ function slugify(value: string) {
     .slice(0, 80) || "note";
 }
 
-function buildKnowledgeWhere(ownerId: string, filters?: { domain?: string; tag?: string }): Prisma.KnowledgeNoteWhereInput {
+function buildKnowledgeWhere(ownerId: string, filters?: { domain?: string; tag?: string }, archived = false): Prisma.KnowledgeNoteWhereInput {
   return {
     ownerId,
-    isArchived: false,
+    isArchived: archived,
     ...(filters?.domain
       ? {
           domain: {
@@ -98,7 +98,12 @@ function mapKnowledgeSummary(note: {
     title: note.title,
     summary: note.summary ?? "",
     domainName: note.domain?.name ?? undefined,
+    domainSlug: note.domain?.slug ?? undefined,
     tags: note.tags.map((entry) => entry.tag.name),
+    tagLinks: note.tags.map((entry) => ({
+      label: entry.tag.name,
+      slug: entry.tag.slug
+    })),
     createdAt: note.createdAt.toISOString(),
     updatedAt: note.updatedAt.toISOString(),
     contentBlockCount: content.length
@@ -194,12 +199,13 @@ async function syncKnowledgeNoteTaxonomy(
 
 export async function listKnowledgeNotes(
   limit = 12,
-  filters?: { domain?: string; tag?: string }
+  filters?: { domain?: string; tag?: string },
+  archived = false
 ): Promise<KnowledgeNoteSummary[]> {
   const db = getDb();
   const ownerId = await getCurrentUserId();
   const notes = await db.knowledgeNote.findMany({
-    where: buildKnowledgeWhere(ownerId, filters),
+    where: buildKnowledgeWhere(ownerId, filters, archived),
     orderBy: { updatedAt: "desc" },
     take: limit,
     include: {
@@ -383,19 +389,121 @@ export async function updateKnowledgeNote(slug: string, input: unknown) {
   throw new Error("Unable to reserve a unique note slug.");
 }
 
-export async function getKnowledgeOverview(filters?: { domain?: string; tag?: string }): Promise<KnowledgeOverview> {
+export async function archiveKnowledgeNote(slug: string) {
   const db = getDb();
   const ownerId = await getCurrentUserId();
-  const [noteCount, domainCount, tagCount] = await Promise.all([
-    db.knowledgeNote.count({ where: buildKnowledgeWhere(ownerId, filters) }),
+  const existing = await db.knowledgeNote.findFirst({
+    where: { ownerId, slug, isArchived: false },
+    select: { id: true }
+  });
+
+  if (!existing) {
+    throw new Error("Knowledge note not found.");
+  }
+
+  await db.$transaction(async (tx: Prisma.TransactionClient) => {
+    await tx.plannerTask.updateMany({
+      where: { ownerId, relatedNoteId: existing.id },
+      data: { relatedNoteId: null }
+    });
+
+    await tx.writingDraft.updateMany({
+      where: { ownerId, sourceNoteId: existing.id },
+      data: { sourceNoteId: null }
+    });
+
+    await tx.writingPost.updateMany({
+      where: { ownerId, sourceNoteId: existing.id },
+      data: { sourceNoteId: null }
+    });
+
+    await tx.archiveItem.deleteMany({
+      where: { ownerId, noteId: existing.id }
+    });
+
+    await tx.knowledgeNote.update({
+      where: { id: existing.id },
+      data: { isArchived: true }
+    });
+  });
+}
+
+export async function restoreKnowledgeNote(slug: string) {
+  const db = getDb();
+  const ownerId = await getCurrentUserId();
+  const existing = await db.knowledgeNote.findFirst({
+    where: { ownerId, slug, isArchived: true },
+    select: { id: true, title: true, summary: true }
+  });
+
+  if (!existing) {
+    throw new Error("Archived knowledge note not found.");
+  }
+
+  await db.$transaction(async (tx: Prisma.TransactionClient) => {
+    const restored = await tx.knowledgeNote.update({
+      where: { id: existing.id },
+      data: { isArchived: false },
+      select: { id: true, title: true, summary: true }
+    });
+
+    await upsertArchiveItemForNote({ noteId: restored.id, title: restored.title, summary: restored.summary }, tx);
+  });
+}
+
+export async function deleteArchivedKnowledgeNote(slug: string) {
+  const db = getDb();
+  const ownerId = await getCurrentUserId();
+  const existing = await db.knowledgeNote.findFirst({
+    where: { ownerId, slug, isArchived: true },
+    select: { id: true }
+  });
+
+  if (!existing) {
+    throw new Error("Archived knowledge note not found.");
+  }
+
+  await db.$transaction(async (tx: Prisma.TransactionClient) => {
+    await tx.plannerTask.updateMany({
+      where: { ownerId, relatedNoteId: existing.id },
+      data: { relatedNoteId: null }
+    });
+
+    await tx.writingDraft.updateMany({
+      where: { ownerId, sourceNoteId: existing.id },
+      data: { sourceNoteId: null }
+    });
+
+    await tx.writingPost.updateMany({
+      where: { ownerId, sourceNoteId: existing.id },
+      data: { sourceNoteId: null }
+    });
+
+    await tx.archiveItem.deleteMany({
+      where: { ownerId, noteId: existing.id }
+    });
+
+    await tx.knowledgeNote.delete({
+      where: { id: existing.id }
+    });
+  });
+}
+
+export async function getKnowledgeOverview(filters?: { domain?: string; tag?: string }, archived = false): Promise<KnowledgeOverview> {
+  const db = getDb();
+  const ownerId = await getCurrentUserId();
+  const [noteCount, domainCount, tagCount, archivedCount] = await Promise.all([
+    db.knowledgeNote.count({ where: buildKnowledgeWhere(ownerId, filters, archived) }),
     db.knowledgeDomain.count({ where: { ownerId } }),
-    db.knowledgeTag.count({ where: { ownerId } })
+    db.knowledgeTag.count({ where: { ownerId } }),
+    db.knowledgeNote.count({ where: { ownerId, isArchived: true } })
   ]);
 
   return {
     noteCount,
     domainCount,
-    tagCount
+    tagCount,
+    archivedCount
   };
 }
 
@@ -410,11 +518,11 @@ function mapFilterOptions(items: Array<{ name: string; slug: string; _count?: { 
     .sort((left, right) => right.count - left.count || left.label.localeCompare(right.label));
 }
 
-export async function getKnowledgeLibrarySummary(filters?: { domain?: string; tag?: string }): Promise<KnowledgeLibrarySummary> {
+export async function getKnowledgeLibrarySummary(filters?: { domain?: string; tag?: string }, archived = false): Promise<KnowledgeLibrarySummary> {
   const db = getDb();
   const ownerId = await getCurrentUserId();
   const [overview, domains, tags] = await Promise.all([
-    getKnowledgeOverview(filters),
+    getKnowledgeOverview(filters, archived),
     db.knowledgeDomain.findMany({
       where: { ownerId },
       select: {
@@ -424,7 +532,7 @@ export async function getKnowledgeLibrarySummary(filters?: { domain?: string; ta
           select: {
             notes: {
               where: {
-                isArchived: false
+                isArchived: archived
               }
             }
           }
@@ -441,7 +549,7 @@ export async function getKnowledgeLibrarySummary(filters?: { domain?: string; ta
             notes: {
               where: {
                 note: {
-                  isArchived: false
+                  isArchived: archived
                 }
               }
             }
@@ -457,4 +565,7 @@ export async function getKnowledgeLibrarySummary(filters?: { domain?: string; ta
     tags: mapFilterOptions(tags, "tag")
   };
 }
+
+
+
 

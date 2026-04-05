@@ -3,7 +3,9 @@ import { notFound } from "next/navigation";
 
 import { ShellLayout } from "@/components/shell/shell-layout";
 import { RichTextPreview } from "@/components/writing/rich-text-preview";
-import { getKnowledgeLibrarySummary, getKnowledgeNoteBySlug } from "@/server/knowledge/service";
+import { getKnowledgeNoteBySlug } from "@/server/knowledge/service";
+
+import { archiveKnowledgeNoteAction } from "../new/actions";
 
 export default async function KnowledgeDetailPage({
   params,
@@ -19,9 +21,6 @@ export default async function KnowledgeDetailPage({
   if (!note) {
     notFound();
   }
-
-  const library = await getKnowledgeLibrarySummary();
-  const domainSlug = note.domainName ? library.domains.find((domain) => domain.label === note.domainName)?.slug : undefined;
 
   return (
     <ShellLayout
@@ -42,7 +41,7 @@ export default async function KnowledgeDetailPage({
 
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.2em] text-primary">
-          {note.domainName ? (domainSlug ? <Link href={`/knowledge?domain=${domainSlug}`}>{note.domainName}</Link> : <span>{note.domainName}</span>) : null}
+          {note.domainName ? (note.domainSlug ? <Link href={`/knowledge?domain=${note.domainSlug}`}>{note.domainName}</Link> : <span>{note.domainName}</span>) : null}
           <span>{note.contentBlockCount} blocks</span>
           <span>Updated {new Date(note.updatedAt).toLocaleString("zh-CN")}</span>
         </div>
@@ -56,26 +55,24 @@ export default async function KnowledgeDetailPage({
           <Link href="/archive" className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-primary shadow-ambient">
             View Archive
           </Link>
+          <form action={archiveKnowledgeNoteAction.bind(null, note.slug)}>
+            <button type="submit" className="rounded-full bg-rose-600 px-5 py-2 text-sm font-semibold text-white shadow-ambient">
+              Archive Note
+            </button>
+          </form>
           <Link href={`/knowledge/${note.slug}/edit`} className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white">
             Edit Note
           </Link>
         </div>
       </div>
 
-      {note.tags.length > 0 ? (
+      {note.tagLinks.length > 0 ? (
         <div className="flex flex-wrap gap-3">
-          {note.tags.map((tag) => {
-            const tagSlug = library.tags.find((item) => item.label === tag)?.slug;
-            return tagSlug ? (
-              <Link key={tagSlug} href={`/knowledge?tag=${tagSlug}`} className="rounded-full bg-surface-container-low px-4 py-2 text-sm font-semibold text-primary shadow-ambient">
-                {tag}
-              </Link>
-            ) : (
-              <span key={tag} className="rounded-full bg-surface-container-low px-4 py-2 text-sm font-semibold text-primary shadow-ambient">
-                {tag}
-              </span>
-            );
-          })}
+          {note.tagLinks.map((tag) => (
+            <Link key={tag.slug} href={`/knowledge?tag=${tag.slug}`} className="rounded-full bg-surface-container-low px-4 py-2 text-sm font-semibold text-primary shadow-ambient">
+              {tag.label}
+            </Link>
+          ))}
         </div>
       ) : null}
 
@@ -121,4 +118,3 @@ export default async function KnowledgeDetailPage({
     </ShellLayout>
   );
 }
-

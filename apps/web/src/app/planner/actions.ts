@@ -1,9 +1,9 @@
-﻿"use server";
+"use server";
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { createPlannerTask, updatePlannerTask, updatePlannerTaskStatus } from "@/server/planner/service";
+import { archivePlannerTask, createPlannerTask, deleteArchivedPlannerTask, restorePlannerTask, updatePlannerTask, updatePlannerTaskStatus } from "@/server/planner/service";
 
 function normalizeDateTimeLocal(value: string) {
   if (!value.trim()) {
@@ -25,6 +25,27 @@ function plannerPayload(formData: FormData) {
     relatedNoteSlug: formData.get("relatedNoteSlug")?.toString() ?? "",
     relatedDraftId: formData.get("relatedDraftId")?.toString() ?? ""
   };
+}
+
+async function completePlannerArchive(taskId: string) {
+  await archivePlannerTask(taskId);
+  revalidatePath("/");
+  revalidatePath("/planner");
+  revalidatePath("/activity");
+}
+
+async function completePlannerRestore(taskId: string) {
+  await restorePlannerTask(taskId);
+  revalidatePath("/");
+  revalidatePath("/planner");
+  revalidatePath("/activity");
+}
+
+async function completePlannerPermanentDelete(taskId: string) {
+  await deleteArchivedPlannerTask(taskId);
+  revalidatePath("/");
+  revalidatePath("/planner");
+  revalidatePath("/activity");
 }
 
 export async function createPlannerTaskAction(formData: FormData) {
@@ -82,3 +103,67 @@ export async function updatePlannerTaskStatusAction(formData: FormData) {
   redirect("/planner?updated=1");
 }
 
+export async function archivePlannerTaskAction(formData: FormData) {
+  const taskId = formData.get("taskId")?.toString() ?? "";
+
+  if (!taskId) {
+    redirect("/planner?error=missing-task");
+  }
+
+  try {
+    await completePlannerArchive(taskId);
+  } catch {
+    redirect(`/planner/${taskId}/edit?error=delete-failed`);
+  }
+
+  redirect("/planner?deleted=1");
+}
+
+export async function archivePlannerTaskFromListAction(formData: FormData) {
+  const taskId = formData.get("taskId")?.toString() ?? "";
+
+  if (!taskId) {
+    redirect("/planner?error=delete-failed");
+  }
+
+  try {
+    await completePlannerArchive(taskId);
+  } catch {
+    redirect("/planner?error=delete-failed");
+  }
+
+  redirect("/planner?deleted=1");
+}
+
+export async function restorePlannerTaskFromListAction(formData: FormData) {
+  const taskId = formData.get("taskId")?.toString() ?? "";
+
+  if (!taskId) {
+    redirect("/planner?view=archived&error=restore-failed");
+  }
+
+  try {
+    await completePlannerRestore(taskId);
+  } catch {
+    redirect("/planner?view=archived&error=restore-failed");
+  }
+
+  redirect("/planner?view=archived&restored=1");
+}
+
+export async function deleteArchivedPlannerTaskFromListAction(formData: FormData) {
+  const taskId = formData.get("taskId")?.toString() ?? "";
+  const confirmed = formData.get("confirmed")?.toString() ?? "";
+
+  if (!taskId || confirmed !== "true") {
+    redirect("/planner?view=archived&error=confirm-delete-required");
+  }
+
+  try {
+    await completePlannerPermanentDelete(taskId);
+  } catch {
+    redirect("/planner?view=archived&error=permanent-delete-failed");
+  }
+
+  redirect("/planner?view=archived&destroyed=1");
+}

@@ -1,4 +1,4 @@
-﻿import type { PlannerOverview, PlannerTaskLinkOptions, PlannerTaskSummary } from "@workspace/types/index";
+import type { PlannerOverview, PlannerTaskLinkOptions, PlannerTaskSummary } from "@workspace/types/index";
 
 import { getCurrentUserId } from "@/server/auth/current-user";
 import { getDb } from "@/server/db";
@@ -69,14 +69,16 @@ function comparePlannerTasks(left: PlannerTaskSummary, right: PlannerTaskSummary
   return new Date(right.updatedAt).getTime() - new Date(left.updatedAt).getTime();
 }
 
-async function fetchActivePlannerTasks(ownerId: string) {
+async function fetchPlannerTasks(ownerId: string, archived = false) {
   const db = getDb();
   return db.plannerTask.findMany({
     where: {
       ownerId,
-      status: {
-        not: "ARCHIVED"
-      }
+      status: archived
+        ? "ARCHIVED"
+        : {
+            not: "ARCHIVED"
+          }
     },
     include: {
       relatedNote: {
@@ -220,17 +222,16 @@ export async function listPlannerLinkOptions(limit = 8): Promise<PlannerTaskLink
   };
 }
 
-export async function listPlannerTasks(limit = 12): Promise<PlannerTaskSummary[]> {
-  const db = getDb();
+export async function listPlannerTasks(limit = 12, options?: { archived?: boolean }): Promise<PlannerTaskSummary[]> {
   const ownerId = await getCurrentUserId();
-  const tasks = await fetchActivePlannerTasks(ownerId);
+  const tasks = await fetchPlannerTasks(ownerId, options?.archived ?? false);
 
   return tasks.map(mapPlannerTask).sort(comparePlannerTasks).slice(0, limit);
 }
 
 export async function getPlannerPlanningView(limitPerLane = 5) {
   const ownerId = await getCurrentUserId();
-  const tasks: PlannerTaskSummary[] = (await fetchActivePlannerTasks(ownerId)).map(mapPlannerTask).sort(comparePlannerTasks);
+  const tasks: PlannerTaskSummary[] = (await fetchPlannerTasks(ownerId, false)).map(mapPlannerTask).sort(comparePlannerTasks);
   const todayStart = startOfToday();
   const todayEnd = endOfToday();
   const weekStart = startOfTomorrow();
@@ -411,23 +412,108 @@ export async function updatePlannerTaskStatus(taskId: string, statusInput: unkno
   return mapPlannerTask(task);
 }
 
+export async function archivePlannerTask(taskId: string) {
+  const db = getDb();
+  const ownerId = await getCurrentUserId();
+  const existing = await db.plannerTask.findFirst({
+    where: {
+      id: taskId,
+      ownerId,
+      status: {
+        not: "ARCHIVED"
+      }
+    },
+    select: {
+      id: true,
+      completedAt: true
+    }
+  });
+
+  if (!existing) {
+    throw new Error("Planner task not found");
+  }
+
+  await db.plannerTask.update({
+    where: { id: existing.id },
+    data: {
+      status: "ARCHIVED",
+      completedAt: existing.completedAt
+    }
+  });
+}
+
+export async function restorePlannerTask(taskId: string) {
+  const db = getDb();
+  const ownerId = await getCurrentUserId();
+  const existing = await db.plannerTask.findFirst({
+    where: {
+      id: taskId,
+      ownerId,
+      status: "ARCHIVED"
+    },
+    select: {
+      id: true,
+      completedAt: true
+    }
+  });
+
+  if (!existing) {
+    throw new Error("Archived planner task not found");
+  }
+
+  await db.plannerTask.update({
+    where: { id: existing.id },
+    data: {
+      status: existing.completedAt ? "DONE" : "TODO",
+      completedAt: existing.completedAt
+    }
+  });
+}
+
+export async function deleteArchivedPlannerTask(taskId: string) {
+  const db = getDb();
+  const ownerId = await getCurrentUserId();
+  const existing = await db.plannerTask.findFirst({
+    where: {
+      id: taskId,
+      ownerId,
+      status: "ARCHIVED"
+    },
+    select: {
+      id: true
+    }
+  });
+
+  if (!existing) {
+    throw new Error("Archived planner task not found");
+  }
+
+  await db.plannerTask.delete({
+    where: { id: existing.id }
+  });
+}
 export async function getPlannerOverview(): Promise<PlannerOverview> {
   const db = getDb();
   const ownerId = await getCurrentUserId();
-  const [totalCount, todoCount, inProgressCount, doneCount] = await Promise.all([
+  const [totalCount, todoCount, inProgressCount, doneCount, archivedCount] = await Promise.all([
     db.plannerTask.count({ where: { ownerId, status: { not: "ARCHIVED" } } }),
     db.plannerTask.count({ where: { ownerId, status: "TODO" } }),
     db.plannerTask.count({ where: { ownerId, status: "IN_PROGRESS" } }),
-    db.plannerTask.count({ where: { ownerId, status: "DONE" } })
+    db.plannerTask.count({ where: { ownerId, status: "DONE" } }),
+    db.plannerTask.count({ where: { ownerId, status: "ARCHIVED" } })
   ]);
 
   return {
     totalCount,
     todoCount,
     inProgressCount,
-    doneCount
+    doneCount,
+    archivedCount
   };
 }
+
+
+
 
 
 

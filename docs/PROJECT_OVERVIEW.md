@@ -2392,9 +2392,12 @@ Remaining V2 work now centers on live regression and terminology consistency rat
 - Validation: `corepack pnpm --filter web typecheck` passed and `corepack pnpm --filter web build` passed.
 
 ### 2026-04-05 Create Success False Failure Fix
-- Fixed a shared server-action bug where edirect() was called inside 	ry/catch blocks for knowledge, planner, writing, archive, and settings actions.
-- Because Next.js edirect() throws a control-flow exception, successful creates/updates were being caught and rewritten into create-failed / save-failed style redirects even after the data had already been saved.
-- Moved post-success edirect() calls outside the 	ry/catch blocks so only the actual service call is guarded.
+- Fixed a shared server-action bug where 
+edirect() was called inside 	ry/catch blocks for knowledge, planner, writing, archive, and settings actions.
+- Because Next.js 
+edirect() throws a control-flow exception, successful creates/updates were being caught and rewritten into create-failed / save-failed style redirects even after the data had already been saved.
+- Moved post-success 
+edirect() calls outside the 	ry/catch blocks so only the actual service call is guarded.
 - Verified with corepack pnpm --filter web typecheck and corepack pnpm --filter web build.
 
 
@@ -2525,3 +2528,52 @@ extValue inputs no longer silently coerce to alse; tampered favorite toggles no
 - Knowledge note summaries/details now carry `domainSlug` and `tagLinks` directly instead of forcing pages to reverse-map slugs from display labels.
 - This removes another hidden dependency on mutable labels and keeps note cards/detail pages aligned with the earlier Knowledge filter hardening work.
 - Validation: `corepack pnpm --filter web typecheck` and `corepack pnpm --filter web build` both passed.
+
+## 2026-04-05 - V4 soft delete foundation
+- Added Knowledge note archiving through rchiveKnowledgeNoteAction, rchiveKnowledgeNote, and new archive actions on the note detail/edit surfaces.
+- Added Planner task archiving through rchivePlannerTaskAction, rchivePlannerTask, and a new archive action on the planner edit surface.
+- Knowledge note archiving now cleans linked live state before hiding the note: planner task note links are cleared, writing draft/post source-note links are cleared, and note-backed archive records are removed.
+- Extended KnowledgeNoteSummary with domainSlug and 	agLinks so list/detail pages can render archive-safe taxonomy links without guessing from labels.
+- Verification passed: corepack pnpm --filter web typecheck and corepack pnpm --filter web build.
+
+## 2026-04-05 - V4 roadmap: deletion flow
+V4 focuses on deletion as a safe, staged capability rather than immediate hard delete.
+
+### Phase 1 - archive entry points
+- Add archive actions to the Knowledge list view.
+- Add archive actions to the Planner list view.
+- Normalize success and failure feedback for list-surface archive actions.
+- Verify list-level archive actions revalidate and refresh correctly.
+
+### Phase 2 - archived views and restore
+- Add an archived view for Knowledge notes.
+- Add an archived view for Planner tasks.
+- Add restore actions for archived Knowledge notes and Planner tasks.
+- Verify archive and restore flows preserve valid cross-module relationships.
+
+### Phase 3 - permanent delete review
+- Decide which archived records are eligible for physical deletion.
+- Define cascade and cleanup rules before removing anything permanently.
+- Only allow irreversible delete from archived state, with explicit confirmation.
+
+### Working rule for V4
+- Build V4 in order: Phase 1, then Phase 2, then Phase 3.
+- Do not implement permanent delete before archive and restore are stable.
+- Phase 1 of V4 is now live: archive entry points were added to the Knowledge list and Planner list so users do not have to open detail/edit pages just to remove active items.
+- Knowledge list cards now submit rchiveKnowledgeNoteFromListAction and show success/failure feedback on /knowledge.
+- Planner task cards now submit rchivePlannerTaskFromListAction and show success/failure feedback on /planner.
+- Verification passed after the list-entry changes: corepack pnpm --filter web typecheck and corepack pnpm --filter web build.
+- Phase 2 of V4 is now live: Knowledge and Planner both support archived list views plus list-surface restore actions.
+- /knowledge?view=archived now lists archived notes, supports restore, and keeps domain/tag filtering working against the archived set.
+- /planner?view=archived now lists archived tasks, supports restore, and keeps active planning/work-thread sections hidden while browsing archive state.
+- Restoring a Knowledge note reactivates the note and recreates its note-backed archive record; restoring a Planner task returns it to TODO unless it already had completedAt, in which case it returns to DONE.
+- Verification passed after the archived-view work: corepack pnpm --filter web typecheck and corepack pnpm --filter web build.
+- Regression pass for V4 archive/delete work: code-level verification passed with corepack pnpm --filter web typecheck and corepack pnpm --filter web build after Phase 2 landed.
+- The attempted Prisma-driven data regression script was blocked by the current Windows sandbox refresh issue while spawning 
+ode, so browser/manual verification is still recommended for the full archive -> archived view -> restore flow.
+
+## V4.0
+- Added a confirmation step before permanent delete for both archived notes and archived tasks. Archived list cards now link into a delete-confirmation state on the same page, and the delete actions require an explicit `confirmed=true` flag before proceeding. Invalid direct submissions now return `confirm-delete-required` instead of deleting immediately. Verified with `corepack pnpm --filter web typecheck` and `corepack pnpm --filter web build`.
+- Added permanent delete for archived Planner tasks. Implemented `deleteArchivedPlannerTask(taskId)` in the planner service, `deleteArchivedPlannerTaskFromListAction(formData)` in planner actions, and a `Delete Permanently` button in the archived tasks list. Permanent delete is restricted to `status = ARCHIVED`, and the archived view now reports success via `destroyed=1` and failure via `permanent-delete-failed`. Verified with `corepack pnpm --filter web typecheck` and `corepack pnpm --filter web build`.
+- Phase 3 started with permanent delete for archived Knowledge notes. Added `deleteArchivedKnowledgeNote(slug)` in the knowledge service, `deleteArchivedKnowledgeNoteFromListAction(formData)` in the Knowledge actions, and a `Delete Permanently` button in the archived notes list. Permanent delete is restricted to `isArchived = true`, clears linked planner/writing note references, removes note-backed archive items, and then deletes the note record. Verified with `corepack pnpm --filter web typecheck` and `corepack pnpm --filter web build`.
+- Fixed archived Planner list query: archived tasks were counted in `Archive Pool` but not shown in `Archived Tasks` because the service query always filtered `status != ARCHIVED`. `fetchPlannerTasks(ownerId, archived)` now switches the `where.status` condition based on the archived flag. Verified with `corepack pnpm --filter web typecheck` and `corepack pnpm --filter web build`.

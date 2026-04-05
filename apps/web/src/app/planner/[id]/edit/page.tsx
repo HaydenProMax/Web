@@ -1,10 +1,10 @@
-﻿import { notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 
 import { PlannerTaskForm } from "@/components/planner/planner-task-form";
 import { ShellLayout } from "@/components/shell/shell-layout";
 import { getPlannerTaskById, listPlannerLinkOptions } from "@/server/planner/service";
 
-import { updatePlannerTaskAction } from "../../actions";
+import { archivePlannerTaskAction, updatePlannerTaskAction } from "../../actions";
 
 function toDateTimeLocal(value?: string) {
   if (!value) {
@@ -45,6 +45,21 @@ export default async function EditPlannerTaskPage({
         </section>
       ) : null}
 
+      {resolvedSearchParams?.error === "delete-failed" ? (
+        <section className="rounded-[2rem] bg-rose-100 px-6 py-4 text-sm text-rose-700 shadow-ambient">
+          The task could not be archived. Please try again.
+        </section>
+      ) : null}
+
+      <div className="flex justify-end">
+        <form action={archivePlannerTaskAction}>
+          <input type="hidden" name="taskId" value={task.id} />
+          <button type="submit" className="rounded-full bg-rose-600 px-5 py-2 text-sm font-semibold text-white shadow-ambient">
+            Archive Task
+          </button>
+        </form>
+      </div>
+
       <PlannerTaskForm
         action={updatePlannerTaskAction}
         taskId={task.id}
@@ -67,4 +82,3 @@ export default async function EditPlannerTaskPage({
     </ShellLayout>
   );
 }
-

@@ -126,6 +126,7 @@ export type PlannerOverview = {
   todoCount: number;
   inProgressCount: number;
   doneCount: number;
+  archivedCount: number;
 };
 
 export type PlannerTaskLinkOption = {
@@ -153,7 +154,12 @@ export type KnowledgeNoteSummary = {
   title: string;
   summary: string;
   domainName?: string;
+  domainSlug?: string;
   tags: string[];
+  tagLinks: Array<{
+    label: string;
+    slug: string;
+  }>;
   createdAt: string;
   updatedAt: string;
   contentBlockCount: number;
@@ -168,6 +174,7 @@ export type KnowledgeOverview = {
   noteCount: number;
   domainCount: number;
   tagCount: number;
+  archivedCount: number;
 };
 
 export type KnowledgeFilterOption = {
@@ -291,5 +298,6 @@ export type SystemPostureSnapshot = {
   hiddenModuleCount: number;
   lockedModuleCount: number;
 };
+
 
 
