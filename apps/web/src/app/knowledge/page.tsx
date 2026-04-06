@@ -76,11 +76,11 @@ export default async function KnowledgePage({
         </section>
       ) : resolvedSearchParams?.deleted === "1" ? (
         <section className="rounded-[2rem] bg-primary-container/40 px-6 py-4 text-sm text-primary shadow-ambient">
-          Note archived successfully. It has been removed from the live knowledge library.
+          Note archived successfully.
         </section>
       ) : resolvedSearchParams?.restored === "1" ? (
         <section className="rounded-[2rem] bg-primary-container/40 px-6 py-4 text-sm text-primary shadow-ambient">
-          Note restored successfully. It is visible in the live knowledge library again.
+          Note restored successfully.
         </section>
       ) : resolvedSearchParams?.destroyed === "1" ? (
         <section className="rounded-[2rem] bg-primary-container/40 px-6 py-4 text-sm text-primary shadow-ambient">
@@ -110,7 +110,7 @@ export default async function KnowledgePage({
 
       <div className="flex flex-wrap items-center justify-end gap-3">
         <Link href={archivedView ? "/knowledge" : "/knowledge?view=archived"} className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-primary shadow-ambient">
-          {archivedView ? "View Live Notes" : "View Archived Notes"}
+          {archivedView ? "View Live Notes" : `View Archived Notes (${library.overview.archivedCount})`}
         </Link>
         <Link href={activityReentry.href} className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-primary shadow-ambient">
           Resume {activityReentry.label} Lens
@@ -126,9 +126,9 @@ export default async function KnowledgePage({
       {notePendingDelete ? (
         <section className="rounded-[2rem] border border-rose-200 bg-rose-50 p-6 shadow-ambient">
           <p className="text-xs uppercase tracking-[0.2em] text-rose-700">Delete Confirmation</p>
-          <h2 className="mt-3 font-headline text-3xl text-foreground">Delete archived note permanently?</h2>
+          <h2 className="mt-3 font-headline text-3xl text-foreground">Permanently delete this archived note?</h2>
           <p className="mt-3 text-sm leading-6 text-foreground/70">
-            <strong>{notePendingDelete.title}</strong> will be removed permanently. This action cannot be undone.
+            <strong>{notePendingDelete.title}</strong> will be permanently deleted. This action cannot be undone.
           </p>
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <form action={deleteArchivedKnowledgeNoteFromListAction}>
@@ -272,7 +272,7 @@ export default async function KnowledgePage({
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="font-headline text-3xl">{archivedView ? "Archived Notes" : "Recent Notes"}</h2>
-            <span className="text-sm text-foreground/50">Showing {notes.length} of {library.overview.noteCount} {archivedView ? "archived" : "live"} note records</span>
+            <span className="text-sm text-foreground/50">Showing {notes.length} of {archivedView ? library.overview.archivedCount : library.overview.noteCount} {archivedView ? "archived notes" : "live notes"}</span>
           </div>
 
           {notes.length > 0 ? (
@@ -322,6 +322,9 @@ export default async function KnowledgePage({
                             Restore Note
                           </button>
                         </form>
+                        <Link href={`/knowledge/${note.slug}`} className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-primary shadow-ambient">
+                          Open Note
+                        </Link>
                         <Link href={buildKnowledgeFilterHref({ view: "archived", domain: activeFilters.domain, tag: activeFilters.tag }) + `&confirmDelete=${note.slug}`} className="rounded-full bg-rose-700 px-4 py-2 text-sm font-semibold text-white shadow-ambient">
                           Delete Permanently
                         </Link>
@@ -333,7 +336,7 @@ export default async function KnowledgePage({
             </div>
           ) : (
             <div className="rounded-[2rem] bg-surface-container-low p-6 text-sm text-foreground/60 shadow-ambient">
-              {hasActiveFilter ? "No notes match the current filters yet." : archivedView ? "No archived knowledge notes yet." : "No knowledge notes yet. Create one to start shaping the library and dashboard."}
+              {hasActiveFilter ? "No notes match the current filters yet." : archivedView ? "No archived notes yet." : "No live notes yet. Create a note to start shaping the library and dashboard."}
             </div>
           )}
         </div>

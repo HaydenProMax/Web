@@ -1,6 +1,8 @@
 ﻿import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { auth } from "@/auth";
+
 import { signOutAction } from "@/app/sign-in/actions";
 import { getNavigationItems } from "@/lib/navigation";
 import { getPreferredActivityReentry } from "@/server/activity/preferences";
@@ -14,13 +16,16 @@ type ShellLayoutProps = {
 };
 
 export async function ShellLayout({ title, description, children }: ShellLayoutProps) {
-  const [navigationItems, snapshot, activityReentry, postureSnapshot, rememberedWorkflow] = await Promise.all([
+  const [session, navigationItems, snapshot, activityReentry, postureSnapshot, rememberedWorkflow] = await Promise.all([
+    auth(),
     getNavigationItems(),
     getSettingsSnapshot(),
     getPreferredActivityReentry(),
     getSystemPostureSnapshot(),
     getRememberedWorkflowSummary()
   ]);
+
+  const sessionIdentity = session?.user?.email ?? session?.user?.name ?? "Signed-in workspace user";
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -89,14 +94,24 @@ export async function ShellLayout({ title, description, children }: ShellLayoutP
             </div>
           </section>
 
+          <div className="mt-8 rounded-[1.5rem] bg-white/80 px-5 py-4 text-sm text-foreground/65 shadow-ambient">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Session Active</p>
+                <p className="mt-2 text-sm font-semibold text-foreground">{sessionIdentity}</p>
+              </div>
+              <form action={signOutAction}>
+                <button type="submit" className="rounded-full bg-surface-container-low px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-primary shadow-ambient">
+                  Sign Out
+                </button>
+              </form>
+            </div>
+            <p className="mt-2 text-sm text-foreground/60">This shell is unlocked because an Auth.js session is already active in this browser.</p>
+          </div>
+
           <Link href="/modules" className="mt-8 rounded-full bg-gradient-to-br from-primary to-primary-dim px-5 py-4 text-center text-sm font-semibold text-white shadow-ambient">
             Manage Modules
           </Link>
-          <form action={signOutAction} className="mt-3">
-            <button type="submit" className="w-full rounded-full bg-white px-5 py-4 text-center text-sm font-semibold text-primary shadow-ambient">
-              Sign Out
-            </button>
-          </form>
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col">
@@ -118,9 +133,14 @@ export async function ShellLayout({ title, description, children }: ShellLayoutP
                   Go
                 </button>
                 </form>
-                <Link href={activityReentry.href} className="inline-flex w-fit items-center rounded-full bg-surface-container-low px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-ambient">
-                  Resume {activityReentry.label} Lens
-                </Link>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Link href={activityReentry.href} className="inline-flex w-fit items-center rounded-full bg-surface-container-low px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-ambient">
+                    Resume {activityReentry.label} Lens
+                  </Link>
+                  <span className="inline-flex w-fit items-center rounded-full bg-surface-container-low px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-ambient">
+                    Signed in as {sessionIdentity}
+                  </span>
+                </div>
                 <div className="flex flex-wrap items-center gap-2 rounded-[1.25rem] bg-surface-container-low px-3 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary shadow-ambient">
                   <span>Current Posture</span>
                   <span className="rounded-full bg-white/80 px-2 py-1 text-[10px] tracking-[0.14em]">{postureSnapshot.currentLensLabel}</span>

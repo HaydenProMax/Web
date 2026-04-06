@@ -29,8 +29,10 @@ function mapPlannerTask(task: {
   createdAt: Date;
   updatedAt: Date;
   relatedNote: { slug: string; title: string } | null;
-  relatedDraft: { id: string; title: string } | null;
+  relatedDraft: { id: string; title: string; isArchived: boolean } | null;
 }): PlannerTaskSummary {
+  const visibleRelatedDraft = task.relatedDraft && !task.relatedDraft.isArchived ? task.relatedDraft : null;
+
   return {
     id: task.id,
     title: task.title,
@@ -44,8 +46,8 @@ function mapPlannerTask(task: {
     updatedAt: task.updatedAt.toISOString(),
     relatedNoteSlug: task.relatedNote?.slug ?? undefined,
     relatedNoteTitle: task.relatedNote?.title ?? undefined,
-    relatedDraftId: task.relatedDraft?.id ?? undefined,
-    relatedDraftTitle: task.relatedDraft?.title ?? undefined
+    relatedDraftId: visibleRelatedDraft?.id ?? undefined,
+    relatedDraftTitle: visibleRelatedDraft?.title ?? undefined
   };
 }
 
@@ -85,7 +87,7 @@ async function fetchPlannerTasks(ownerId: string, archived = false) {
         select: { slug: true, title: true }
       },
       relatedDraft: {
-        select: { id: true, title: true }
+        select: { id: true, title: true, isArchived: true }
       }
     }
   });
@@ -164,7 +166,7 @@ async function resolvePlannerLinks(ownerId: string, input: PlannerTaskInput) {
       : Promise.resolve(null),
     relatedDraftId
       ? db.writingDraft.findFirst({
-          where: { ownerId, id: relatedDraftId },
+          where: { ownerId, id: relatedDraftId, isArchived: false },
           select: { id: true }
         })
       : Promise.resolve(null)
@@ -192,7 +194,7 @@ export async function listPlannerLinkOptions(limit = 8): Promise<PlannerTaskLink
       }
     }),
     db.writingDraft.findMany({
-      where: { ownerId },
+      where: { ownerId, isArchived: false },
       orderBy: { updatedAt: "desc" },
       take: limit,
       select: {
@@ -260,23 +262,27 @@ export async function getPlannerPlanningView(limitPerLane = 5) {
   };
 }
 
-export async function getPlannerTaskById(taskId: string): Promise<PlannerTaskSummary | null> {
+export async function getPlannerTaskById(taskId: string, options?: { includeArchived?: boolean }): Promise<PlannerTaskSummary | null> {
   const db = getDb();
   const ownerId = await getCurrentUserId();
   const task = await db.plannerTask.findFirst({
     where: {
       id: taskId,
       ownerId,
-      status: {
-        not: "ARCHIVED"
-      }
+      ...(options?.includeArchived
+        ? {}
+        : {
+            status: {
+              not: "ARCHIVED"
+            }
+          })
     },
     include: {
       relatedNote: {
         select: { slug: true, title: true }
       },
       relatedDraft: {
-        select: { id: true, title: true }
+        select: { id: true, title: true, isArchived: true }
       }
     }
   });
@@ -311,7 +317,7 @@ export async function createPlannerTask(input: unknown): Promise<PlannerTaskSumm
         select: { slug: true, title: true }
       },
       relatedDraft: {
-        select: { id: true, title: true }
+        select: { id: true, title: true, isArchived: true }
       }
     }
   });
@@ -363,7 +369,7 @@ export async function updatePlannerTask(taskId: string, input: unknown): Promise
         select: { slug: true, title: true }
       },
       relatedDraft: {
-        select: { id: true, title: true }
+        select: { id: true, title: true, isArchived: true }
       }
     }
   });
@@ -404,7 +410,7 @@ export async function updatePlannerTaskStatus(taskId: string, statusInput: unkno
         select: { slug: true, title: true }
       },
       relatedDraft: {
-        select: { id: true, title: true }
+        select: { id: true, title: true, isArchived: true }
       }
     }
   });

@@ -164,6 +164,7 @@ export type KnowledgeNoteSummary = {
   createdAt: string;
   updatedAt: string;
   contentBlockCount: number;
+  isArchived?: boolean;
 };
 
 export type KnowledgeNoteDetail = KnowledgeNoteSummary & {

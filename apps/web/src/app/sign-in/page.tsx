@@ -18,6 +18,7 @@ export default async function SignInPage({
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const error = resolvedSearchParams?.error === "invalid-credentials" ? resolvedSearchParams.error : "";
   const callbackUrl = resolveSafeCallbackPath(resolvedSearchParams?.callbackUrl);
+  const redirectedFromProtectedPage = callbackUrl !== "/";
   const defaultEmail = process.env.DEFAULT_USER_EMAIL ?? "hayden@example.com";
 
   return (
@@ -28,6 +29,12 @@ export default async function SignInPage({
         <p className="mt-4 text-sm leading-6 text-foreground/70">
           Your workstation uses a private single-user sign-in flow, so every module resolves ownership from the active session and keeps notes, tasks, writing, and archive history under one personal workspace.
         </p>
+
+        {redirectedFromProtectedPage ? (
+          <div className="mt-6 rounded-[1.5rem] bg-white/80 px-5 py-4 text-sm text-foreground/70 shadow-ambient">
+            You were redirected here because <code className="rounded bg-surface-container-low px-1.5 py-0.5">{callbackUrl}</code> is protected and requires an active session.
+          </div>
+        ) : null}
 
         {error ? (
           <div className="mt-6 rounded-[1.5rem] bg-white/80 px-5 py-4 text-sm text-rose-600 shadow-ambient">

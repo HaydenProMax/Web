@@ -279,7 +279,7 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-sm font-semibold text-foreground/70">Upload Cover / Inline Image</p>
-                  <p className="text-xs text-foreground/50">Images are stored locally for this workstation and registered as reusable media assets.</p>
+                  <p className="text-xs text-foreground/50">Images are stored locally for this workstation and registered as reusable media assets. Maximum upload size: 20MB.</p>
                 </div>
                 <button
                   type="button"

@@ -438,9 +438,16 @@ export async function archiveWritingDraft(id: string) {
     throw new Error("Draft not found.");
   }
 
-  await db.writingDraft.update({
-    where: { id: existingDraft.id },
-    data: { isArchived: true }
+  await db.$transaction(async (tx: Prisma.TransactionClient) => {
+    await tx.plannerTask.updateMany({
+      where: { ownerId, relatedDraftId: existingDraft.id },
+      data: { relatedDraftId: null }
+    });
+
+    await tx.writingDraft.update({
+      where: { id: existingDraft.id },
+      data: { isArchived: true }
+    });
   });
 }
 

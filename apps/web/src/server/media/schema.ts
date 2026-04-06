@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const MAX_UPLOAD_SIZE = 10 * 1024 * 1024;
+const MAX_UPLOAD_SIZE = 20 * 1024 * 1024;
 
 export const mediaUploadMetadataSchema = z.object({
   altText: z.string().max(200).optional().default(""),
@@ -25,7 +25,7 @@ export function assertUploadableFile(file: File) {
   }
 
   if (file.size > MAX_UPLOAD_SIZE) {
-    throw new Error("Uploaded file exceeds the 10MB limit.");
+    throw new Error("Uploaded file exceeds the 20MB limit.");
   }
 
   if (!file.type.startsWith("image/")) {

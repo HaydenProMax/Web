@@ -5,18 +5,18 @@ import { ShellLayout } from "@/components/shell/shell-layout";
 import { RichTextPreview } from "@/components/writing/rich-text-preview";
 import { getKnowledgeNoteBySlug } from "@/server/knowledge/service";
 
-import { archiveKnowledgeNoteAction } from "../new/actions";
+import { archiveKnowledgeNoteAction, restoreKnowledgeNoteFromListAction } from "../new/actions";
 
 export default async function KnowledgeDetailPage({
   params,
   searchParams
 }: {
   params: Promise<{ slug: string }>;
-  searchParams?: Promise<{ created?: string; saved?: string }>;
+  searchParams?: Promise<{ created?: string; saved?: string; restored?: string; error?: string }>;
 }) {
   const resolvedParams = await params;
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
-  const note = await getKnowledgeNoteBySlug(resolvedParams.slug);
+  const note = await getKnowledgeNoteBySlug(resolvedParams.slug, { includeArchived: true });
 
   if (!note) {
     notFound();
@@ -37,6 +37,20 @@ export default async function KnowledgeDetailPage({
         <section className="rounded-[2rem] bg-primary-container/40 px-6 py-4 text-sm text-primary shadow-ambient">
           Note saved successfully. The latest changes are now reflected in the knowledge library.
         </section>
+      ) : resolvedSearchParams?.restored === "1" ? (
+        <section className="rounded-[2rem] bg-primary-container/40 px-6 py-4 text-sm text-primary shadow-ambient">
+          Note restored successfully.
+        </section>
+      ) : resolvedSearchParams?.error === "restore-failed" ? (
+        <section className="rounded-[2rem] bg-rose-100 px-6 py-4 text-sm text-rose-700 shadow-ambient">
+          Note restore failed. Please try again.
+        </section>
+      ) : null}
+
+      {note.isArchived ? (
+        <section className="rounded-[2rem] bg-secondary-container/40 px-6 py-4 text-sm text-foreground shadow-ambient">
+          This note is archived. Restore it before creating new linked work from it.
+        </section>
       ) : null}
 
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -46,23 +60,39 @@ export default async function KnowledgeDetailPage({
           <span>Updated {new Date(note.updatedAt).toLocaleString("zh-CN")}</span>
         </div>
         <div className="flex items-center gap-3">
-          <Link href={`/writing/new?sourceNote=${note.slug}`} className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-primary shadow-ambient">
-            Start Draft from Note
-          </Link>
-          <Link href={`/planner/new?note=${note.slug}`} className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-primary shadow-ambient">
-            Create Task from Note
-          </Link>
-          <Link href="/archive" className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-primary shadow-ambient">
-            View Archive
-          </Link>
-          <form action={archiveKnowledgeNoteAction.bind(null, note.slug)}>
-            <button type="submit" className="rounded-full bg-rose-600 px-5 py-2 text-sm font-semibold text-white shadow-ambient">
-              Archive Note
-            </button>
-          </form>
-          <Link href={`/knowledge/${note.slug}/edit`} className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white">
-            Edit Note
-          </Link>
+          {!note.isArchived ? (
+            <>
+              <Link href={`/writing/new?sourceNote=${note.slug}`} className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-primary shadow-ambient">
+                Start Draft from Note
+              </Link>
+              <Link href={`/planner/new?note=${note.slug}`} className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-primary shadow-ambient">
+                Create Task from Note
+              </Link>
+              <Link href="/archive" className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-primary shadow-ambient">
+                View Archive
+              </Link>
+              <form action={archiveKnowledgeNoteAction.bind(null, note.slug)}>
+                <button type="submit" className="rounded-full bg-rose-600 px-5 py-2 text-sm font-semibold text-white shadow-ambient">
+                  Archive Note
+                </button>
+              </form>
+              <Link href={`/knowledge/${note.slug}/edit`} className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white">
+                Edit Note
+              </Link>
+            </>
+          ) : (
+            <>
+              <form action={restoreKnowledgeNoteFromListAction}>
+                <input type="hidden" name="slug" value={note.slug} />
+                <button type="submit" className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white shadow-ambient">
+                  Restore Note
+                </button>
+              </form>
+              <Link href="/knowledge?view=archived" className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-primary shadow-ambient">
+                Back to Archived Notes
+              </Link>
+            </>
+          )}
         </div>
       </div>
 
@@ -86,9 +116,11 @@ export default async function KnowledgeDetailPage({
             <p className="text-xs uppercase tracking-[0.2em] text-primary">Writing Links</p>
             <h2 className="mt-3 font-headline text-2xl text-foreground">Related drafts and articles</h2>
           </div>
+{!note.isArchived ? (
           <Link href={`/writing/new?sourceNote=${note.slug}`} className="text-sm font-semibold text-primary">
             Create from note
           </Link>
+        ) : null}
         </div>
         {note.relatedWriting.length > 0 ? (
           <div className="mt-6 grid gap-4 md:grid-cols-2">

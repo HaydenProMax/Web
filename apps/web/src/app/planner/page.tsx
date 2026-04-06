@@ -188,11 +188,11 @@ export default async function PlannerPage({
                 : resolvedSearchParams?.error === "update-failed"
                   ? "Task status update failed."
                   : resolvedSearchParams?.error === "delete-failed"
-                    ? "Task archive failed."
+                    ? "Task archiving failed. Please try again."
                     : resolvedSearchParams?.error === "restore-failed"
-                      ? "Task restore failed."
+                      ? "Task restore failed. Please try again."
                       : resolvedSearchParams?.error === "permanent-delete-failed"
-                        ? "Permanent delete failed."
+                        ? "Permanent delete failed. Please try again."
                         : resolvedSearchParams?.error === "confirm-delete-required"
                           ? "Permanent delete requires a confirmation step."
                           : invalidDeleteTarget
@@ -250,7 +250,7 @@ export default async function PlannerPage({
 
       <div className="flex flex-wrap items-center justify-end gap-3">
         <Link href={archivedView ? "/planner" : "/planner?view=archived"} className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-primary shadow-ambient">
-          {archivedView ? "View Live Tasks" : "View Archived Tasks"}
+          {archivedView ? "View Live Tasks" : `View Archived Tasks (${overview.archivedCount})`}
         </Link>
         {!archivedView ? (
           <Link href="/planner/new" className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white">
@@ -263,9 +263,9 @@ export default async function PlannerPage({
       {taskPendingDelete ? (
         <section className="rounded-[2rem] border border-rose-200 bg-rose-50 p-6 shadow-ambient">
           <p className="text-xs uppercase tracking-[0.2em] text-rose-700">Delete Confirmation</p>
-          <h2 className="mt-3 font-headline text-3xl text-foreground">Delete archived task permanently?</h2>
+          <h2 className="mt-3 font-headline text-3xl text-foreground">Permanently delete this archived task?</h2>
           <p className="mt-3 text-sm leading-6 text-foreground/70">
-            <strong>{taskPendingDelete.title}</strong> will be removed permanently. This action cannot be undone.
+            <strong>{taskPendingDelete.title}</strong> will be permanently deleted. This action cannot be undone.
           </p>
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <form action={deleteArchivedPlannerTaskFromListAction}>
@@ -375,7 +375,7 @@ export default async function PlannerPage({
       <section className="space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="font-headline text-3xl">{archivedView ? "Archived Tasks" : "Recent Tasks"}</h2>
-          <span className="text-sm text-foreground/50">Showing {tasks.length} of {archivedView ? overview.archivedCount : overview.totalCount} {archivedView ? "archived" : "task"} records</span>
+          <span className="text-sm text-foreground/50">Showing {tasks.length} of {archivedView ? overview.archivedCount : overview.totalCount} {archivedView ? "archived tasks" : "live tasks"}</span>
         </div>
 
         {tasks.length > 0 ? (
@@ -439,6 +439,9 @@ export default async function PlannerPage({
                             Restore Task
                           </button>
                         </form>
+                        <Link href={`/planner/${task.id}/edit`} className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-primary shadow-ambient">
+                          Open Task
+                        </Link>
                         <Link href={`/planner?view=archived&confirmDelete=${task.id}`} className="rounded-full bg-rose-700 px-4 py-2 text-sm font-semibold text-white shadow-ambient">
                           Delete Permanently
                         </Link>
@@ -451,7 +454,7 @@ export default async function PlannerPage({
           </div>
         ) : (
           <div className="rounded-[2rem] bg-surface-container-low p-6 text-sm text-foreground/60 shadow-ambient">
-            {archivedView ? "No archived planner tasks yet." : "No planner tasks yet. Create one to start shaping the execution layer."}
+            {archivedView ? "No archived tasks yet." : "No live tasks yet. Create a task to start shaping the execution layer."}
           </div>
         )}
       </section>

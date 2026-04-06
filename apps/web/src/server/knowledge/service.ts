@@ -87,6 +87,7 @@ function mapKnowledgeSummary(note: {
   contentJson: unknown;
   createdAt: Date;
   updatedAt: Date;
+  isArchived: boolean;
   domain: { name: string; slug: string } | null;
   tags: { tag: { name: string; slug: string } }[];
 }): KnowledgeNoteSummary {
@@ -106,7 +107,8 @@ function mapKnowledgeSummary(note: {
     })),
     createdAt: note.createdAt.toISOString(),
     updatedAt: note.updatedAt.toISOString(),
-    contentBlockCount: content.length
+    contentBlockCount: content.length,
+    isArchived: note.isArchived
   };
 }
 
@@ -217,11 +219,15 @@ export async function listKnowledgeNotes(
   return notes.map(mapKnowledgeSummary);
 }
 
-export async function getKnowledgeNoteBySlug(slug: string): Promise<KnowledgeNoteDetail | undefined> {
+export async function getKnowledgeNoteBySlug(slug: string, options?: { includeArchived?: boolean }): Promise<KnowledgeNoteDetail | undefined> {
   const db = getDb();
   const ownerId = await getCurrentUserId();
   const note = await db.knowledgeNote.findFirst({
-    where: { ownerId, slug, isArchived: false },
+    where: {
+      ownerId,
+      slug,
+      ...(options?.includeArchived ? {} : { isArchived: false })
+    },
     include: {
       domain: { select: { name: true, slug: true } },
       tags: { include: { tag: { select: { name: true, slug: true } } } }
@@ -236,7 +242,8 @@ export async function getKnowledgeNoteBySlug(slug: string): Promise<KnowledgeNot
     db.writingDraft.findMany({
       where: {
         ownerId,
-        sourceNoteId: note.id
+        sourceNoteId: note.id,
+        ...(note.isArchived ? {} : { isArchived: false })
       },
       orderBy: { updatedAt: "desc" },
       select: {

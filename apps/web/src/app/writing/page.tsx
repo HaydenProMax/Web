@@ -162,13 +162,13 @@ export default async function WritingPage({
 
       {resolvedSearchParams?.error === "archive-failed" ? (
         <section className="rounded-[2rem] bg-rose-100 px-6 py-4 text-sm text-rose-700 shadow-ambient">
-          Archiving the draft failed.
+          Draft archiving failed. Please try again.
         </section>
       ) : null}
 
       {resolvedSearchParams?.error === "restore-failed" ? (
         <section className="rounded-[2rem] bg-rose-100 px-6 py-4 text-sm text-rose-700 shadow-ambient">
-          Restoring the draft failed.
+          Draft restore failed. Please try again.
         </section>
       ) : null}
 
@@ -203,9 +203,9 @@ export default async function WritingPage({
       {draftPendingDelete ? (
         <section className="rounded-[2rem] border border-rose-200 bg-rose-50 p-6 shadow-ambient">
           <p className="text-xs uppercase tracking-[0.2em] text-rose-700">Delete Confirmation</p>
-          <h2 className="mt-3 font-headline text-3xl text-foreground">Delete archived draft permanently?</h2>
+          <h2 className="mt-3 font-headline text-3xl text-foreground">Permanently delete this archived draft?</h2>
           <p className="mt-3 text-sm leading-6 text-foreground/70">
-            <strong>{draftPendingDelete.title}</strong> will be removed permanently. This action cannot be undone.
+            <strong>{draftPendingDelete.title}</strong> will be permanently deleted. This action cannot be undone.
           </p>
           {draftPendingDelete.publishedPostSlug ? (
             <p className="mt-3 text-sm leading-6 text-rose-700">
@@ -264,12 +264,12 @@ export default async function WritingPage({
                     {draft.sourceNoteSlug ? <p>Source note: {draft.sourceNoteTitle ?? draft.sourceNoteSlug}</p> : null}
                     {draft.publishedPostSlug ? <p>Live at /writing/{draft.publishedPostSlug}</p> : null}
                   </div>
-                  <div className="mt-5 flex flex-wrap gap-3 text-sm font-semibold text-primary">
-                    <Link href={`/writing/drafts/${draft.id}`}>Open draft</Link>
+                  <div className="mt-5 flex flex-wrap gap-3">
                     <form action={restoreWritingDraftFromListAction}>
                       <input type="hidden" name="draftId" value={draft.id} />
-                      <button type="submit">Restore Draft</button>
+                      <button type="submit" className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-ambient">Restore Draft</button>
                     </form>
+                    <Link href={`/writing/drafts/${draft.id}`} className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-primary shadow-ambient">Open Draft</Link>
                     {!draft.publishedPostSlug ? (
                       <Link href={`/writing?view=archived&confirmDelete=${draft.id}`} className="rounded-full bg-rose-700 px-4 py-2 text-sm font-semibold text-white shadow-ambient">
                         Delete Permanently
@@ -450,7 +450,7 @@ export default async function WritingPage({
         <div className="flex items-center justify-between">
           <h2 className="font-headline text-3xl">{archivedView ? "Archived Drafts" : "Recent Drafts"}</h2>
           <span className="text-sm text-foreground/50">
-            Showing {drafts.length} of {archivedView ? overview.archivedDraftCount : overview.draftCount} {archivedView ? "archived drafts" : "drafts"}
+            Showing {drafts.length} of {archivedView ? overview.archivedDraftCount : overview.draftCount} {archivedView ? "archived drafts" : "live drafts"}
           </span>
         </div>
         {drafts.length > 0 ? (
@@ -503,7 +503,7 @@ export default async function WritingPage({
           <div className="rounded-[2rem] bg-surface-container-low p-6 text-sm text-foreground/60 shadow-ambient">
             {archivedView
               ? "No archived drafts yet."
-              : "No drafts yet. Create a draft to begin the writing workflow."}
+              : "No live drafts yet. Create a draft to begin the writing workflow."}
           </div>
         )}
       </section>

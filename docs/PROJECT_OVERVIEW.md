@@ -2597,3 +2597,41 @@ ode, so browser/manual verification is still recommended for the full archive ->
   - invalid or stale `confirmDelete` targets are surfaced on the page instead of being silently ignored
   - archived drafts that still back a live published post cannot be permanently deleted
   - permanent delete clears `PlannerTask.relatedDraftId` and removes draft-scoped `MediaUsage` rows before deleting the draft
+
+
+## V6.0
+- Theme: Residual Issues and System Consistency.
+- Planned phases:
+  - Phase 1: Auth Clarity
+  - Phase 2: Delete / Archive UX Consistency
+  - Phase 3: Final Residual Bug Sweep
+- Phase 1 started by making the active Auth.js session explicit in the shell. The left desktop console now shows a `Session Active` panel with the signed-in identity, and the header now exposes a `Signed in as ...` chip so users can tell they are already authenticated instead of assuming the console is open anonymously.
+- Files updated for Phase 1:
+  - `apps/web/src/components/shell/shell-layout.tsx`
+  - `apps/web/src/app/sign-in/page.tsx`
+- The shell now groups the active session identity and `Sign Out` affordance together so the authenticated state is obvious in the same visual cluster.
+- The sign-in page now explains when the user was redirected from a protected route via `callbackUrl`, which makes the auth boundary explicit instead of feeling like the console is anonymously reachable.
+
+- Phase 2 started by normalizing archive / restore / permanent delete feedback copy and delete-confirmation wording across Knowledge, Planner, and Writing archived views. The three modules now use the same confirmation phrasing (`Permanently delete this archived ...?`) and aligned success/failure message structure on their list surfaces.
+
+- Phase 2 follow-up aligned archived-card action order across Knowledge, Planner, and Writing. Archived cards now present actions in the same sequence: restore first, open second, permanent delete last. Knowledge archived cards now include `Open Note`, Planner archived cards now include `Open Task`, and Writing archived cards use the same button hierarchy and styling.
+
+- Phase 2 count/entry consistency pass landed across Knowledge, Planner, and Writing. Archived-entry buttons now expose archived totals, list headers use the same `Showing x of y ...` phrasing, and live/archived empty states now use the same `No live ... yet.` / `No archived ... yet.` structure across the three modules.
+
+- Phase 3 started by closing a cross-module consistency bug in Planner. Task link options and task-link resolution now exclude archived writing drafts, so live planner tasks can no longer be linked to archived drafts through stale IDs or dropdown options.
+
+- Phase 3 follow-up fixed the archived Planner detail path introduced during Phase 2. Archived task cards can now safely open `/planner/[id]/edit` in a read-only archived state with `Restore Task`, instead of hitting `notFound()` because `getPlannerTaskById()` previously excluded archived tasks.
+
+- Phase 3 also fixed the archived Knowledge detail path introduced during Phase 2. Archived note cards can now safely open `/knowledge/[slug]` in a read-only archived state with `Restore Note`, instead of failing because the note-detail service previously excluded archived notes.
+
+- Phase 3 also fixed the archived Knowledge detail path. Archived note cards can now safely open `/knowledge/[slug]` in a read-only archived state with `Restore Note`, instead of failing because the note-detail service previously enforced `isArchived = false`.
+
+- Phase 3 closed another live/archive boundary leak in Knowledge detail. Live note detail pages no longer mix archived drafts into `Related drafts and articles`; only live drafts and published posts remain visible in that section.
+
+- Fixed planner live surfaces continuing to expose archived draft links from stale `relatedDraftId` references. Planner task summaries now suppress archived drafts even if the historical relation still exists in the database, so live task cards, work threads, and edit forms only show live drafts.
+
+- Hardened draft archiving so it now severs `PlannerTask.relatedDraftId` in the same transaction. Live planner work no longer retains stale draft links after a draft moves into the archive.
+
+- Fixed live Knowledge detail still mixing archived drafts into related writing. Related draft links now stay aligned with live/archive boundaries instead of leaking archived drafts back into active note detail pages.
+
+- Increased local image upload limit from 10MB to 20MB and updated the writing draft form hint so upload failures match the actual supported size.
