@@ -168,8 +168,10 @@ export default async function PlannerPage({
   ]);
 
   const linkedTasks = archivedView ? [] : tasks.filter((task) => task.relatedNoteTitle || task.relatedDraftTitle);
+  const hasDeleteTargetQuery = archivedView && Boolean(resolvedSearchParams?.confirmDelete);
   const confirmDeleteTaskId = archivedView && tasks.some((task) => task.id === resolvedSearchParams?.confirmDelete) ? resolvedSearchParams?.confirmDelete : undefined;
   const taskPendingDelete = confirmDeleteTaskId ? tasks.find((task) => task.id === confirmDeleteTaskId) : undefined;
+  const invalidDeleteTarget = hasDeleteTargetQuery && !taskPendingDelete;
   const feedbackMessage =
     resolvedSearchParams?.created === "1"
       ? "Task created successfully. The planner list has been updated with the new task."
@@ -193,9 +195,11 @@ export default async function PlannerPage({
                         ? "Permanent delete failed."
                         : resolvedSearchParams?.error === "confirm-delete-required"
                           ? "Permanent delete requires a confirmation step."
-                          : resolvedSearchParams?.error === "missing-task"
-                            ? "Planner task is missing."
-                            : null;
+                          : invalidDeleteTarget
+                            ? "The archived task selected for permanent delete is no longer available."
+                            : resolvedSearchParams?.error === "missing-task"
+                              ? "Planner task is missing."
+                              : null;
 
   return (
     <ShellLayout

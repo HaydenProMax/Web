@@ -54,6 +54,7 @@ export type WritingDraftSummary = {
   id: string;
   title: string;
   summary: string;
+  isArchived: boolean;
   visibility: WritingVisibility;
   createdAt: string;
   updatedAt: string;

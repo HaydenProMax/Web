@@ -360,6 +360,7 @@ model WritingDraft {
   publishedPostId String?        @unique
   contentJson     Json
   contentHtml     String?
+  isArchived      Boolean        @default(false)
   visibility      Visibility     @default(PRIVATE)
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt

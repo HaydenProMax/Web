@@ -225,8 +225,9 @@ async function listDatabasePublishedWritingPosts() {
 export async function getWritingOverview() {
   const db = getDb();
   const ownerId = await getCurrentUserId();
-  const [draftCount, livePublishedCount] = await Promise.all([
-    db.writingDraft.count({ where: { ownerId } }),
+  const [draftCount, archivedDraftCount, livePublishedCount] = await Promise.all([
+    db.writingDraft.count({ where: { ownerId, isArchived: false } }),
+    db.writingDraft.count({ where: { ownerId, isArchived: true } }),
     db.writingPost.count({ where: { ownerId, status: "PUBLISHED" } })
   ]);
 
@@ -237,6 +238,7 @@ export async function getWritingOverview() {
 
   return {
     draftCount,
+    archivedDraftCount,
     publishedCount,
     livePublishedCount
   };
@@ -293,11 +295,11 @@ export async function getPublishedWritingPost(slug: string): Promise<WritingPost
   return undefined;
 }
 
-export async function listWritingDrafts(limit = 6): Promise<WritingDraftSummary[]> {
+export async function listWritingDrafts(limit = 6, options?: { archived?: boolean }): Promise<WritingDraftSummary[]> {
   const db = getDb();
   const ownerId = await getCurrentUserId();
   const drafts = await db.writingDraft.findMany({
-    where: { ownerId },
+    where: { ownerId, isArchived: options?.archived ?? false },
     orderBy: { updatedAt: "desc" },
     take: limit,
     include: {
@@ -321,6 +323,7 @@ export async function listWritingDrafts(limit = 6): Promise<WritingDraftSummary[
     id: draft.id,
     title: draft.title,
     summary: draft.summary ?? "",
+    isArchived: draft.isArchived,
     visibility: draft.visibility,
     createdAt: draft.createdAt.toISOString(),
     updatedAt: draft.updatedAt.toISOString(),
@@ -360,6 +363,7 @@ export async function getWritingDraftById(id: string): Promise<WritingDraftDetai
     id: draft.id,
     title: draft.title,
     summary: draft.summary ?? "",
+    isArchived: draft.isArchived,
     visibility: draft.visibility,
     createdAt: draft.createdAt.toISOString(),
     updatedAt: draft.updatedAt.toISOString(),
@@ -391,6 +395,7 @@ export async function createWritingDraft(input: unknown) {
       sourceNoteId: sourceNote?.id ?? null,
       contentJson: parsed.content,
       contentHtml: null,
+      isArchived: false,
       visibility: parsed.visibility
     },
     include: {
@@ -410,6 +415,7 @@ export async function createWritingDraft(input: unknown) {
     id: draft.id,
     title: draft.title,
     summary: draft.summary ?? "",
+    isArchived: false,
     visibility: draft.visibility,
     content: parsed.content,
     coverImageUrl: resolveCoverImageUrl(draft.coverMedia, draft.coverImageUrl),
@@ -420,12 +426,87 @@ export async function createWritingDraft(input: unknown) {
   };
 }
 
+export async function archiveWritingDraft(id: string) {
+  const db = getDb();
+  const ownerId = await getCurrentUserId();
+  const existingDraft = await db.writingDraft.findFirst({
+    where: { id, ownerId, isArchived: false },
+    select: { id: true }
+  });
+
+  if (!existingDraft) {
+    throw new Error("Draft not found.");
+  }
+
+  await db.writingDraft.update({
+    where: { id: existingDraft.id },
+    data: { isArchived: true }
+  });
+}
+
+export async function restoreWritingDraft(id: string) {
+  const db = getDb();
+  const ownerId = await getCurrentUserId();
+  const existingDraft = await db.writingDraft.findFirst({
+    where: { id, ownerId, isArchived: true },
+    select: { id: true }
+  });
+
+  if (!existingDraft) {
+    throw new Error("Archived draft not found.");
+  }
+
+  await db.writingDraft.update({
+    where: { id: existingDraft.id },
+    data: { isArchived: false }
+  });
+}
+
+
+export async function deleteArchivedWritingDraft(id: string) {
+  const db = getDb();
+  const ownerId = await getCurrentUserId();
+  const existingDraft = await db.writingDraft.findFirst({
+    where: { id, ownerId, isArchived: true },
+    select: {
+      id: true,
+      publishedPostId: true
+    }
+  });
+
+  if (!existingDraft) {
+    throw new Error("Archived draft not found.");
+  }
+
+  if (existingDraft.publishedPostId) {
+    throw new Error("Archived draft still backs a live post.");
+  }
+
+  await db.$transaction(async (tx: Prisma.TransactionClient) => {
+    await tx.plannerTask.updateMany({
+      where: { ownerId, relatedDraftId: existingDraft.id },
+      data: { relatedDraftId: null }
+    });
+
+    await tx.mediaUsage.deleteMany({
+      where: {
+        moduleKey: "writing",
+        entityType: "draft",
+        entityId: existingDraft.id
+      }
+    });
+
+    await tx.writingDraft.delete({
+      where: { id: existingDraft.id }
+    });
+  });
+}
 export async function updateWritingDraft(id: string, input: unknown) {
   const parsed = writingDraftInputSchema.parse(input);
   const db = getDb();
   const ownerId = await getCurrentUserId();
   const existingDraft = await db.writingDraft.findFirst({
-    where: { id, ownerId },
+    where: { id, ownerId, isArchived: false },
     select: { id: true }
   });
 
@@ -480,7 +561,7 @@ export async function publishWritingDraft(id: string) {
 
   for (let attempt = 0; attempt < MAX_SLUG_ATTEMPTS; attempt += 1) {
     const draft = await db.writingDraft.findFirst({
-      where: { id, ownerId },
+      where: { id, ownerId, isArchived: false },
       include: {
         coverMedia: true,
         publishedPost: {
@@ -600,4 +681,5 @@ export async function publishWritingDraft(id: string) {
 
   throw new Error("Unable to reserve a unique post slug.");
 }
+
 

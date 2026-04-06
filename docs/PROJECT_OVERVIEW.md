@@ -2573,7 +2573,27 @@ V4 focuses on deletion as a safe, staged capability rather than immediate hard d
 ode, so browser/manual verification is still recommended for the full archive -> archived view -> restore flow.
 
 ## V4.0
-- Added a confirmation step before permanent delete for both archived notes and archived tasks. Archived list cards now link into a delete-confirmation state on the same page, and the delete actions require an explicit `confirmed=true` flag before proceeding. Invalid direct submissions now return `confirm-delete-required` instead of deleting immediately. Verified with `corepack pnpm --filter web typecheck` and `corepack pnpm --filter web build`.
-- Added permanent delete for archived Planner tasks. Implemented `deleteArchivedPlannerTask(taskId)` in the planner service, `deleteArchivedPlannerTaskFromListAction(formData)` in planner actions, and a `Delete Permanently` button in the archived tasks list. Permanent delete is restricted to `status = ARCHIVED`, and the archived view now reports success via `destroyed=1` and failure via `permanent-delete-failed`. Verified with `corepack pnpm --filter web typecheck` and `corepack pnpm --filter web build`.
 - Phase 3 started with permanent delete for archived Knowledge notes. Added `deleteArchivedKnowledgeNote(slug)` in the knowledge service, `deleteArchivedKnowledgeNoteFromListAction(formData)` in the Knowledge actions, and a `Delete Permanently` button in the archived notes list. Permanent delete is restricted to `isArchived = true`, clears linked planner/writing note references, removes note-backed archive items, and then deletes the note record. Verified with `corepack pnpm --filter web typecheck` and `corepack pnpm --filter web build`.
+- Added permanent delete for archived Planner tasks. Implemented `deleteArchivedPlannerTask(taskId)` in the planner service, `deleteArchivedPlannerTaskFromListAction(formData)` in planner actions, and a `Delete Permanently` button in the archived tasks list. Permanent delete is restricted to `status = ARCHIVED`, and the archived view now reports success via `destroyed=1` and failure via `permanent-delete-failed`. Verified with `corepack pnpm --filter web typecheck` and `corepack pnpm --filter web build`.
 - Fixed archived Planner list query: archived tasks were counted in `Archive Pool` but not shown in `Archived Tasks` because the service query always filtered `status != ARCHIVED`. `fetchPlannerTasks(ownerId, archived)` now switches the `where.status` condition based on the archived flag. Verified with `corepack pnpm --filter web typecheck` and `corepack pnpm --filter web build`.
+
+## V5.0
+- Hardened delete-confirmation state handling for both archived notes and archived tasks. If a stale or invalid `confirmDelete` target is passed in the archived view URL, the page now surfaces a clear warning instead of silently ignoring the query and pretending no delete target was requested. Verified with `corepack pnpm --filter web typecheck` and `corepack pnpm --filter web build`.
+- Theme: Delete System Hardening.
+- Scope: strengthen permanent delete flows after the V4 delete feature landed, focusing on confirmation guards, boundary consistency, and regression coverage before adding any new deletion targets.
+- Added a confirmation step before permanent delete for both archived notes and archived tasks. Archived list cards now link into a delete-confirmation state on the same page, and the delete actions require an explicit `confirmed=true` flag before proceeding. Invalid direct submissions now return `confirm-delete-required` instead of deleting immediately. Verified with `corepack pnpm --filter web typecheck` and `corepack pnpm --filter web build`.
+
+### V5.0 - Writing Draft Archive / Restore
+- Added `WritingDraft.isArchived` to the Prisma schema and created migration `20260406093000_add_writing_draft_archive_state`.
+- Added writing-draft archive and restore service methods in `apps/web/src/server/writing/service.ts`.
+- Writing list page now supports `live / archived` views, list-level `Archive Draft` / `Restore Draft`, and archived draft counts.
+- Writing draft detail page now shows archived state, blocks edit/publish while archived, and allows restore from the detail route.
+- `updateWritingDraft` and `publishWritingDraft` now reject archived drafts.
+- Validation passed with `corepack pnpm --filter web prisma generate`, `corepack pnpm --filter web typecheck`, and `corepack pnpm --filter web build`.
+- Applying the migration SQL to the local development database is currently blocked by environment constraints on this Windows machine (`docker` daemon unavailable and Prisma `db execute` hitting `spawn EPERM`). The code, schema, generated client, and build output are aligned.
+- Extended `v5.0` delete hardening to `Writing Draft`:
+  - archived drafts now support `Delete Permanently` from the archived list
+  - permanent delete requires an explicit confirmation step
+  - invalid or stale `confirmDelete` targets are surfaced on the page instead of being silently ignored
+  - archived drafts that still back a live published post cannot be permanently deleted
+  - permanent delete clears `PlannerTask.relatedDraftId` and removes draft-scoped `MediaUsage` rows before deleting the draft

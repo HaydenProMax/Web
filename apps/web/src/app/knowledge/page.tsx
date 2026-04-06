@@ -60,8 +60,10 @@ export default async function KnowledgePage({
   const activeTagLabel = library.tags.find((tag) => tag.slug === activeFilters.tag)?.label ?? activeFilters.tag;
   const hasActiveFilter = Boolean(activeFilters.domain || activeFilters.tag);
   const noteTouches = notes.slice(0, 8);
+  const hasDeleteTargetQuery = archivedView && Boolean(resolvedSearchParams?.confirmDelete);
   const confirmDeleteSlug = archivedView && notes.some((note) => note.slug === resolvedSearchParams?.confirmDelete) ? resolvedSearchParams?.confirmDelete : undefined;
   const notePendingDelete = confirmDeleteSlug ? notes.find((note) => note.slug === confirmDeleteSlug) : undefined;
+  const invalidDeleteTarget = hasDeleteTargetQuery && !notePendingDelete;
 
   return (
     <ShellLayout
@@ -99,6 +101,10 @@ export default async function KnowledgePage({
       ) : resolvedSearchParams?.error === "confirm-delete-required" ? (
         <section className="rounded-[2rem] bg-amber-100 px-6 py-4 text-sm text-amber-800 shadow-ambient">
           Permanent delete requires a confirmation step.
+        </section>
+      ) : invalidDeleteTarget ? (
+        <section className="rounded-[2rem] bg-amber-100 px-6 py-4 text-sm text-amber-800 shadow-ambient">
+          The archived note selected for permanent delete is no longer available.
         </section>
       ) : null}
 

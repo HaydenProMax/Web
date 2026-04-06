@@ -12,6 +12,10 @@ type RichTextPreviewProps = {
   compact?: boolean;
 };
 
+function isProtectedLocalMediaUrl(value?: string) {
+  return Boolean(value?.startsWith("/api/media/files/"));
+}
+
 function renderNode(node: RichTextNode, index: number) {
   if (node.type === "heading") {
     const HeadingTag = node.level === 3 ? "h3" : node.level === 2 ? "h2" : "h1";
@@ -32,7 +36,14 @@ function renderNode(node: RichTextNode, index: number) {
     return (
       <figure key={index} className="space-y-3">
         <div className="relative h-[280px] overflow-hidden rounded-[1.5rem] bg-surface-container">
-          <Image src={node.src} alt={node.alt ?? "Preview image"} fill className="object-cover" sizes="100vw" />
+          <Image
+            src={node.src}
+            alt={node.alt ?? "Preview image"}
+            fill
+            className="object-cover"
+            sizes="100vw"
+            unoptimized={isProtectedLocalMediaUrl(node.src)}
+          />
         </div>
         {node.caption ? <figcaption className="text-sm text-foreground/60">{node.caption}</figcaption> : null}
       </figure>
@@ -80,6 +91,21 @@ export function RichTextPreview({
   emptyMessage = "Start drafting to see a live preview.",
   compact = false
 }: RichTextPreviewProps) {
+  let skippedCoverDuplicate = false;
+  const displayContent = content.filter((node) => {
+    if (
+      !skippedCoverDuplicate &&
+      coverImage &&
+      node.type === "image" &&
+      node.src === coverImage
+    ) {
+      skippedCoverDuplicate = true;
+      return false;
+    }
+
+    return true;
+  });
+
   return (
     <article className={`mx-auto flex w-full flex-col ${compact ? "gap-6" : "gap-10"}`}>
       {title || summary ? (
@@ -91,12 +117,19 @@ export function RichTextPreview({
 
       {coverImage ? (
         <div className={`relative overflow-hidden rounded-[2rem] bg-surface-container-low shadow-ambient ${compact ? "h-[260px]" : "h-[420px]"}`}>
-          <Image src={coverImage} alt={coverAlt ?? title ?? "Cover image"} fill className="object-cover" sizes="100vw" />
+          <Image
+            src={coverImage}
+            alt={coverAlt ?? title ?? "Cover image"}
+            fill
+            className="object-cover"
+            sizes="100vw"
+            unoptimized={isProtectedLocalMediaUrl(coverImage)}
+          />
         </div>
       ) : null}
 
       <div className="space-y-8">
-        {content.length > 0 ? content.map((node, index) => renderNode(node, index)) : (
+        {displayContent.length > 0 ? displayContent.map((node, index) => renderNode(node, index)) : (
           <div className="rounded-[1.5rem] bg-surface-container-low px-5 py-4 text-sm text-foreground/60 shadow-ambient">
             {emptyMessage}
           </div>
