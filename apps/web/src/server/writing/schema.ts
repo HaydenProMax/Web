@@ -1,4 +1,4 @@
-import { z } from "zod";
+﻿import { z } from "zod";
 
 const localMediaUrlSchema = z.string().startsWith("/api/media/files/");
 const publicUrlSchema = z.string().url();
@@ -29,6 +29,10 @@ export const richTextNodeSchema = z.discriminatedUnion("type", [
   }),
   z.object({
     type: z.literal("quote"),
+    content: z.string().min(1)
+  }),
+  z.object({
+    type: z.literal("markdown"),
     content: z.string().min(1)
   })
 ]);

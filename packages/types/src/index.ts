@@ -18,7 +18,7 @@ export type ModuleManifest = {
 };
 
 export type RichTextNode = {
-  type: "paragraph" | "heading" | "image" | "videoEmbed" | "quote";
+  type: "paragraph" | "heading" | "image" | "videoEmbed" | "quote" | "markdown";
   content?: string;
   level?: 1 | 2 | 3;
   src?: string;

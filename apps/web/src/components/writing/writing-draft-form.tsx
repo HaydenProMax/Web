@@ -1,10 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useRef, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 
 import type { MediaAssetSummary, RichTextNode, WritingVisibility } from "@workspace/types/index";
 
+import { BlockEditor } from "@/components/writing/block-editor";
+import {
+  appendImageBlock,
+  appendVideoBlock,
+  areRichTextNodes,
+  createEditorBlock,
+  editorBlocksToRichTextNodes,
+  richTextNodesToEditorBlocks,
+  type WritingEditorBlock
+} from "@/components/writing/block-editor-state";
 import { RichTextPreview } from "@/components/writing/rich-text-preview";
 
 type WritingDraftFormProps = {
@@ -19,46 +29,6 @@ type WritingDraftFormProps = {
   };
   mode: "create" | "edit";
 };
-
-function appendImageNodeToContent(content: string, asset: MediaAssetSummary) {
-  try {
-    const parsed = JSON.parse(content);
-    if (!Array.isArray(parsed)) {
-      return content;
-    }
-
-    parsed.push({
-      type: "image",
-      src: asset.url,
-      alt: asset.altText || asset.originalFileName,
-      caption: asset.originalFileName
-    } satisfies RichTextNode);
-
-    return JSON.stringify(parsed, null, 2);
-  } catch {
-    return content;
-  }
-}
-
-function appendVideoNodeToContent(content: string, asset: MediaAssetSummary, provider: RichTextNode["provider"], caption: string) {
-  try {
-    const parsed = JSON.parse(content);
-    if (!Array.isArray(parsed) || !asset.embedUrl) {
-      return content;
-    }
-
-    parsed.push({
-      type: "videoEmbed",
-      embedUrl: asset.embedUrl,
-      provider,
-      caption
-    } satisfies RichTextNode);
-
-    return JSON.stringify(parsed, null, 2);
-  } catch {
-    return content;
-  }
-}
 
 function normalizeVideoInput(raw: string) {
   const value = raw.trim();
@@ -78,7 +48,7 @@ function normalizeVideoInput(raw: string) {
     }
 
     if (url.hostname.includes("youtube.com")) {
-      if (url.pathname === "/watch") {
+      if (url.pathname == "/watch") {
         const id = url.searchParams.get("v");
         if (id) {
           return {
@@ -132,33 +102,119 @@ function normalizeVideoInput(raw: string) {
   }
 }
 
+function parseInitialBlocks(content: string) {
+  try {
+    const parsed = JSON.parse(content);
+    if (!areRichTextNodes(parsed)) {
+      return {
+        blocks: [createEditorBlock("paragraph", { content })],
+        error: "Content JSON is invalid."
+      };
+    }
+
+    return {
+      blocks: richTextNodesToEditorBlocks(parsed),
+      error: ""
+    };
+  } catch (error) {
+    return {
+      blocks: [createEditorBlock("paragraph", { content })],
+      error: error instanceof Error ? error.message : "Content JSON is invalid."
+    };
+  }
+}
+
+function serializeDraftState(input: {
+  title: string;
+  summary: string;
+  coverImageUrl: string;
+  visibility: WritingVisibility;
+  content: RichTextNode[];
+}) {
+  return JSON.stringify(input);
+}
+
 export function WritingDraftForm({ action, initialData, mode }: WritingDraftFormProps) {
+  const initialBlocks = useMemo(() => parseInitialBlocks(initialData.content), [initialData.content]);
   const [title, setTitle] = useState(initialData.title);
   const [summary, setSummary] = useState(initialData.summary);
   const [coverImageUrl, setCoverImageUrl] = useState(initialData.coverImageUrl);
-  const [sourceNoteSlug] = useState(initialData.sourceNoteSlug);
-  const [content, setContent] = useState(initialData.content);
+  const sourceNoteSlug = initialData.sourceNoteSlug;
+  const [visibility, setVisibility] = useState(initialData.visibility);
   const [videoUrl, setVideoUrl] = useState("");
   const [videoCaption, setVideoCaption] = useState("");
   const [uploadMessage, setUploadMessage] = useState<string>("");
   const [uploadedAssets, setUploadedAssets] = useState<MediaAssetSummary[]>([]);
+  const latestUploadedImage = uploadedAssets.find((asset) => asset.kind === "IMAGE" && asset.url);
   const [isUploading, startUploadTransition] = useTransition();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [blocks, setBlocks] = useState<WritingEditorBlock[]>(initialBlocks.blocks);
+  const [editorError, setEditorError] = useState(initialBlocks.error);
+
+  useEffect(() => {
+    setTitle(initialData.title);
+    setSummary(initialData.summary);
+    setCoverImageUrl(initialData.coverImageUrl);
+    setVisibility(initialData.visibility);
+    setBlocks(initialBlocks.blocks);
+    setEditorError(initialBlocks.error);
+    setVideoUrl("");
+    setVideoCaption("");
+    setUploadMessage("");
+    setUploadedAssets([]);
+  }, [initialBlocks.blocks, initialBlocks.error, initialData.coverImageUrl, initialData.summary, initialData.title, initialData.visibility]);
 
   const previewState = useMemo(() => {
-    try {
-      const parsed = JSON.parse(content);
-      return {
-        nodes: Array.isArray(parsed) ? (parsed as RichTextNode[]) : [],
-        error: ""
-      };
-    } catch (error) {
-      return {
-        nodes: [] as RichTextNode[],
-        error: error instanceof Error ? error.message : "Content JSON is invalid."
-      };
+    const nodes = editorBlocksToRichTextNodes(blocks);
+    return {
+      nodes,
+      error: editorError
+    };
+  }, [blocks, editorError]);
+
+  const serializedContent = useMemo(() => JSON.stringify(previewState.nodes, null, 2), [previewState.nodes]);
+  const initialSnapshot = useMemo(
+    () =>
+      serializeDraftState({
+        title: initialData.title,
+        summary: initialData.summary,
+        coverImageUrl: initialData.coverImageUrl,
+        visibility: initialData.visibility,
+        content: initialBlocks.error ? [] : editorBlocksToRichTextNodes(initialBlocks.blocks)
+      }),
+    [initialBlocks.blocks, initialBlocks.error, initialData.coverImageUrl, initialData.summary, initialData.title, initialData.visibility]
+  );
+  const currentSnapshot = useMemo(
+    () =>
+      serializeDraftState({
+        title,
+        summary,
+        coverImageUrl,
+        visibility,
+        content: previewState.error ? [] : previewState.nodes
+      }),
+    [coverImageUrl, previewState.error, previewState.nodes, summary, title, visibility]
+  );
+  const hasUnsavedChanges = !editorError && currentSnapshot !== initialSnapshot;
+
+  useEffect(() => {
+    setIsSubmitting(false);
+  }, [initialSnapshot]);
+
+  useEffect(() => {
+    if (!hasUnsavedChanges || isSubmitting) {
+      return;
     }
-  }, [content]);
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [hasUnsavedChanges, isSubmitting]);
 
   async function handleImageUpload(file: File) {
     const formData = new FormData();
@@ -186,8 +242,7 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
 
     setUploadedAssets((current) => [result.data!, ...current]);
     if (result.data.url) {
-      setCoverImageUrl(result.data.url);
-      setContent((current) => appendImageNodeToContent(current, result.data!));
+      setBlocks((current) => appendImageBlock(current, result.data!));
     }
 
     setUploadMessage(`Uploaded ${result.data.originalFileName} and inserted it into the draft content.`);
@@ -228,10 +283,18 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
     };
 
     setUploadedAssets((current) => [asset, ...current]);
-    setContent((current) => appendVideoNodeToContent(current, asset, normalized.provider, videoCaption.trim()));
+    setBlocks((current) => appendVideoBlock(current, asset, normalized.provider, videoCaption.trim()));
     setUploadMessage(`Added a ${normalized.provider} video embed block to the draft content.`);
     setVideoUrl("");
     setVideoCaption("");
+  }
+
+  function confirmNavigation() {
+    if (!hasUnsavedChanges || isSubmitting) {
+      return true;
+    }
+
+    return window.confirm("You have unsaved changes in this draft. Leave this page anyway?");
   }
 
   return (
@@ -241,12 +304,40 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
           <div className="mb-8 space-y-2">
             <p className="text-xs uppercase tracking-[0.2em] text-primary">{mode === "create" ? "Draft Form" : "Draft Editor"}</p>
             <h2 className="font-headline text-3xl text-foreground">
-              {mode === "create" ? "Seed a new article" : "Refine this draft"}
+              {mode === "create" ? "Build the draft" : "Edit the draft"}
             </h2>
           </div>
 
-          <form action={action} className="space-y-6">
+          <form
+            action={action}
+            className="space-y-6"
+            onSubmit={() => {
+              setIsSubmitting(true);
+            }}
+          >
             <input type="hidden" name="sourceNoteSlug" value={sourceNoteSlug} />
+            <input type="hidden" name="content" value={serializedContent} />
+
+            <div className="flex flex-wrap items-center gap-3 rounded-[1.25rem] bg-white/80 px-4 py-3 text-sm">
+              <span
+                className={
+                  editorError
+                    ? "font-semibold text-rose-700"
+                    : hasUnsavedChanges
+                      ? "font-semibold text-amber-700"
+                      : "font-semibold text-emerald-700"
+                }
+              >
+                {editorError ? "Needs repair" : hasUnsavedChanges ? "Unsaved changes" : "Saved"}
+              </span>
+              <span className="text-foreground/50">
+                {editorError
+                  ? "This draft cannot be saved until the invalid JSON is repaired."
+                  : hasUnsavedChanges
+                    ? "Save before leaving this page to avoid losing edits."
+                    : "You can safely move back to the writing workspace."}
+              </span>
+            </div>
 
             <div className="space-y-2">
               <label htmlFor="title" className="text-sm font-semibold text-foreground/70">
@@ -279,16 +370,28 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-sm font-semibold text-foreground/70">Upload Cover / Inline Image</p>
-                  <p className="text-xs text-foreground/50">Images are stored locally for this workstation and registered as reusable media assets. Maximum upload size: 20MB.</p>
+                  <p className="text-xs text-foreground/50">Upload an image to insert it into the draft. Maximum size: 20MB.</p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
-                  disabled={isUploading}
-                >
-                  {isUploading ? "Uploading..." : "Choose Image"}
-                </button>
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  {latestUploadedImage?.url ? (
+                    <button
+                      type="button"
+                      onClick={() => setCoverImageUrl(latestUploadedImage.url ?? "")}
+                      className="rounded-full bg-surface-container-low px-4 py-2 text-sm font-semibold text-primary disabled:opacity-60"
+                      disabled={isUploading}
+                    >
+                      Use Last Upload as Cover
+                    </button>
+                  ) : null}
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+                    disabled={isUploading}
+                  >
+                    {isUploading ? "Uploading..." : "Choose Image"}
+                  </button>
+                </div>
               </div>
               <input
                 ref={fileInputRef}
@@ -317,7 +420,7 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
             <div className="space-y-3 rounded-[1.5rem] bg-white/80 p-4">
               <div>
                 <p className="text-sm font-semibold text-foreground/70">Add Video Embed</p>
-                <p className="text-xs text-foreground/50">Supports YouTube, Vimeo, Bilibili, and custom embeddable URLs.</p>
+                <p className="text-xs text-foreground/50">Paste an embeddable video URL.</p>
               </div>
               <div className="grid gap-3 md:grid-cols-[1fr_0.8fr]">
                 <input
@@ -374,7 +477,8 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
               <select
                 id="visibility"
                 name="visibility"
-                defaultValue={initialData.visibility}
+                value={visibility}
+                onChange={(event) => setVisibility(event.target.value as WritingVisibility)}
                 className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none"
               >
                 <option value="PRIVATE">Private</option>
@@ -383,26 +487,57 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
               </select>
             </div>
 
-            <div className="space-y-2">
-              <label htmlFor="content" className="text-sm font-semibold text-foreground/70">
-                Content JSON
-              </label>
-              <textarea
-                id="content"
-                name="content"
-                rows={16}
-                value={content}
-                onChange={(event) => setContent(event.target.value)}
-                className="w-full rounded-[1.5rem] border border-outline-variant/30 bg-white px-4 py-3 font-mono text-xs outline-none"
-              />
-              {previewState.error ? <p className="text-xs text-rose-600">Preview paused: {previewState.error}</p> : null}
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <label className="text-sm font-semibold text-foreground/70">Content Blocks</label>
+                  <p className="text-xs text-foreground/50">Build the article here, including Markdown sections when you want richer formatting.</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <button type="button" onClick={() => setBlocks((current) => [...current, createEditorBlock("paragraph")])} className="rounded-full bg-surface-container-low px-3 py-2 text-xs font-semibold text-primary">Add Paragraph</button>
+                  <button type="button" onClick={() => setBlocks((current) => [...current, createEditorBlock("heading", { level: 2 })])} className="rounded-full bg-surface-container-low px-3 py-2 text-xs font-semibold text-primary">Add Heading</button>
+                  <button type="button" onClick={() => setBlocks((current) => [...current, createEditorBlock("quote")])} className="rounded-full bg-surface-container-low px-3 py-2 text-xs font-semibold text-primary">Add Quote</button>
+                  <button type="button" onClick={() => setBlocks((current) => [...current, createEditorBlock("markdown")])} className="rounded-full bg-surface-container-low px-3 py-2 text-xs font-semibold text-primary">Add Markdown</button>
+                  <button type="button" onClick={() => setBlocks((current) => [...current, createEditorBlock("image")])} className="rounded-full bg-surface-container-low px-3 py-2 text-xs font-semibold text-primary">Add Image</button>
+                  <button type="button" onClick={() => setBlocks((current) => [...current, createEditorBlock("videoEmbed")])} className="rounded-full bg-surface-container-low px-3 py-2 text-xs font-semibold text-primary">Add Video</button>
+                </div>
+              </div>
+              <BlockEditor blocks={blocks} onChange={setBlocks} />
+              {previewState.error ? (
+                <p className="text-xs text-rose-600">
+                  This draft contains invalid stored content, so saving is disabled until the underlying JSON is repaired.
+                  Parse error: {previewState.error}
+                </p>
+              ) : null}
             </div>
 
+            <details className="rounded-[1.5rem] bg-white/80 p-4">
+              <summary className="cursor-pointer text-sm font-semibold text-foreground/70">Generated JSON</summary>
+              <textarea
+                readOnly
+                rows={12}
+                value={serializedContent}
+                className="mt-4 w-full rounded-[1.5rem] border border-outline-variant/30 bg-surface-container-low px-4 py-3 font-mono text-xs outline-none"
+              />
+            </details>
+
             <div className="flex items-center gap-4">
-              <button type="submit" className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white">
-                {mode === "create" ? "Create Draft" : "Save Draft"}
+              <button
+                type="submit"
+                disabled={Boolean(editorError) || isSubmitting}
+                className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isSubmitting ? "Saving..." : mode === "create" ? "Create Draft" : "Save Draft"}
               </button>
-              <Link href="/writing" className="text-sm font-semibold text-primary">
+              <Link
+                href="/writing"
+                className="text-sm font-semibold text-primary"
+                onClick={(event) => {
+                  if (!confirmNavigation()) {
+                    event.preventDefault();
+                  }
+                }}
+              >
                 Back to writing
               </Link>
             </div>
@@ -410,8 +545,8 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
         </div>
 
         <div className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
-          <p className="text-xs uppercase tracking-[0.2em] text-primary">Attached Assets</p>
-          <h3 className="mt-3 font-headline text-2xl">Local media queue</h3>
+          <p className="text-xs uppercase tracking-[0.2em] text-primary">Media</p>
+          <h3 className="mt-3 font-headline text-2xl">Attached media</h3>
           {uploadedAssets.length > 0 ? (
             <div className="mt-4 space-y-4">
               {uploadedAssets.map((asset) => (
@@ -432,7 +567,7 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
             </div>
           ) : (
             <p className="mt-3 text-sm leading-6 text-foreground/70">
-              Upload an image or insert a video URL to create the first media records for this draft workflow.
+              Uploaded images and video embeds will appear here.
             </p>
           )}
         </div>
@@ -440,10 +575,10 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
 
       <aside className="space-y-6">
         <div className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
-          <p className="text-xs uppercase tracking-[0.2em] text-primary">Live Preview</p>
-          <h3 className="mt-3 font-headline text-2xl">Rendered article</h3>
+          <p className="text-xs uppercase tracking-[0.2em] text-primary">Preview</p>
+          <h3 className="mt-3 font-headline text-2xl">Preview</h3>
           <p className="mt-3 text-sm leading-6 text-foreground/70">
-            The preview uses the same rich-content renderer as the published article page, so what you see here is close to the final reading surface.
+            This preview is close to the published reading view.
           </p>
         </div>
 
@@ -454,10 +589,11 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
             coverImage={coverImageUrl || undefined}
             content={previewState.nodes}
             compact
-            emptyMessage="Add paragraph, heading, image, quote, or videoEmbed blocks to preview the reading flow."
+            emptyMessage="Add content or Markdown blocks to preview the article."
           />
         </div>
       </aside>
     </div>
   );
 }
+
