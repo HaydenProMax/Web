@@ -5,7 +5,7 @@ import { getCurrentUserId } from "@/server/auth/current-user";
 import { getDb } from "@/server/db";
 
 import { saveFileToLocalStorage } from "./local-storage";
-import { assertUploadableFile, mediaEmbedInputSchema, mediaUploadMetadataSchema } from "./schema";
+import { assertUploadableFile, mediaEmbedInputSchema, mediaUploadMetadataSchema, type UploadableFile } from "./schema";
 
 function buildLocalMediaUrl(storageKey: string) {
   return `/api/media/files/${storageKey}`;
@@ -78,7 +78,7 @@ function buildUsageFieldNames(asset: { storageProvider: string; storageKey: stri
   return Array.from(fields);
 }
 
-export async function createUploadedImageAsset(file: File, metadataInput: unknown): Promise<MediaAssetSummary> {
+export async function createUploadedImageAsset(file: UploadableFile, metadataInput: unknown): Promise<MediaAssetSummary> {
   assertUploadableFile(file);
   const metadata = mediaUploadMetadataSchema.parse(metadataInput);
   const storedFile = await saveFileToLocalStorage(file);

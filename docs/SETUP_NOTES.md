@@ -2,7 +2,7 @@
 
 ## Intended Local Development Flow
 
-1. Install Node.js LTS and `pnpm`.
+1. Install Node.js 22 LTS and pnpm 10.
 2. Start the project database with `docker compose -f docker/compose.dev-db.yml up -d`.
 3. Confirm `.env` points to the containerized PostgreSQL instance.
 4. Keep `USE_WRITING_MOCKS=false` for the real app flow; only switch it to `true` during isolated early UI work.
@@ -14,7 +14,7 @@
 
 ## Current State
 
-This repository contains a verified Next.js build, a first Writing vertical slice, Prisma schema under `apps/web/prisma/schema.prisma`, Prisma config, seed data, and a working local media upload pipeline.
+This repository contains a verified Next.js build, a working Writing vertical slice, Prisma schema under `apps/web/prisma/schema.prisma`, Prisma config, seed data, and a working local media upload pipeline.
 
 ## Local Database
 
@@ -27,7 +27,7 @@ The recommended local database is a dedicated Docker container:
 
 ## Local Media
 
-Phase 1 local media handling now supports:
+Current local media handling supports:
 
 - image file upload through `/api/media/uploads`
 - embed record creation through `/api/media/uploads`
@@ -42,26 +42,26 @@ Phase 1 local media handling now supports:
 
 ## Stable Regression Instance
 
-For page-level regression on Windows, use the dedicated regression instance scripts instead of ad-hoc detached shell commands:
+Use the dedicated regression instance scripts instead of ad-hoc detached shell commands:
 
 - `pnpm regression:web:start`
 - `pnpm regression:web:status`
 - `pnpm regression:web:stop`
 
+
 Default port:
 
 - `3090`
 
-Direct script usage with a custom port:
+Direct custom-port usage:
 
-- `powershell -ExecutionPolicy Bypass -File scripts/start-regression-web.ps1 -Port 3092`
-- `powershell -ExecutionPolicy Bypass -File scripts/status-regression-web.ps1 -Port 3092`
-- `powershell -ExecutionPolicy Bypass -File scripts/stop-regression-web.ps1 -Port 3092`
+- `pnpm regression:web:start -- --port 3092`
+- `pnpm regression:web:status -- --port 3092`
+- `pnpm regression:web:stop -- --port 3092`
+
 
 Runtime artifacts:
 
 - pid file: `tmp/regression-web-<port>.pid`
-- stdout log: `tmp/regression-web-<port>.out.log`
-- stderr log: `tmp/regression-web-<port>.err.log`
 
-This flow avoids the unstable detached-process behavior we saw when repeatedly spawning temporary `next start` instances through one-off PowerShell and `cmd` chains.
+This flow is intended to stay portable across Windows and Linux rather than relying on PowerShell-only process wrappers.

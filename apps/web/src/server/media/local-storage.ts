@@ -2,6 +2,8 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import crypto from "node:crypto";
 
+import type { UploadableFile } from "./schema";
+
 function sanitizeFileName(input: string) {
   return input
     .toLowerCase()
@@ -14,7 +16,7 @@ function getStorageRoot() {
   return path.resolve(process.cwd(), "../../storage/media");
 }
 
-export async function saveFileToLocalStorage(file: File) {
+export async function saveFileToLocalStorage(file: UploadableFile) {
   const now = new Date();
   const year = String(now.getUTCFullYear());
   const month = String(now.getUTCMonth() + 1).padStart(2, "0");

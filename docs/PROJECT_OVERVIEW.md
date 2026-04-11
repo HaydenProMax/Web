@@ -1,14 +1,14 @@
 ﻿# Personal Workstation Project Overview
 
-## V1 Seal Status
+## Current Release Status
 
-As of 2026-04-04, the current single-user desktop web release line is defined as V1 sealed.
+As of 2026-04-11, the current single-user desktop web release line is defined as V6.1 sealed.
 
 From this point forward:
 
-- V1 is the frozen baseline
-- further work should default to Phase 2 unless it is required to preserve V1 stability
-- V1 changes should focus on regression, defect repair, and release clarity
+- V6.1 is the frozen baseline
+- further work should default to a new release line unless it is required to preserve V6.1 stability
+- V6.1 changes should focus on regression repair, release clarity, and deployment hardening
 
 ## Quick Re-entry
 
@@ -2600,6 +2600,7 @@ ode, so browser/manual verification is still recommended for the full archive ->
 
 
 ## V6.0
+- Status: Sealed on 2026-04-11 as the current stable release baseline.
 - Theme: Residual Issues and System Consistency.
 - Planned phases:
   - Phase 1: Auth Clarity
@@ -2635,3 +2636,5 @@ ode, so browser/manual verification is still recommended for the full archive ->
 - Fixed live Knowledge detail still mixing archived drafts into related writing. Related draft links now stay aligned with live/archive boundaries instead of leaking archived drafts back into active note detail pages.
 
 - Increased local image upload limit from 10MB to 20MB and updated the writing draft form hint so upload failures match the actual supported size.
+
+

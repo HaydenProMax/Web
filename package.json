@@ -4,16 +4,17 @@
   "private": true,
   "packageManager": "pnpm@10.0.0",
   "scripts": {
-    "dev": "pnpm --filter web dev",
-    "build": "pnpm --filter web build",
-    "start": "pnpm --filter web start",
-    "lint": "pnpm --filter web lint",
-    "typecheck": "pnpm --filter web typecheck",
-    "regression:web:start": "powershell -ExecutionPolicy Bypass -File scripts/start-regression-web.ps1",
-    "regression:web:stop": "powershell -ExecutionPolicy Bypass -File scripts/stop-regression-web.ps1",
-    "regression:web:status": "powershell -ExecutionPolicy Bypass -File scripts/status-regression-web.ps1",
-    "db:generate": "pnpm --filter web prisma generate",
-    "db:migrate": "pnpm --filter web prisma migrate dev",
+    "dev": "node scripts/dev-web.mjs",
+    "dev:fast": "pnpm --filter web exec next dev --turbopack",
+    "build": "corepack pnpm --filter web build",
+    "start": "corepack pnpm --filter web start",
+    "lint": "corepack pnpm --filter web lint",
+    "typecheck": "corepack pnpm --filter web typecheck",
+    "regression:web:start": "node scripts/start-regression-web.mjs",
+    "regression:web:stop": "node scripts/stop-regression-web.mjs",
+    "regression:web:status": "node scripts/status-regression-web.mjs",
+    "db:generate": "corepack pnpm --filter web prisma generate",
+    "db:migrate": "corepack pnpm --filter web prisma migrate dev",
     "db:seed": "node prisma/seed.mjs"
   },
   "pnpm": {
@@ -23,5 +24,9 @@
       "prisma",
       "sharp"
     ]
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=10.0.0"
   }
 }

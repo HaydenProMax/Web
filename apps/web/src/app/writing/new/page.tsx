@@ -58,10 +58,7 @@ export default async function NewWritingDraftPage({
   const initialData = sourceNote ? buildDraftSeedFromNote(sourceNote) : buildEmptyDraftSeed();
 
   return (
-    <ShellLayout
-      title="New Draft"
-      description="Start a rich-media draft that can grow from a source note, hold images and video embeds, and move cleanly into the live writing feed when it is ready."
-    >
+    <ShellLayout title="New Draft" description="Start a draft, shape the structure, and publish when it is ready.">
       {resolvedSearchParams?.error === "invalid-content-json" ? (
         <section className="rounded-[2rem] bg-rose-100 px-6 py-4 text-sm text-rose-700 shadow-ambient">
           The content JSON could not be parsed. Please fix the JSON structure and try again.
@@ -70,25 +67,43 @@ export default async function NewWritingDraftPage({
 
       {resolvedSearchParams?.error === "create-failed" ? (
         <section className="rounded-[2rem] bg-rose-100 px-6 py-4 text-sm text-rose-700 shadow-ambient">
-          The draft could not be created. Check the title, summary, media links, and content blocks, then try again.
-        </section>
-      ) : null}
-      {sourceNote ? (
-        <section className="flex flex-wrap items-center justify-between gap-4 rounded-[2rem] bg-primary-container/30 px-6 py-4 text-sm text-primary shadow-ambient">
-          <p>
-            This draft will be linked back to <span className="font-semibold">{sourceNote.title}</span> in Knowledge.
-          </p>
-          <Link href={`/knowledge/${sourceNote.slug}`} className="font-semibold underline">
-            Open source note
-          </Link>
+          The draft could not be created. Check the title, summary, and content blocks, then try again.
         </section>
       ) : null}
 
-      <WritingDraftForm
-        action={createWritingDraftAction}
-        mode="create"
-        initialData={initialData}
-      />
+      <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
+        <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
+          <div className="space-y-3">
+            <p className="text-xs uppercase tracking-[0.2em] text-primary">New Draft</p>
+            <h2 className="font-headline text-3xl text-foreground">Start the working version here</h2>
+            <div className="flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+              <span>PRIVATE</span>
+              <span>{sourceNote ? "Knowledge-linked" : "Standalone"}</span>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap justify-end gap-3">
+            <Link href="/writing" className="inline-flex rounded-full bg-white px-5 py-2 text-sm font-semibold text-primary shadow-ambient">
+              Back to Writing
+            </Link>
+            {sourceNote ? (
+              <Link href={`/knowledge/${sourceNote.slug}`} className="inline-flex rounded-full bg-white px-5 py-2 text-sm font-semibold text-primary shadow-ambient">
+                Open Source Note
+              </Link>
+            ) : null}
+          </div>
+        </div>
+
+        {sourceNote ? (
+          <div className="mt-6 rounded-[1.5rem] bg-white/80 p-5 shadow-ambient">
+            <p className="text-xs uppercase tracking-[0.2em] text-primary">Source</p>
+            <h3 className="mt-3 font-headline text-2xl text-foreground">{sourceNote.title}</h3>
+            <p className="mt-3 text-sm leading-6 text-foreground/70">This draft starts from the linked knowledge note.</p>
+          </div>
+        ) : null}
+      </section>
+
+      <WritingDraftForm action={createWritingDraftAction} mode="create" initialData={initialData} />
     </ShellLayout>
   );
 }

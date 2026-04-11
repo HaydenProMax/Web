@@ -303,6 +303,7 @@ export async function listWritingDrafts(limit = 6, options?: { archived?: boolea
     orderBy: { updatedAt: "desc" },
     take: limit,
     include: {
+      coverMedia: true,
       publishedPost: {
         select: {
           slug: true,
@@ -328,6 +329,7 @@ export async function listWritingDrafts(limit = 6, options?: { archived?: boolea
     createdAt: draft.createdAt.toISOString(),
     updatedAt: draft.updatedAt.toISOString(),
     contentBlockCount: Array.isArray(draft.contentJson) ? draft.contentJson.length : 0,
+    coverImageUrl: resolveCoverImageUrl(draft.coverMedia, draft.coverImageUrl),
     sourceNoteSlug: draft.sourceNote?.slug ?? undefined,
     sourceNoteTitle: draft.sourceNote?.title ?? undefined,
     publishedPostSlug: draft.publishedPost?.slug ?? undefined,
@@ -688,5 +690,4 @@ export async function publishWritingDraft(id: string) {
 
   throw new Error("Unable to reserve a unique post slug.");
 }
-
 

@@ -1,10 +1,12 @@
 ﻿# First Deliverable
 
-## V1 Seal Status
+## Historical V1 Seal Status
 
-V1 is sealed.
+V1 is sealed as the historical first deliverable.
 
-This means the first deliverable is now treated as feature-complete for the single-user desktop web goal, and no further feature work should be added to V1 unless it is required to preserve stability or close a release-blocking defect.
+It is no longer the current release line. The active stable baseline is now V6.1 sealed.
+
+This means the first deliverable is now treated as feature-complete for the single-user desktop web goal, and no further feature work should be added to V1 unless it is required to preserve historical stability or close a release-blocking defect.
 
 ## Definition
 
@@ -137,3 +139,5 @@ From this point forward:
 - V1 remains the frozen baseline
 - bug fixes and regression fixes may still be applied to V1
 - new feature depth should default to Phase 2
+
+

@@ -2,8 +2,6 @@ param(
   [int]$Port = 3090
 )
 
-$ErrorActionPreference = 'Stop'
+$ErrorActionPreference = "Stop"
 $workspaceRoot = Split-Path -Parent $PSScriptRoot
-$appDir = Join-Path $workspaceRoot 'apps\web'
-Set-Location $appDir
-& 'C:\Program Files\nodejs\npm.cmd' run start -- --port $Port
+node (Join-Path $workspaceRoot 'scripts\run-regression-web.mjs') --port $Port

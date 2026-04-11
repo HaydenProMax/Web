@@ -59,6 +59,7 @@ export type WritingDraftSummary = {
   createdAt: string;
   updatedAt: string;
   contentBlockCount: number;
+  coverImageUrl?: string;
   sourceNoteSlug?: string;
   sourceNoteTitle?: string;
   publishedPostSlug?: string;
@@ -300,6 +301,4 @@ export type SystemPostureSnapshot = {
   hiddenModuleCount: number;
   lockedModuleCount: number;
 };
-
-
 

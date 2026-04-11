@@ -43,7 +43,7 @@ export default async function WritingDraftDetailPage({
   return (
     <ShellLayout
       title={draft.title}
-      description="Draft editing is now database-backed, so image uploads and video embeds can be iterated on without leaving the Writing module."
+      description="Edit the working draft, keep the structure stable, then publish when the article is ready."
     >
       {resolvedSearchParams?.created === "1" ? (
         <section className="rounded-[2rem] bg-primary-container/40 px-6 py-4 text-sm text-primary shadow-ambient">
@@ -53,13 +53,13 @@ export default async function WritingDraftDetailPage({
 
       {resolvedSearchParams?.saved === "1" ? (
         <section className="rounded-[2rem] bg-primary-container/40 px-6 py-4 text-sm text-primary shadow-ambient">
-          Draft saved successfully. Your latest content JSON, image blocks, and video embeds are now stored in PostgreSQL.
+          Draft saved successfully.
         </section>
       ) : null}
 
       {resolvedSearchParams?.restored === "1" ? (
         <section className="rounded-[2rem] bg-primary-container/40 px-6 py-4 text-sm text-primary shadow-ambient">
-          Draft restored successfully. It is back in the live writing lane.
+          Draft restored successfully. It is back in the active writing lane.
         </section>
       ) : null}
 
@@ -102,21 +102,23 @@ export default async function WritingDraftDetailPage({
       <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
         <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
           <div className="space-y-3">
-            <p className="text-xs uppercase tracking-[0.2em] text-primary">Draft Control</p>
-            <h2 className="font-headline text-3xl text-foreground">Manage the working version before it moves live</h2>
-            <p className="max-w-3xl text-sm leading-6 text-foreground/70">
-              This screen is the handoff point between note-driven ideation, media-rich drafting, and live publishing. Keep the draft stable here, then push changes forward when the article is ready.
-            </p>
+            <p className="text-xs uppercase tracking-[0.2em] text-primary">Draft</p>
+            <h2 className="font-headline text-3xl text-foreground">Keep editing here until it is ready to publish</h2>
+            <div className="flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+              <span>{draft.isArchived ? "ARCHIVED" : draft.visibility}</span>
+              <span>{draft.contentBlockCount} blocks</span>
+              <span>Saved {formatTimestamp(draft.updatedAt)}</span>
+            </div>
           </div>
 
           <div className="flex flex-wrap justify-end gap-3">
             <Link href="/writing?view=archived" className="inline-flex rounded-full bg-white px-5 py-2 text-sm font-semibold text-primary shadow-ambient">
-              View Archived Drafts
+              Archived Drafts
             </Link>
             {!draft.isArchived ? (
               <>
                 <Link href={`/planner/new?draft=${draft.id}`} className="inline-flex rounded-full bg-white px-5 py-2 text-sm font-semibold text-primary shadow-ambient">
-                  Create Task from Draft
+                  Create Task
                 </Link>
                 <form action={archiveAction}>
                   <button type="submit" className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-primary shadow-ambient">
@@ -125,7 +127,7 @@ export default async function WritingDraftDetailPage({
                 </form>
                 <form action={publishAction}>
                   <button type="submit" className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white">
-                    {draft.publishedPostSlug ? "Republish Draft" : "Publish Draft"}
+                    {draft.publishedPostSlug ? "Republish" : "Publish Draft"}
                   </button>
                 </form>
               </>
@@ -139,24 +141,12 @@ export default async function WritingDraftDetailPage({
           </div>
         </div>
 
-        <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           <article className="rounded-[1.5rem] bg-white/80 p-5 shadow-ambient">
-            <p className="text-xs uppercase tracking-[0.2em] text-primary">Draft State</p>
-            <h3 className="mt-3 font-headline text-2xl text-foreground">{draft.isArchived ? "ARCHIVED" : draft.visibility}</h3>
-            <p className="mt-3 text-sm leading-6 text-foreground/70">{draft.contentBlockCount} rich-content blocks currently shape the article flow.</p>
-          </article>
-
-          <article className="rounded-[1.5rem] bg-white/80 p-5 shadow-ambient">
-            <p className="text-xs uppercase tracking-[0.2em] text-primary">Last Save</p>
-            <h3 className="mt-3 font-headline text-2xl text-foreground">{formatTimestamp(draft.updatedAt)}</h3>
-            <p className="mt-3 text-sm leading-6 text-foreground/70">Keep saving here while the structure, media, and story arc are still moving.</p>
-          </article>
-
-          <article className="rounded-[1.5rem] bg-white/80 p-5 shadow-ambient">
-            <p className="text-xs uppercase tracking-[0.2em] text-primary">Source Context</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-primary">Source</p>
             <h3 className="mt-3 font-headline text-2xl text-foreground">{draft.sourceNoteTitle ?? "Standalone Draft"}</h3>
             <p className="mt-3 text-sm leading-6 text-foreground/70">
-              {draft.sourceNoteSlug ? "This draft is still anchored to a Knowledge note." : "This draft is currently running without a linked source note."}
+              {draft.sourceNoteSlug ? "Linked to a knowledge note." : "No linked source note."}
             </p>
             {draft.sourceNoteSlug ? (
               <Link href={`/knowledge/${draft.sourceNoteSlug}`} className="mt-4 inline-flex text-sm font-semibold text-primary">
@@ -169,7 +159,7 @@ export default async function WritingDraftDetailPage({
             <p className="text-xs uppercase tracking-[0.2em] text-primary">Live Article</p>
             <h3 className="mt-3 font-headline text-2xl text-foreground">{draft.publishedPostTitle ?? "Not published yet"}</h3>
             <p className="mt-3 text-sm leading-6 text-foreground/70">
-              {draft.publishedPostSlug ? `Last published ${formatTimestamp(draft.publishedAt)}.` : "Publish once to create the live article that this draft will continue to manage."}
+              {draft.publishedPostSlug ? `Last published ${formatTimestamp(draft.publishedAt)}.` : "Publish this draft to create the live article."}
             </p>
             {draft.publishedPostSlug ? (
               <Link href={`/writing/${draft.publishedPostSlug}`} className="mt-4 inline-flex text-sm font-semibold text-primary">
@@ -177,15 +167,23 @@ export default async function WritingDraftDetailPage({
               </Link>
             ) : null}
           </article>
+
+          <article className="rounded-[1.5rem] bg-white/80 p-5 shadow-ambient">
+            <p className="text-xs uppercase tracking-[0.2em] text-primary">Next Step</p>
+            <h3 className="mt-3 font-headline text-2xl text-foreground">{draft.publishedPostSlug ? "Update and republish" : "Finish and publish"}</h3>
+            <p className="mt-3 text-sm leading-6 text-foreground/70">
+              Save structural edits here, then publish when the title, summary, cover, and blocks are ready.
+            </p>
+          </article>
         </div>
       </section>
 
       {draft.isArchived ? (
         <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
           <p className="text-xs uppercase tracking-[0.2em] text-primary">Archived Draft</p>
-          <h2 className="mt-3 font-headline text-3xl text-foreground">Editing and publishing are paused while this draft is archived</h2>
+          <h2 className="mt-3 font-headline text-3xl text-foreground">Editing is paused while this draft is archived</h2>
           <p className="mt-3 max-w-3xl text-sm leading-6 text-foreground/70">
-            Restore this draft to reopen the editor, republish changes, or continue using it as a live writing source.
+            Restore this draft to reopen the editor and publish changes again.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
             <form action={restoreAction}>

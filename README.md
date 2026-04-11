@@ -4,11 +4,9 @@ Single-user modular workstation for planning, knowledge capture, writing, archiv
 
 ## Version Status
 
-V1 is now sealed for the single-user desktop web experience.
+The current sealed baseline is `V6.1`.
 
-The current codebase is at the end of the first deliverable phase for the desktop web experience.
-
-What is in scope for this version:
+Current live scope includes:
 
 - private single-user sign-in
 - planner tasks and planning views
@@ -21,9 +19,9 @@ What is in scope for this version:
 
 What this means in practice:
 
-- V1 should be treated as the baseline release line
-- further changes should default to Phase 2 unless they are needed to keep V1 stable
-- V1 work should now focus on regression, defect fixes, and release clarity rather than feature expansion
+- `V6.1` is the frozen release baseline
+- current work should prefer regression coverage, UX polish, consistency fixes, and deployment readiness
+- cross-platform workflows should stay portable across Windows development and Linux deployment
 
 ## Stack
 
@@ -51,15 +49,15 @@ What this means in practice:
 1. Start the local database:
    - `docker compose -f docker/compose.dev-db.yml up -d`
 2. Install dependencies:
-   - `corepack pnpm install`
+   - `pnpm install`
 3. Generate Prisma client:
-   - `corepack pnpm db:generate`
+   - `pnpm db:generate`
 4. Apply migrations:
-   - `corepack pnpm db:migrate`
+   - `pnpm db:migrate`
 5. Seed the workspace user:
-   - `corepack pnpm db:seed`
+   - `pnpm db:seed`
 6. Start the app:
-   - `corepack pnpm dev`
+   - `pnpm dev`
 
 Default seeded workspace account:
 
@@ -68,15 +66,23 @@ Default seeded workspace account:
 
 ## Stable Regression Flow
 
-Use the dedicated regression-instance scripts for page-level regression on Windows:
+Use the dedicated regression-instance scripts for page-level regression on both Windows and Linux:
 
-- `corepack pnpm regression:web:start`
-- `corepack pnpm regression:web:status`
-- `corepack pnpm regression:web:stop`
+- `pnpm regression:web:start`
+- `pnpm regression:web:status`
+- `pnpm regression:web:stop`
+
 
 Default regression port:
 
 - `3090`
+
+Custom port examples:
+
+- `pnpm regression:web:start -- --port 3092`
+- `pnpm regression:web:status -- --port 3092`
+- `pnpm regression:web:stop -- --port 3092`
+
 
 ## Primary Documents
 
@@ -87,3 +93,5 @@ Read these in this order when re-entering the project:
 3. `docs/FIRST_DELIVERABLE.md`
 4. `docs/V1_BOUNDARY.md`
 5. `docs/SETUP_NOTES.md`
+6. `docs/LINUX_MIGRATION.md` when preparing Linux or WSL environments
+

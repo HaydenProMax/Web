@@ -12,8 +12,38 @@ type RichTextPreviewProps = {
   compact?: boolean;
 };
 
-function isProtectedLocalMediaUrl(value?: string) {
-  return Boolean(value?.startsWith("/api/media/files/"));
+function canUseNextImage(value?: string) {
+  if (!value) {
+    return false;
+  }
+
+  if (value.startsWith("/")) {
+    return true;
+  }
+
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && url.hostname === "images.unsplash.com";
+  } catch {
+    return false;
+  }
+}
+
+function renderImage(src: string, alt: string, className: string) {
+  if (canUseNextImage(src)) {
+    return (
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        className={className}
+        sizes="100vw"
+        unoptimized={src.startsWith("/")}
+      />
+    );
+  }
+
+  return <img src={src} alt={alt} className={`h-full w-full ${className}`} />;
 }
 
 function renderNode(node: RichTextNode, index: number) {
@@ -36,14 +66,7 @@ function renderNode(node: RichTextNode, index: number) {
     return (
       <figure key={index} className="space-y-3">
         <div className="relative h-[280px] overflow-hidden rounded-[1.5rem] bg-surface-container">
-          <Image
-            src={node.src}
-            alt={node.alt ?? "Preview image"}
-            fill
-            className="object-cover"
-            sizes="100vw"
-            unoptimized={isProtectedLocalMediaUrl(node.src)}
-          />
+          {renderImage(node.src, node.alt ?? "Preview image", "object-cover")}
         </div>
         {node.caption ? <figcaption className="text-sm text-foreground/60">{node.caption}</figcaption> : null}
       </figure>
@@ -117,14 +140,7 @@ export function RichTextPreview({
 
       {coverImage ? (
         <div className={`relative overflow-hidden rounded-[2rem] bg-surface-container-low shadow-ambient ${compact ? "h-[260px]" : "h-[420px]"}`}>
-          <Image
-            src={coverImage}
-            alt={coverAlt ?? title ?? "Cover image"}
-            fill
-            className="object-cover"
-            sizes="100vw"
-            unoptimized={isProtectedLocalMediaUrl(coverImage)}
-          />
+          {renderImage(coverImage, coverAlt ?? title ?? "Cover image", "object-cover")}
         </div>
       ) : null}
 

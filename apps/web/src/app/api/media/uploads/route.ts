@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { requireApiSession } from "@/app/api/auth-guard";
 import { createEmbedMediaAsset, createUploadedImageAsset } from "@/server/media/service";
+import { isUploadableFile } from "@/server/media/schema";
 
 export async function POST(request: Request) {
   const unauthorized = await requireApiSession();
@@ -14,7 +15,7 @@ export async function POST(request: Request) {
   const embedUrl = formData.get("embedUrl")?.toString() ?? "";
 
   try {
-    if (file instanceof File) {
+    if (isUploadableFile(file)) {
       const asset = await createUploadedImageAsset(file, {
         altText: formData.get("altText")?.toString() ?? "",
         fieldName: formData.get("fieldName")?.toString() ?? "",

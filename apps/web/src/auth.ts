@@ -1,11 +1,6 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 
-import { getDb } from "@/server/db";
-import { loadWorkspaceEnv } from "@/server/env";
-
-loadWorkspaceEnv();
-
 export const { handlers, signIn, signOut, auth } = NextAuth({
   secret: process.env.AUTH_SECRET,
   trustHost: process.env.AUTH_TRUST_HOST === "true" || process.env.NODE_ENV !== "production",
@@ -23,6 +18,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: { label: "Access Code", type: "password" }
       },
       authorize: async (credentials) => {
+        const { getDb } = await import("@/server/db");
+        const { loadWorkspaceEnv } = await import("@/server/env");
+
+        loadWorkspaceEnv();
+
         const email = credentials?.email?.toString().trim().toLowerCase() ?? "";
         const password = credentials?.password?.toString() ?? "";
         const allowedEmail = (process.env.DEFAULT_USER_EMAIL ?? "hayden@example.com").trim().toLowerCase();
