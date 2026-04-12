@@ -49,8 +49,8 @@ export function KnowledgeNoteForm({ action, initialData, mode = "create" }: Know
           <h2 className="font-headline text-3xl text-foreground">{mode === "edit" ? "Refine this note" : "Capture a new note"}</h2>
           <p className="text-sm leading-6 text-foreground/70">
             {mode === "edit"
-              ? "Update the note without losing its place in the knowledge library. If the title changes, the note slug will move with it."
-              : "Capture a structured note with domains, tags, and rich content blocks."}
+              ? "Update the note here. If the title changes, the slug will update too."
+              : "Create a note with domain, tags, and content."}
           </p>
         </div>
 
@@ -131,9 +131,9 @@ export function KnowledgeNoteForm({ action, initialData, mode = "create" }: Know
       <aside className="space-y-6">
         <div className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
           <p className="text-xs uppercase tracking-[0.2em] text-primary">Live Preview</p>
-          <h3 className="mt-3 font-headline text-2xl">Rendered knowledge note</h3>
+          <h3 className="mt-3 font-headline text-2xl">Preview</h3>
           <p className="mt-3 text-sm leading-6 text-foreground/70">
-            Notes reuse the shared rich-content renderer, which keeps the reading surface aligned with Writing while preserving separate module behavior.
+            Preview the note as it will appear when opened.
           </p>
         </div>
 
@@ -143,7 +143,7 @@ export function KnowledgeNoteForm({ action, initialData, mode = "create" }: Know
             summary={summary}
             content={previewState.nodes}
             compact
-            emptyMessage="Add paragraph, heading, image, quote, or videoEmbed blocks to preview the note flow."
+            emptyMessage="Add content to preview the note."
           />
         </div>
       </aside>

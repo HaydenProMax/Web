@@ -1,4 +1,4 @@
-﻿export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 
@@ -7,7 +7,7 @@ import { ShellLayout } from "@/components/shell/shell-layout";
 import { WorkspaceViewNav } from "@/components/shell/workspace-view-nav";
 import { listRecentArchiveItems, listArchiveTimelineGroups } from "@/server/archive/service";
 import { getPreferredActivityFocus } from "@/server/activity/preferences";
-import { buildActivityHref, getActivityFocusLabel, getActivityFocusNextStep, resolveActivityFocus } from "@/lib/activity-focus";
+import { buildActivityHref, getActivityFocusNextStep, resolveActivityFocus } from "@/lib/activity-focus";
 import { buildSearchModuleStackHref, getSearchModuleStackMeta } from "@/lib/search-module-stack";
 import type { ActivityFocusKey } from "@/lib/activity-focus";
 import { listKnowledgeNotes } from "@/server/knowledge/service";
@@ -57,33 +57,33 @@ const focusOptions: Array<{
 }> = [
   {
     key: "all",
-    label: "All Motion",
-    eyebrow: "Mixed Lens",
-    description: "See the full workstation replay with execution, thinking, publishing, and archive history mixed together."
+    label: "All",
+    eyebrow: "Mixed",
+    description: "See everything together."
   },
   {
     key: "planner",
     label: "Execution",
-    eyebrow: "Planner Lens",
-    description: "Bias the hub toward active task motion and the threads that still need execution context."
+    eyebrow: "Planner",
+    description: "Focus on tasks."
   },
   {
     key: "knowledge",
     label: "Thinking",
-    eyebrow: "Knowledge Lens",
-    description: "Follow note updates, note-linked tasks, and knowledge records entering the archive."
+    eyebrow: "Knowledge",
+    description: "Focus on notes."
   },
   {
     key: "writing",
     label: "Publishing",
-    eyebrow: "Writing Lens",
-    description: "Focus on draft movement, published entries, and the task threads feeding writing work."
+    eyebrow: "Writing",
+    description: "Focus on drafts and posts."
   },
   {
     key: "archive",
     label: "History",
-    eyebrow: "Archive Lens",
-    description: "Slow the view down and re-enter the durable record layer without the live execution noise."
+    eyebrow: "Archive",
+    description: "Focus on saved records."
   }
 ];
 
@@ -473,26 +473,26 @@ export default async function ActivityHubPage({ searchParams }: ActivityPageProp
   return (
     <ShellLayout
       title="Activity Hub"
-      description="A dedicated replay surface for the workstation, bringing together cross-module activity, linked work threads, and archive history in one place."
+      description="Recent activity, linked tasks, and archive history."
     >
       <WorkspaceViewNav
-        eyebrow="Replay Views"
-        title="Move between live motion, linked work, and durable history"
+        eyebrow="Sections"
+        title="Jump to a section"
         items={[
           {
             label: "Recent Activity",
             href: buildActivityHref(focus, "#recent-activity"),
-            description: "Start with the broadest cross-module stream of what changed most recently."
+            description: "See the latest updates."
           },
           {
             label: "Work Threads",
             href: buildActivityHref(focus, "#work-threads"),
-            description: "Jump straight into tasks that still carry note and draft context."
+            description: "Open linked tasks."
           },
           {
             label: "History Timeline",
             href: buildActivityHref(focus, "#history-timeline"),
-            description: "Step back into the archive's day-grouped replay when you need slower context."
+            description: "Browse archive history by day."
           }
         ]}
       />
@@ -500,10 +500,10 @@ export default async function ActivityHubPage({ searchParams }: ActivityPageProp
       <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-primary">Focus Lens</p>
-            <h2 className="mt-3 font-headline text-3xl text-foreground">Tune the replay surface without leaving the hub</h2>
+            <p className="text-xs uppercase tracking-[0.2em] text-primary">Focus</p>
+            <h2 className="mt-3 font-headline text-3xl text-foreground">Choose what to show</h2>
           </div>
-          <span className="text-sm text-foreground/50">Active lens: {activeFocus.label} {focus === storedFocus ? "| saved for re-entry" : "| resume target was " + getActivityFocusLabel(storedFocus)}</span>
+          <span className="text-sm text-foreground/50">Current: {activeFocus.label}</span>
         </div>
         <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
           {focusOptions.map((option) => {
@@ -530,35 +530,35 @@ export default async function ActivityHubPage({ searchParams }: ActivityPageProp
       <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-primary">Remembered Workflow</p>
-            <h2 className="mt-3 font-headline text-3xl text-foreground">{rememberedWorkflow.active ? `${rememberedWorkflow.title} is still riding underneath this replay` : "This replay is currently running without a pinned workflow"}</h2>
+            <p className="text-xs uppercase tracking-[0.2em] text-primary">Pinned Focus</p>
+            <h2 className="mt-3 font-headline text-3xl text-foreground">{rememberedWorkflow.active ? rememberedWorkflow.title : "No pinned focus"}</h2>
           </div>
           <Link href={rememberedWorkflow.href} className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-ambient">
-            {rememberedWorkflow.active ? "Open Workflow" : "Open Command Desk"}
+            {rememberedWorkflow.active ? "Open Focus" : "Open Search"}
           </Link>
         </div>
-        <p className="mt-4 max-w-4xl text-sm leading-7 text-foreground/70">{rememberedWorkflow.summary} {rememberedWorkflow.active ? "The hub keeps that workflow visible so the active lens never fully erases the lane you pinned on purpose." : "Without a pinned workflow, the hub will follow the active lens and replay habit more directly."}</p>
+        <p className="mt-4 max-w-4xl text-sm leading-7 text-foreground/70">{rememberedWorkflow.summary}</p>
       </section>
 
       {!rememberedWorkflow.active && suggestedWorkflow ? (
         <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-primary">Workflow Suggestion</p>
-              <h2 className="mt-3 font-headline text-3xl text-foreground">Pin {suggestedWorkflow.title} if this lens should keep shaping the desk</h2>
+              <p className="text-xs uppercase tracking-[0.2em] text-primary">Suggestion</p>
+              <h2 className="mt-3 font-headline text-3xl text-foreground">Pin {suggestedWorkflow.title}</h2>
             </div>
             <Link href={buildSearchModuleStackHref(suggestedWorkflowKey!, "/activity")} className="rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-ambient">
               Pin {suggestedWorkflow.title}
             </Link>
           </div>
-          <p className="mt-4 max-w-4xl text-sm leading-7 text-foreground/70">{suggestedWorkflow.summary} You are already in the {activeFocus.label.toLowerCase()} lens, so pinning this workflow would keep that lane warm across the desk instead of leaving replay posture to work alone.</p>
+          <p className="mt-4 max-w-4xl text-sm leading-7 text-foreground/70">{suggestedWorkflow.summary}</p>
         </section>
       ) : null}
       <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <div className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
-          <p className="text-xs uppercase tracking-[0.2em] text-primary">Lens Snapshot</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-primary">Summary</p>
           <h2 className="mt-3 font-headline text-3xl text-foreground">{lensSnapshot.title}</h2>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-foreground/70">{lensSnapshot.description} {rememberedWorkflow.active ? `${rememberedWorkflow.title} remains the pinned workflow beneath this lens.` : "No pinned workflow is overriding this lens right now."}</p>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-foreground/70">{lensSnapshot.description}</p>
           <Link href={lensSnapshot.ctaHref} className="mt-5 inline-flex rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-ambient">
             {lensSnapshot.ctaLabel}
           </Link>
@@ -568,39 +568,39 @@ export default async function ActivityHubPage({ searchParams }: ActivityPageProp
           <div className="rounded-[1.5rem] bg-surface-container-low p-5 shadow-ambient">
             <p className="text-xs uppercase tracking-[0.2em] text-primary">Activity</p>
             <p className="mt-3 font-headline text-3xl text-foreground">{recentActivity.length}</p>
-            <p className="mt-2 text-sm text-foreground/60">Visible cards in this lens.</p>
+            <p className="mt-2 text-sm text-foreground/60">Items shown</p>
           </div>
           <div className="rounded-[1.5rem] bg-surface-container-low p-5 shadow-ambient">
             <p className="text-xs uppercase tracking-[0.2em] text-primary">Threads</p>
             <p className="mt-3 font-headline text-3xl text-foreground">{linkedTasks.length}</p>
-            <p className="mt-2 text-sm text-foreground/60">Linked tasks still carrying upstream context.</p>
+            <p className="mt-2 text-sm text-foreground/60">Linked tasks</p>
           </div>
           <div className="rounded-[1.5rem] bg-surface-container-low p-5 shadow-ambient">
             <p className="text-xs uppercase tracking-[0.2em] text-primary">Days</p>
             <p className="mt-3 font-headline text-3xl text-foreground">{filteredTimelineGroups.length}</p>
-            <p className="mt-2 text-sm text-foreground/60">Timeline day groups visible right now.</p>
+            <p className="mt-2 text-sm text-foreground/60">Days shown</p>
           </div>
           <div className="rounded-[1.5rem] bg-surface-container-low p-5 shadow-ambient">
             <p className="text-xs uppercase tracking-[0.2em] text-primary">Records</p>
             <p className="mt-3 font-headline text-3xl text-foreground">{timelineRecordCount}</p>
-            <p className="mt-2 text-sm text-foreground/60">Replayable archive records in this lens.</p>
+            <p className="mt-2 text-sm text-foreground/60">Archive records</p>
           </div>
         </div>
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
         <div className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
-          <p className="text-xs uppercase tracking-[0.2em] text-primary">Lens Launch Surface</p>
-          <h2 className="mt-3 font-headline text-3xl text-foreground">Make the next move from {activeFocus.label}</h2>
+          <p className="text-xs uppercase tracking-[0.2em] text-primary">Next Step</p>
+          <h2 className="mt-3 font-headline text-3xl text-foreground">Start from {activeFocus.label}</h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-foreground/70">{primaryLaunch.description}</p>
           <div className="mt-5 flex flex-wrap gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
             {rememberedWorkflow.active ? (
               <>
                 <span className="rounded-full bg-white px-3 py-1 text-[10px] shadow-ambient">Pinned {rememberedWorkflow.title}</span>
-                <Link href={rememberedWorkflow.href}>Return to workflow</Link>
+                <Link href={rememberedWorkflow.href}>Open focus</Link>
               </>
             ) : (
-              <span className="rounded-full bg-white px-3 py-1 text-[10px] shadow-ambient">No pinned workflow</span>
+              <span className="rounded-full bg-white px-3 py-1 text-[10px] shadow-ambient">No pinned focus</span>
             )}
           </div>
           <Link href={primaryLaunch.href} className="mt-5 inline-flex rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-ambient">
@@ -621,8 +621,8 @@ export default async function ActivityHubPage({ searchParams }: ActivityPageProp
       <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-primary">From This Lens</p>
-            <h2 className="mt-3 font-headline text-3xl text-foreground">Start the next move without leaving the hub</h2>
+            <p className="text-xs uppercase tracking-[0.2em] text-primary">Actions</p>
+            <h2 className="mt-3 font-headline text-3xl text-foreground">Quick actions</h2>
           </div>
           <span className="text-sm text-foreground/50">{lensActions.length} actions available</span>
         </div>
@@ -640,7 +640,7 @@ export default async function ActivityHubPage({ searchParams }: ActivityPageProp
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-primary">Recent Activity</p>
-            <h2 className="mt-3 font-headline text-3xl text-foreground">The latest movement across the workstation</h2>
+            <h2 className="mt-3 font-headline text-3xl text-foreground">Latest updates</h2>
           </div>
           <span className="text-sm text-foreground/50">{recentActivity.length} visible activity cards</span>
         </div>
@@ -671,7 +671,7 @@ export default async function ActivityHubPage({ searchParams }: ActivityPageProp
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-primary">Work Threads</p>
-            <h2 className="mt-3 font-headline text-3xl text-foreground">Tasks that still remember where they came from</h2>
+            <h2 className="mt-3 font-headline text-3xl text-foreground">Linked tasks</h2>
           </div>
           <span className="text-sm text-foreground/50">{linkedTasks.length} linked tasks</span>
         </div>
@@ -714,7 +714,7 @@ export default async function ActivityHubPage({ searchParams }: ActivityPageProp
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-primary">History Timeline</p>
-            <h2 className="mt-3 font-headline text-3xl text-foreground">Archive history grouped by day</h2>
+            <h2 className="mt-3 font-headline text-3xl text-foreground">Archive by day</h2>
           </div>
           <span className="text-sm text-foreground/50">{filteredTimelineGroups.length} day groups</span>
         </div>

@@ -86,7 +86,7 @@ export default async function ModulesPage({
   return (
     <ShellLayout
       title="Modules"
-      description="This registry now reflects live per-user module state, so enabling or hiding capabilities changes the shell without merging module logic together."
+      description="Show or hide modules."
     >
       {updatedModule ? (
         <section className="rounded-[1.5rem] bg-surface-container-low px-5 py-4 text-sm text-primary shadow-ambient">
@@ -101,32 +101,32 @@ export default async function ModulesPage({
 
       <SystemPostureSnapshotCard
         snapshot={postureSnapshot}
-        title="See how the registry fits the current workstation posture"
-        description="The registry now sits on top of a live shell posture. This snapshot shows which replay mode is active, which module is naturally aligned with it, and how much of the shell is currently visible."
+        title="Current focus"
+        description="Your saved focus and active module."
         primaryHref={activityReentry.href}
         primaryLabel={`Resume ${activityReentry.label} Lens`}
         secondaryHref="/settings#replay-habit"
-        secondaryLabel="Adjust Replay Habit"
+        secondaryLabel="Edit Default Focus"
         hint={getActivityFocusPostureHint(postureSnapshot.defaultLens, "modules")}
       />
 
       <SystemPostureNav
-        title="Move between registry control, replay habit, and active lens entry"
+        title="Jump to related pages"
         items={[
           {
-            label: "Replay Habit",
+            label: "Default Focus",
             href: "/settings#replay-habit",
-            description: "Adjust the default lens that determines which modules feel most natural to re-enter."
+            description: "Change your default focus."
           },
           {
-            label: "Current Lens",
+            label: "Current Focus",
             href: activityReentry.href,
-            description: "Return directly to the replay surface that is currently steering the workstation."
+            description: "Open the current activity view."
           },
           {
-            label: "Default Lens",
+            label: "Saved Focus",
             href: buildActivityHref(activityReentry.defaultFocus),
-            description: "Jump into the baseline replay habit without changing module state."
+            description: "Open your saved default view."
           }
         ]}
       />
@@ -134,12 +134,12 @@ export default async function ModulesPage({
       <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-primary">Remembered Workflow</p>
-            <h2 className="mt-3 font-headline text-3xl text-foreground">{rememberedWorkflow.active ? `${rememberedWorkflow.title} is still active in the registry` : "The registry is currently following replay habit and module posture"}</h2>
+            <p className="text-xs uppercase tracking-[0.2em] text-primary">Pinned Focus</p>
+            <h2 className="mt-3 font-headline text-3xl text-foreground">{rememberedWorkflow.active ? rememberedWorkflow.title : "No pinned focus"}</h2>
           </div>
           <div className="flex flex-wrap gap-3">
             <Link href={rememberedWorkflow.href} className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-ambient">
-              {rememberedWorkflow.active ? "Open Workflow" : "Open Command Desk"}
+              {rememberedWorkflow.active ? "Open Focus" : "Open Search"}
             </Link>
             {rememberedWorkflow.active ? (
               <Link href={buildClearSearchModuleStackHref("/modules")} className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-ambient">
@@ -148,14 +148,14 @@ export default async function ModulesPage({
             ) : null}
           </div>
         </div>
-        <p className="mt-4 max-w-3xl text-sm leading-7 text-foreground/70">{rememberedWorkflow.summary} {rememberedWorkflow.active ? "The registry keeps this workflow visible so module toggles can be evaluated against the lane you are actually trying to preserve." : "Until a workflow is pinned again, module emphasis will fall back to replay habit and aligned module posture."}</p>
+        <p className="mt-4 max-w-3xl text-sm leading-7 text-foreground/70">{rememberedWorkflow.summary}</p>
       </section>
 
       <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-primary">Workflow Override</p>
-            <h2 className="mt-3 font-headline text-3xl text-foreground">Switch which module stack the registry should keep in front</h2>
+            <p className="text-xs uppercase tracking-[0.2em] text-primary">Pinned Stack</p>
+            <h2 className="mt-3 font-headline text-3xl text-foreground">Choose a stack to pin</h2>
           </div>
           {alignedWorkflowMeta ? (
             <Link href={buildSearchModuleStackHref(alignedWorkflowKey!, "/modules")} className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-ambient">
@@ -163,7 +163,7 @@ export default async function ModulesPage({
             </Link>
           ) : null}
         </div>
-        <p className="mt-4 max-w-3xl text-sm leading-7 text-foreground/70">Use the registry to explicitly repin the stack you want the desk to favor. This lets you switch workflow memory without hunting through the command desk first.</p>
+        <p className="mt-4 max-w-3xl text-sm leading-7 text-foreground/70">Pick the stack you want to keep on top.</p>
         {!rememberedWorkflow.active && alignedWorkflowMeta ? (
           <div className="mt-5 flex flex-wrap gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
             <Link href={buildSearchModuleStackHref(alignedWorkflowKey!, "/modules")} className="rounded-full bg-white px-4 py-2 shadow-ambient">
@@ -200,9 +200,9 @@ export default async function ModulesPage({
       </section>
 
       <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
-        <p className="text-xs uppercase tracking-[0.2em] text-primary">Module Replay Habit</p>
-        <h2 className="mt-3 font-headline text-3xl text-foreground">Your current module posture follows {activityReentry.defaultLabel}</h2>
-        <p className="mt-3 max-w-3xl text-sm leading-7 text-foreground/70">Modules that match your default replay lens are highlighted as the most natural re-entry points. You can still jump directly into the replay surface from here without leaving the registry.</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-primary">Default Focus</p>
+        <h2 className="mt-3 font-headline text-3xl text-foreground">Current default: {activityReentry.defaultLabel}</h2>
+        <p className="mt-3 max-w-3xl text-sm leading-7 text-foreground/70">Open your saved default view or current activity view.</p>
         <div className="mt-5 flex flex-wrap gap-3">
           <Link href={activityReentry.href} className="rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-ambient">
             Resume {activityReentry.label} Lens
@@ -250,7 +250,7 @@ export default async function ModulesPage({
                 ) : null}
                 {module.locked ? (
                   <div className="rounded-[1.5rem] bg-white/80 px-4 py-3 font-semibold text-primary">
-                    Core infrastructure modules stay available so the shell can always be configured.
+                    Core pages always stay available.
                   </div>
                 ) : (
                   <form action={toggleModuleEnabledAction}>

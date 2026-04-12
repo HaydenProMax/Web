@@ -39,8 +39,8 @@ export function PlannerTaskForm({
   submitLabel = mode === "edit" ? "Save Changes" : "Create Task",
   titleText = mode === "edit" ? "Refine this task" : "Capture a new task",
   introText = mode === "edit"
-    ? "Update task scope, timing, execution state, and upstream context without leaving the planner workflow."
-    : "Planner now supports linking work back to the knowledge and writing modules, so execution records can stay connected to the ideas they came from.",
+    ? "Update title, timing, status, and links."
+    : "Create a task and link it to a note or draft if needed.",
   cancelHref = "/planner",
   cancelLabel = "Back to planner"
 }: PlannerTaskFormProps) {
@@ -165,7 +165,7 @@ export function PlannerTaskForm({
                 ))}
               </select>
               <p className="text-xs leading-5 text-foreground/55">
-                {selectedNote ? selectedNote.meta : "Anchor this task to a knowledge note so planning stays connected to source thinking."}
+                {selectedNote ? selectedNote.meta : "Link this task to a note."}
               </p>
             </div>
 
@@ -184,7 +184,7 @@ export function PlannerTaskForm({
                 ))}
               </select>
               <p className="text-xs leading-5 text-foreground/55">
-                {selectedDraft ? selectedDraft.meta : "Link the task to an in-progress writing draft when execution and composition should move together."}
+                {selectedDraft ? selectedDraft.meta : "Link this task to a draft."}
               </p>
             </div>
           </div>
@@ -202,12 +202,12 @@ export function PlannerTaskForm({
 
       <aside className="space-y-6">
         <div className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
-          <p className="text-xs uppercase tracking-[0.2em] text-primary">Task Preview</p>
-          <h3 className="mt-3 font-headline text-2xl">Execution snapshot</h3>
+          <p className="text-xs uppercase tracking-[0.2em] text-primary">Preview</p>
+          <h3 className="mt-3 font-headline text-2xl">Task summary</h3>
           <p className="mt-3 text-sm leading-6 text-foreground/70">
             {mode === "edit"
-              ? "Planner tasks can now keep their upstream note and draft context while you adjust status, timing, and scope."
-              : "Use this form to plan work with timing, priority, and links back to the note or draft that generated it."}
+              ? "Review the current task details before saving."
+              : "Review title, timing, priority, and links here."}
           </p>
         </div>
 

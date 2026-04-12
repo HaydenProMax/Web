@@ -1,4 +1,4 @@
-﻿export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 
@@ -236,7 +236,7 @@ function buildDashboardHighlights(input: {
         ? `${module.description} This module is currently leading the remembered workflow lane.`
         : module.description,
       href: module.href,
-      eyebrow: module.key === input.rememberedWorkflowKey ? 'Workflow Bias' : 'Core Module'
+      eyebrow: module.key === input.rememberedWorkflowKey ? 'Pinned' : 'Core Module'
     }))
     .sort((left, right) => Number(right.key === input.rememberedWorkflowKey) - Number(left.key === input.rememberedWorkflowKey));
 }
@@ -402,37 +402,37 @@ export default async function DashboardPage() {
   return (
     <ShellLayout
       title="Dashboard"
-      description="The workstation home view now surfaces live module activity plus the links between tasks, notes, drafts, and archive records, so the shell starts to feel like one connected system."
+      description="A quick view of your tasks, notes, drafts, posts, and archive."
     >
       <WorkspaceViewNav
-        title="Follow the workstation flow"
+        title="Jump to key sections"
         items={[
           {
             label: "Recent Activity",
             href: recentActivityHref,
-            description: "Replay the latest cross-module motion from one shared dashboard timeline."
+            description: "See the latest updates."
           },
           {
             label: "Planner Threads",
             href: workThreadsHref,
-            description: "Re-enter tasks that are tied to notes and drafts before their context drifts."
+            description: "Open tasks linked to notes and drafts."
           },
           {
             label: "Archive Timeline",
             href: historyTimelineHref,
-            description: "Walk back through the archive by day when you want the broader historical view."
+            description: "Browse archive history by day."
           }
         ]}
       />
 
       <SystemPostureSnapshotCard
         snapshot={postureSnapshot}
-        title="Read the current workstation posture"
-        description="The dashboard now surfaces the same replay and shell posture that drives settings and modules, so you can see the current lens, default habit, and aligned module before choosing where to move next."
+        title="Current focus"
+        description="Your saved focus and next step."
         primaryHref={activityReentry.href}
         primaryLabel={preferredActivityFocus === "all" ? "Open Activity Hub" : `Resume ${activityReentry.label} Lens`}
         secondaryHref="/settings#replay-habit"
-        secondaryLabel="Tune Replay Habit"
+        secondaryLabel="Edit Default Focus"
         hint={getActivityFocusPostureHint(postureSnapshot.currentLens, "dashboard")}
       />
 
@@ -468,27 +468,27 @@ export default async function DashboardPage() {
             <div className="rounded-[1.5rem] bg-white/80 p-5">
               <p className="text-xs uppercase tracking-[0.2em] text-primary">Tasks</p>
               <p className="mt-3 font-headline text-3xl text-foreground">{plannerOverview.totalCount}</p>
-              <p className="mt-2 text-sm text-foreground/60">Active planner tasks</p>
+              <p className="mt-2 text-sm text-foreground/60">Tasks</p>
             </div>
             <div className="rounded-[1.5rem] bg-white/80 p-5">
               <p className="text-xs uppercase tracking-[0.2em] text-primary">Drafts</p>
               <p className="mt-3 font-headline text-3xl text-foreground">{writingOverview.draftCount}</p>
-              <p className="mt-2 text-sm text-foreground/60">Active writing drafts</p>
+              <p className="mt-2 text-sm text-foreground/60">Drafts</p>
             </div>
             <div className="rounded-[1.5rem] bg-white/80 p-5">
               <p className="text-xs uppercase tracking-[0.2em] text-primary">Notes</p>
               <p className="mt-3 font-headline text-3xl text-foreground">{knowledgeOverview.noteCount}</p>
-              <p className="mt-2 text-sm text-foreground/60">Live knowledge notes</p>
+              <p className="mt-2 text-sm text-foreground/60">Notes</p>
             </div>
             <div className="rounded-[1.5rem] bg-white/80 p-5">
               <p className="text-xs uppercase tracking-[0.2em] text-primary">Published</p>
               <p className="mt-3 font-headline text-3xl text-foreground">{writingOverview.publishedCount}</p>
-              <p className="mt-2 text-sm text-foreground/60">Available reading entries</p>
+              <p className="mt-2 text-sm text-foreground/60">Posts</p>
             </div>
             <div className="rounded-[1.5rem] bg-white/80 p-5">
               <p className="text-xs uppercase tracking-[0.2em] text-primary">Archive</p>
               <p className="mt-3 font-headline text-3xl text-foreground">{archiveOverview.totalCount}</p>
-              <p className="mt-2 text-sm text-foreground/60">Cross-module records</p>
+              <p className="mt-2 text-sm text-foreground/60">Archive</p>
             </div>
           </div>
         </div>
@@ -497,17 +497,17 @@ export default async function DashboardPage() {
           <section className="rounded-[1.5rem] bg-white/80 p-5 shadow-ambient">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-primary">Remembered Workflow</p>
-                <h3 className="mt-3 font-headline text-2xl text-foreground">{rememberedWorkflow.active ? `${rememberedWorkflow.title} is still shaping the desk` : "The desk is currently following live posture"}</h3>
+                <p className="text-xs uppercase tracking-[0.2em] text-primary">Pinned Focus</p>
+                <h3 className="mt-3 font-headline text-2xl text-foreground">{rememberedWorkflow.active ? rememberedWorkflow.title : "Following current focus"}</h3>
               </div>
               <Link href={rememberedWorkflow.href} className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-ambient">
-                {rememberedWorkflow.active ? "Open Workflow" : "Open Command Desk"}
+                {rememberedWorkflow.active ? "Open Focus" : "Open Search"}
               </Link>
             </div>
-            <p className="mt-4 text-sm leading-7 text-foreground/70">{rememberedWorkflow.summary} {rememberedWorkflow.active ? "The dashboard keeps this lane visible so your next move is not decided only by whatever updated most recently." : "Until you pin a workflow again, the dashboard will lean on replay posture and the freshest workspace signals."}</p>
+            <p className="mt-4 text-sm leading-7 text-foreground/70">{rememberedWorkflow.summary}</p>
             <div className="mt-5 flex flex-wrap gap-3 text-sm font-semibold text-primary">
-              <Link href="/search">Open Command Center</Link>
-              <Link href={rememberedWorkflow.href}>{rememberedWorkflow.active ? `Re-enter ${rememberedWorkflow.title}` : "Open Command Desk"}</Link>
+              <Link href="/search">Open Search</Link>
+              <Link href={rememberedWorkflow.href}>{rememberedWorkflow.active ? `Open ${rememberedWorkflow.title}` : "Open Search"}</Link>
             </div>
           </section>
 
@@ -540,7 +540,7 @@ export default async function DashboardPage() {
 
           {latestPost ? (
             <div className="mt-8 rounded-[1.5rem] bg-white/80 p-5">
-              <p className="text-xs uppercase tracking-[0.2em] text-primary">Latest Published</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-primary">Latest Post</p>
               <h3 className="mt-3 font-headline text-2xl text-foreground">{latestPost.title}</h3>
               <p className="mt-3 text-sm leading-6 text-foreground/70">{latestPost.summary || "No summary yet."}</p>
               <Link href={`/writing/${latestPost.slug}`} className="mt-4 inline-flex text-sm font-semibold text-primary">
@@ -555,7 +555,7 @@ export default async function DashboardPage() {
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-primary">Recent Activity</p>
-            <h2 className="mt-3 font-headline text-3xl text-foreground">A shared timeline across the workstation</h2>
+            <h2 className="mt-3 font-headline text-3xl text-foreground">Recent activity</h2>
           </div>
           <Link href="/search" className="text-sm font-semibold text-primary">Open Command Center</Link>
         </div>
@@ -582,7 +582,7 @@ export default async function DashboardPage() {
             </article>
           )) : (
             <div className="rounded-[1.5rem] bg-white/80 p-4 text-sm text-foreground/60">
-              No recent activity yet. As you move through notes, tasks, drafts, and archive records, the workstation will start to show a shared timeline here.
+              No recent activity yet.
             </div>
           )}
         </div>
@@ -593,7 +593,7 @@ export default async function DashboardPage() {
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-primary">Cross-Module Threads</p>
-              <h2 className="mt-3 font-headline text-3xl text-foreground">Tasks linked to notes and drafts</h2>
+              <h2 className="mt-3 font-headline text-3xl text-foreground">Linked tasks</h2>
             </div>
             <Link href="/planner" className="text-sm font-semibold text-primary">Open planner</Link>
           </div>
@@ -626,7 +626,7 @@ export default async function DashboardPage() {
               </article>
             )) : (
               <div className="rounded-[1.5rem] bg-white/80 p-4 text-sm text-foreground/60">
-                No linked tasks yet. Create tasks from notes or drafts to turn the dashboard into a true coordination layer.
+                No linked tasks yet.
               </div>
             )}
           </div>
@@ -636,7 +636,7 @@ export default async function DashboardPage() {
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-primary">Archive Signals</p>
-              <h2 className="mt-3 font-headline text-3xl text-foreground">Knowledge records entering the archive</h2>
+              <h2 className="mt-3 font-headline text-3xl text-foreground">Recent note records</h2>
             </div>
             <Link href="/archive" className="text-sm font-semibold text-primary">Open archive</Link>
           </div>
@@ -654,7 +654,7 @@ export default async function DashboardPage() {
               </article>
             )) : (
               <div className="rounded-[1.5rem] bg-white/80 p-4 text-sm text-foreground/60">
-                No knowledge archive records yet. Creating or refining notes will begin this archive signal.
+                No archive records yet.
               </div>
             )}
           </div>
@@ -680,7 +680,7 @@ export default async function DashboardPage() {
               <h2 className="font-headline text-2xl text-foreground">Recent Tasks</h2>
               {isWorkflowBiasedStream("planner", rememberedWorkflow.key) ? (
                 <span className="rounded-full bg-white px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary shadow-ambient">
-                  Workflow Bias
+                  Pinned
                 </span>
               ) : null}
             </div>
@@ -696,7 +696,7 @@ export default async function DashboardPage() {
               </article>
             )) : (
               <div className="rounded-[1.5rem] bg-white/80 p-4 text-sm text-foreground/60">
-                No tasks yet. Create one to start the planning stream.
+                No tasks yet.
               </div>
             )}
           </div>
@@ -708,7 +708,7 @@ export default async function DashboardPage() {
               <h2 className="font-headline text-2xl text-foreground">Recent Drafts</h2>
               {isWorkflowBiasedStream("writing-drafts", rememberedWorkflow.key) ? (
                 <span className="rounded-full bg-white px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary shadow-ambient">
-                  Workflow Bias
+                  Pinned
                 </span>
               ) : null}
             </div>
@@ -726,7 +726,7 @@ export default async function DashboardPage() {
               </article>
             )) : (
               <div className="rounded-[1.5rem] bg-white/80 p-4 text-sm text-foreground/60">
-                No drafts yet. Start a new piece to begin the writing stream.
+                No drafts yet.
               </div>
             )}
           </div>
@@ -738,7 +738,7 @@ export default async function DashboardPage() {
               <h2 className="font-headline text-2xl text-foreground">Recent Notes</h2>
               {isWorkflowBiasedStream("knowledge", rememberedWorkflow.key) ? (
                 <span className="rounded-full bg-white px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary shadow-ambient">
-                  Workflow Bias
+                  Pinned
                 </span>
               ) : null}
             </div>
@@ -756,7 +756,7 @@ export default async function DashboardPage() {
               </article>
             )) : (
               <div className="rounded-[1.5rem] bg-white/80 p-4 text-sm text-foreground/60">
-                No notes yet. Capture one to begin the knowledge stream.
+                No notes yet.
               </div>
             )}
           </div>
@@ -768,7 +768,7 @@ export default async function DashboardPage() {
               <h2 className="font-headline text-2xl text-foreground">Recent Writing</h2>
               {isWorkflowBiasedStream("writing-posts", rememberedWorkflow.key) ? (
                 <span className="rounded-full bg-white px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary shadow-ambient">
-                  Workflow Bias
+                  Pinned
                 </span>
               ) : null}
             </div>
@@ -787,8 +787,8 @@ export default async function DashboardPage() {
             )) : (
               <div className="rounded-[1.5rem] bg-white/80 p-4 text-sm text-foreground/60">
                 {latestPost
-                  ? "Only one published entry exists so far. Publish another draft to expand the reading stream."
-                  : "No published entries yet. Publish a draft to begin the reading stream."}
+                  ? "Only one post published so far."
+                  : "No published posts yet."}
               </div>
             )}
           </div>
@@ -800,7 +800,7 @@ export default async function DashboardPage() {
               <h2 className="font-headline text-2xl text-foreground">Recent Archive</h2>
               {isWorkflowBiasedStream("archive", rememberedWorkflow.key) ? (
                 <span className="rounded-full bg-white px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary shadow-ambient">
-                  Workflow Bias
+                  Pinned
                 </span>
               ) : null}
             </div>
@@ -820,7 +820,7 @@ export default async function DashboardPage() {
               </article>
             )) : (
               <div className="rounded-[1.5rem] bg-white/80 p-4 text-sm text-foreground/60">
-                No archive records yet. Published writing and knowledge notes will appear here automatically.
+                No archive records yet.
               </div>
             )}
           </div>

@@ -39,7 +39,7 @@ export default async function SettingsPage({
   return (
     <ShellLayout
       title="Settings"
-      description="Settings now controls real personal preferences and module visibility so the workstation shell can adapt without leaking domain logic across modules."
+      description="Personal preferences and module visibility."
     >
       {saved ? (
         <section className="rounded-[1.5rem] bg-surface-container-low px-5 py-4 text-sm text-primary shadow-ambient">
@@ -59,24 +59,24 @@ export default async function SettingsPage({
 
       <SystemPostureSnapshotCard
         snapshot={postureSnapshot}
-        title="Read the workstation posture before changing it"
-        description="This snapshot pulls the current replay lens, your default replay habit, the aligned module, and shell visibility into one place so system changes stay grounded in the current workstation shape."
+        title="Current focus"
+        description="Your saved focus and active module."
         primaryHref={activityReentry.href}
         primaryLabel={`Resume ${activityReentry.label} Lens`}
         secondaryHref="/modules"
-        secondaryLabel="Open Module Registry"
+        secondaryLabel="Open Modules"
         hint={getActivityFocusPostureHint(postureSnapshot.defaultLens, "settings")}
       />
 
       <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-primary">Remembered Workflow</p>
-            <h2 className="mt-3 font-headline text-3xl text-foreground">{rememberedWorkflow.active ? `${rememberedWorkflow.title} is still shaping system posture` : "System posture is currently following replay habit and live context"}</h2>
+            <p className="text-xs uppercase tracking-[0.2em] text-primary">Pinned Focus</p>
+            <h2 className="mt-3 font-headline text-3xl text-foreground">{rememberedWorkflow.active ? rememberedWorkflow.title : "No pinned focus"}</h2>
           </div>
           <div className="flex flex-wrap gap-3">
             <Link href={rememberedWorkflow.href} className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-ambient">
-              {rememberedWorkflow.active ? "Open Workflow" : "Open Command Desk"}
+              {rememberedWorkflow.active ? "Open Focus" : "Open Search"}
             </Link>
             {rememberedWorkflow.active ? (
               <Link href={buildClearSearchModuleStackHref("/settings")} className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-ambient">
@@ -85,14 +85,14 @@ export default async function SettingsPage({
             ) : null}
           </div>
         </div>
-        <p className="mt-4 max-w-3xl text-sm leading-7 text-foreground/70">{rememberedWorkflow.summary} {rememberedWorkflow.active ? "Settings keeps that lane visible so replay-habit changes and module toggles do not erase the workflow you pinned on purpose." : "Until you pin a workflow again, the shell will lean on your replay habit and the module aligned to it."}</p>
+        <p className="mt-4 max-w-3xl text-sm leading-7 text-foreground/70">{rememberedWorkflow.summary}</p>
       </section>
 
       <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-primary">Workflow Override</p>
-            <h2 className="mt-3 font-headline text-3xl text-foreground">Pin the workflow lane you want the shell to keep warm</h2>
+            <p className="text-xs uppercase tracking-[0.2em] text-primary">Pinned Stack</p>
+            <h2 className="mt-3 font-headline text-3xl text-foreground">Choose a stack to pin</h2>
           </div>
           {alignedWorkflowMeta ? (
             <Link href={buildSearchModuleStackHref(alignedWorkflowKey!, "/settings")} className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-ambient">
@@ -100,7 +100,7 @@ export default async function SettingsPage({
             </Link>
           ) : null}
         </div>
-        <p className="mt-4 max-w-3xl text-sm leading-7 text-foreground/70">Workflow memory should be steerable from system controls too. Use these overrides to tell the desk which lane should keep influencing quick actions, highlights, search posture, and replay entry.</p>
+        <p className="mt-4 max-w-3xl text-sm leading-7 text-foreground/70">Pick the stack you want to keep on top.</p>
         {!rememberedWorkflow.active && alignedWorkflowMeta ? (
           <div className="mt-5 flex flex-wrap gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
             <Link href={buildSearchModuleStackHref(alignedWorkflowKey!, "/settings")} className="rounded-full bg-white px-4 py-2 shadow-ambient">
@@ -137,22 +137,22 @@ export default async function SettingsPage({
       </section>
 
       <SystemPostureNav
-        title="Move between preference control, module posture, and replay habit"
+        title="Jump to related pages"
         items={[
           {
-            label: "Replay Habit",
+            label: "Default Focus",
             href: "/settings#replay-habit",
-            description: "Adjust the default lens that guides shell emphasis and replay re-entry."
+            description: "Change your default focus."
           },
           {
-            label: "Module Registry",
+            label: "Modules",
             href: "/modules",
-            description: "Shift from personal settings to the module-level control surface."
+            description: "Show or hide modules."
           },
           {
-            label: "Resume Lens",
+            label: "Current Focus",
             href: activityReentry.href,
-            description: "Jump back into your current replay posture without leaving system controls behind."
+            description: "Open the current activity view."
           }
         ]}
       />
@@ -160,7 +160,7 @@ export default async function SettingsPage({
       <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
         <ModuleCard
           title="Profile & Appearance"
-          description="These preferences drive the shell identity, typography direction, locale, and time settings used across Hayden Garden."
+          description="Name, theme, typography, locale, and time settings."
           eyebrow="User"
         >
           <form action={updateSettingsPreferencesAction} className="grid gap-4">
@@ -222,17 +222,17 @@ export default async function SettingsPage({
 
         <ModuleCard
           title="System Posture"
-          description="The shell treats Dashboard, Modules, and Settings as locked infrastructure. Everything else can be dialed up or down per user without touching domain data."
+          description="Core pages stay available. Other modules can be shown or hidden."
           eyebrow="System"
         >
           <div className="space-y-4 text-sm leading-6 text-foreground/70">
             <div className="rounded-[1.5rem] bg-white/80 p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-primary">Navigation</p>
-              <p className="mt-2">Visible modules in the shell: {snapshot.modules.filter((module) => module.visibleInNavigation).length}</p>
+              <p className="mt-2">Visible modules: {snapshot.modules.filter((module) => module.visibleInNavigation).length}</p>
             </div>
             <div className="rounded-[1.5rem] bg-white/80 p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-primary">Locked Modules</p>
-              <p className="mt-2">Dashboard, Modules, and Settings stay reachable so you can always recover configuration changes.</p>
+              <p className="mt-2">Dashboard, Modules, and Settings always stay available.</p>
             </div>
             <div className="rounded-[1.5rem] bg-white/80 p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-primary">Current Locale</p>
@@ -241,7 +241,7 @@ export default async function SettingsPage({
             <div id="replay-habit" className="rounded-[1.5rem] bg-white/80 p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-primary">Replay Habit</p>
               <p className="mt-2">Default lens: {snapshot.preferences.defaultActivityFocus}</p>
-              <p className="mt-2 text-xs text-foreground/55">The shell will gently bias navigation and re-entry actions toward the module that matches this lens.</p>
+              <p className="mt-2 text-xs text-foreground/55">This affects default entry points.</p>
             </div>
           </div>
         </ModuleCard>
@@ -250,7 +250,7 @@ export default async function SettingsPage({
       <section className="space-y-4">
         <div>
           <p className="text-xs uppercase tracking-[0.2em] text-primary">Module Preferences</p>
-          <h2 className="mt-3 font-headline text-3xl text-foreground">Control the workstation shell</h2>
+          <h2 className="mt-3 font-headline text-3xl text-foreground">Module visibility</h2>
         </div>
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {snapshot.modules.map((module) => (

@@ -370,7 +370,7 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-sm font-semibold text-foreground/70">Upload Cover / Inline Image</p>
-                  <p className="text-xs text-foreground/50">Upload a JPEG, PNG, or WebP image up to 20MB. Images are automatically optimized for safer article rendering.</p>
+                  <p className="text-xs text-foreground/50">Upload a JPEG, PNG, or WebP image up to 20MB.</p>
                 </div>
                 <div className="flex flex-wrap items-center justify-end gap-2">
                   {latestUploadedImage?.url ? (
@@ -420,7 +420,7 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
             <div className="space-y-3 rounded-[1.5rem] bg-white/80 p-4">
               <div>
                 <p className="text-sm font-semibold text-foreground/70">Add Video Embed</p>
-                <p className="text-xs text-foreground/50">Paste an embeddable video URL.</p>
+                <p className="text-xs text-foreground/50">Paste a video URL.</p>
               </div>
               <div className="grid gap-3 md:grid-cols-[1fr_0.8fr]">
                 <input
@@ -491,7 +491,7 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <label className="text-sm font-semibold text-foreground/70">Content Blocks</label>
-                  <p className="text-xs text-foreground/50">Build the article here, including Markdown sections when you want richer formatting.</p>
+                  <p className="text-xs text-foreground/50">Build the article here.</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <button type="button" onClick={() => setBlocks((current) => [...current, createEditorBlock("paragraph")])} className="rounded-full bg-surface-container-low px-3 py-2 text-xs font-semibold text-primary">Add Paragraph</button>
@@ -505,7 +505,7 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
               <BlockEditor blocks={blocks} onChange={setBlocks} />
               {previewState.error ? (
                 <p className="text-xs text-rose-600">
-                  This draft contains invalid stored content, so saving is disabled until the underlying JSON is repaired.
+                  This draft contains invalid content, so saving is disabled until it is fixed.
                   Parse error: {previewState.error}
                 </p>
               ) : null}
@@ -567,7 +567,7 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
             </div>
           ) : (
             <p className="mt-3 text-sm leading-6 text-foreground/70">
-              Uploaded images and video embeds will appear here.
+              Uploaded media will appear here.
             </p>
           )}
         </div>
@@ -578,7 +578,7 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
           <p className="text-xs uppercase tracking-[0.2em] text-primary">Preview</p>
           <h3 className="mt-3 font-headline text-2xl">Preview</h3>
           <p className="mt-3 text-sm leading-6 text-foreground/70">
-            This preview is close to the published reading view.
+            Preview the draft here.
           </p>
         </div>
 
@@ -589,7 +589,7 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
             coverImage={coverImageUrl || undefined}
             content={previewState.nodes}
             compact
-            emptyMessage="Add content or Markdown blocks to preview the article."
+            emptyMessage="Add content to preview the article."
           />
         </div>
       </aside>

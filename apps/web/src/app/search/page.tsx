@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { cookies } from "next/headers";
 import type { ReactNode } from "react";
 import type { ArchiveItemSummary, KnowledgeNoteSummary, ModuleKey, PlannerTaskSummary, SearchResultGroup, SearchResultItem, WritingDraftSummary } from "@workspace/types/index";
@@ -66,10 +66,10 @@ function orderSearchGroupsByWorkflow(groups: SearchResultGroup[], rememberedStac
 
 function getSearchPostureCopy(query: string, rememberedStack?: ModuleCommandStack, resultCount?: number) {
   if (!rememberedStack) {
-    return `Search is scanning the full workstation for '${query}'.`;
+    return `Search results for '${query}'.`;
   }
 
-  return `Search is scanning the full workstation for '${query}', but ${rememberedStack.title} remains the remembered workflow lane${typeof resultCount === "number" ? ` with ${resultCount} visible module group${resultCount === 1 ? "" : "s"}` : ""}.`;
+  return `Search results for '${query}'. ${rememberedStack.title} is pinned${typeof resultCount === "number" ? ` with ${resultCount} module group${resultCount === 1 ? "" : "s"}` : ""}.`;
 }
 
 function HighlightText({ text, query }: { text: string; query: string }) {
@@ -108,14 +108,14 @@ function HighlightText({ text, query }: { text: string; query: string }) {
 
 function getDeskSectionCurationCopy(priority: number | null, label: string) {
   if (priority === 1) {
-    return label + " should stay at the front of the desk right now.";
+    return label + " should come first.";
   }
 
   if (priority !== null && priority <= 3) {
-    return label + " is part of the active reading lane for this replay lens.";
+    return label + " stays near the top.";
   }
 
-  return label + " can stay in reserve until the higher-priority surfaces are exhausted.";
+  return label + " can stay lower.";
 }
 
 function buildSearchDensityHref(query: string, density: "comfortable" | "compact") {
@@ -172,7 +172,7 @@ function buildThreadPicks(tasks: PlannerTaskSummary[]): ThreadPickCard[] {
       } else if (task.relatedNoteTitle) {
         description = `This task is still tied to note '${task.relatedNoteTitle}'. Use it to keep the thinking thread connected to execution.`;
       } else if (task.relatedDraftTitle) {
-        description = `This task is still tied to draft '${task.relatedDraftTitle}'. Use it to keep writing and execution in the same lane.`;
+        description = `This task is still linked to draft '${task.relatedDraftTitle}'.`;
       }
 
       return {
@@ -203,7 +203,7 @@ function buildFocusQueue(input: {
       key: `focus-task-${task.id}`,
       eyebrow: "Execution Queue",
       title: task.title,
-      description: task.description || "Keep the next execution thread moving while the workstation is biased toward planner work.",
+      description: task.description || "Continue this task.",
       href: `/planner/${task.id}/edit`,
       cta: "Open task",
       pills: [task.status, `${task.priority} priority`]
@@ -215,7 +215,7 @@ function buildFocusQueue(input: {
       key: `focus-note-${note.id}`,
       eyebrow: "Thinking Queue",
       title: note.title,
-      description: note.summary || "Re-open this note while the workstation is tuned for synthesis and note-first movement.",
+      description: note.summary || "Open this note.",
       href: `/knowledge/${note.slug}`,
       cta: "Open note",
       pills: [note.domainName ?? "Knowledge", `${note.contentBlockCount} blocks`]
@@ -227,7 +227,7 @@ function buildFocusQueue(input: {
       key: `focus-draft-${draft.id}`,
       eyebrow: "Publishing Queue",
       title: draft.title,
-      description: draft.summary || "Re-enter this draft while the workstation is tuned to publishing momentum.",
+      description: draft.summary || "Open this draft.",
       href: `/writing/drafts/${draft.id}`,
       cta: "Resume draft",
       pills: [draft.visibility, `${draft.contentBlockCount} blocks`]
@@ -239,7 +239,7 @@ function buildFocusQueue(input: {
       key: `focus-archive-${item.id}`,
       eyebrow: "History Queue",
       title: item.title,
-      description: item.summary || "Re-open this durable record while the workstation is tuned for slower replay.",
+      description: item.summary || "Open this record.",
       href: item.href ?? "/archive",
       cta: item.href ? "Open source" : "Open archive",
       pills: [item.badge, item.isFavorite ? "Favorited" : "Recent"]
@@ -298,14 +298,14 @@ function getAlignedModuleRail(
   };
 
   const descriptionMap: Record<ModuleKey, string> = {
-    dashboard: "Use the dashboard-aligned rail to return to broad workstation control before diving deeper.",
-    activity: "Use the activity-aligned rail to move from command posture back into replay posture without losing momentum.",
-    planner: "Use the execution-aligned rail to turn the desk into a task-moving surface instead of a generic search page.",
-    knowledge: "Use the thinking-aligned rail to keep note capture, synthesis, and note-derived actions near the top of the desk.",
-    writing: "Use the publishing-aligned rail to keep draft movement and article re-entry in front of the rest of the stack.",
-    archive: "Use the history-aligned rail to move from records and replay back into the exact context worth reopening.",
-    modules: "Use the registry-aligned rail to adjust the module layer without leaving the command desk posture.",
-    settings: "Use the settings-aligned rail to tune shell behavior when posture refinement matters more than immediate execution."
+    dashboard: "Open the dashboard.",
+    activity: "Open activity.",
+    planner: "Open planner actions.",
+    knowledge: "Open knowledge actions.",
+    writing: "Open writing actions.",
+    archive: "Open archive actions.",
+    modules: "Open module settings.",
+    settings: "Open settings."
   };
 
   let items = combined.filter((item) => hrefMatchers[moduleKey].some((prefix) => item.href.startsWith(prefix)));
@@ -356,25 +356,25 @@ function getModuleCommandStacks(sections: CommandSections): ModuleCommandStack[]
     {
       key: "planner",
       title: "Planner Stack",
-      description: "Turn the desk into an execution surface with task capture, active-task refinement, and note-to-task bridges.",
+      description: "Task shortcuts and related actions.",
       prefixes: ["/planner"]
     },
     {
       key: "knowledge",
       title: "Knowledge Stack",
-      description: "Keep note capture, note review, and knowledge-driven drafting paths grouped together while the desk stays open.",
+      description: "Note shortcuts and related actions.",
       prefixes: ["/knowledge"]
     },
     {
       key: "writing",
       title: "Writing Stack",
-      description: "Keep draft creation, draft continuation, and publishing re-entry together so writing remains warm.",
+      description: "Draft and post shortcuts.",
       prefixes: ["/writing"]
     },
     {
       key: "archive",
       title: "Archive Stack",
-      description: "Move from durable records and replay history back into the exact surface worth reopening.",
+      description: "Archive shortcuts.",
       prefixes: ["/archive", "/activity"]
     }
   ];
@@ -409,7 +409,7 @@ function buildLiveSignals(input: {
       key: "planner",
       eyebrow: "Execution Signal",
       title: `${input.tasks.length} live task${input.tasks.length === 1 ? "" : "s"}`,
-      description: `The hottest task right now is '${topTask.title}'. Use the desk to keep execution moving before the queue fragments again.`,
+      description: `Latest task: '${topTask.title}'.`,
       href: `/planner/${topTask.id}/edit`,
       cta: "Open hottest task",
       pills: [`${topTask.status}`, `${topTask.priority} priority`]
@@ -422,7 +422,7 @@ function buildLiveSignals(input: {
       key: "knowledge",
       eyebrow: "Thinking Signal",
       title: `${input.notes.length} warm note${input.notes.length === 1 ? "" : "s"}`,
-      description: `The freshest note is '${topNote.title}'. Re-enter it while the thinking thread is still coherent.`,
+      description: `Latest note: '${topNote.title}'.`,
       href: `/knowledge/${topNote.slug}`,
       cta: "Open freshest note",
       pills: [topNote.domainName ?? "Knowledge", `${topNote.contentBlockCount} blocks`]
@@ -435,7 +435,7 @@ function buildLiveSignals(input: {
       key: "writing",
       eyebrow: "Publishing Signal",
       title: `${input.drafts.length} active draft${input.drafts.length === 1 ? "" : "s"}`,
-      description: `The latest draft is '${topDraft.title}'. A short pass now could keep the publishing lane warm.`,
+      description: `Latest draft: '${topDraft.title}'.`,
       href: `/writing/drafts/${topDraft.id}`,
       cta: "Resume latest draft",
       pills: [topDraft.visibility, `${topDraft.contentBlockCount} blocks`]
@@ -448,7 +448,7 @@ function buildLiveSignals(input: {
       key: "archive",
       eyebrow: "History Signal",
       title: `${input.archiveItems.length} recent archive record${input.archiveItems.length === 1 ? "" : "s"}`,
-      description: `The latest durable record is '${topArchive.title}'. Use it when you want to replay before acting.`,
+      description: `Latest record: '${topArchive.title}'.`,
       href: topArchive.href ?? "/archive",
       cta: topArchive.href ? "Open archive source" : "Open archive",
       pills: [topArchive.badge, topArchive.isFavorite ? "Favorited" : "Recent"]
@@ -475,7 +475,7 @@ function buildRememberedStackShortcuts(stack?: ModuleCommandStack): SearchResult
       id: `remembered-stack-open-${stack.key}`,
       module: stack.key,
       title: `Open ${stack.title}`,
-      summary: `Jump straight back into the remembered ${stack.title.toLowerCase()} before the wider desk starts pulling your attention sideways.`,
+      summary: `Open ${stack.title} again.`,
       href: stack.href,
       meta: "Remembered Stack"
     },
@@ -546,8 +546,8 @@ function buildDeskBriefing(input: {
   const topThreadTitle = input.threadPicks[0]?.title;
 
   const title = input.focus === "all"
-    ? "The desk is balanced, but not neutral"
-    : `The desk is leaning toward ${input.focusLabel}`;
+    ? "Balanced view"
+    : `Focused on ${input.focusLabel}`;
 
   const rememberedClause = input.rememberedStackTitle
     ? ` The desk still remembers ${input.rememberedStackTitle}${input.rememberedStackItemTitle ? ` via '${input.rememberedStackItemTitle}'.` : "."}`
@@ -754,7 +754,7 @@ export default async function SearchPage({
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="text-xs uppercase tracking-[0.2em] text-primary">Workflow Suggestion</p>
-                  <h3 className="mt-3 font-headline text-3xl text-foreground">Pin a lane before the desk goes fully neutral</h3>
+                  <h3 className="mt-3 font-headline text-3xl text-foreground">Pin a stack</h3>
                 </div>
                 {postureSnapshot.alignedModuleKey !== "activity" && postureSnapshot.alignedModuleKey !== "dashboard" && postureSnapshot.alignedModuleKey !== "modules" && postureSnapshot.alignedModuleKey !== "settings" ? (
                   <Link href={`/search/stack?value=${postureSnapshot.alignedModuleKey}&next=${encodeURIComponent("/search")}`} className="rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-ambient">
@@ -766,7 +766,7 @@ export default async function SearchPage({
                   </Link>
                 )}
               </div>
-              <p className="mt-4 max-w-4xl text-sm leading-7 text-foreground/70">The command desk is currently posture-led. Pinning a stack will keep one lane shaping shortcuts, highlights, launch order, and workflow memory across the workstation.</p>
+              <p className="mt-4 max-w-4xl text-sm leading-7 text-foreground/70">Pin a stack to keep it at the top.</p>
               <div className="mt-5 flex flex-wrap gap-3 text-sm font-semibold text-primary">
                 <Link href="/search/stack?value=planner&next=%2Fsearch">Pin Planner Stack</Link>
                 <Link href="/search/stack?value=knowledge&next=%2Fsearch">Pin Knowledge Stack</Link>
@@ -785,14 +785,14 @@ export default async function SearchPage({
                       {rememberedStackRegistry.title}
                     </span>
                   </div>
-                  <h3 className="mt-3 font-headline text-3xl text-foreground">Re-enter the workflow you pinned on purpose</h3>
+                  <h3 className="mt-3 font-headline text-3xl text-foreground">Pinned stack</h3>
                 </div>
                 <Link href={rememberedStackRegistry.href} className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-ambient">
                   Open {rememberedStackRegistry.title}
                 </Link>
               </div>
               <p className="mt-4 max-w-4xl text-sm leading-7 text-foreground/70">
-                The desk still has {rememberedStackRegistry.title} pinned, so you can reopen that lane before the wider workstation pulls you into a different posture.
+                {rememberedStackRegistry.title} is still pinned.
                 {rememberedStackPrimary ? ` The warmest move in that stack is '${rememberedStackPrimary.title}'.` : ""}
               </p>
               <div className="mt-5 flex flex-wrap gap-3">
@@ -831,7 +831,7 @@ export default async function SearchPage({
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <p className="text-xs uppercase tracking-[0.2em] text-primary">Workflow Memory</p>
-                    <h4 className="mt-3 font-headline text-2xl text-foreground">{deskBriefing.rememberedStackTitle} is still pinned into the desk briefing</h4>
+                    <h4 className="mt-3 font-headline text-2xl text-foreground">{deskBriefing.rememberedStackTitle} is pinned</h4>
                   </div>
                   <span className="rounded-full bg-surface-container px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
                     {deskBriefing.rememberedStackCount} warm actions
@@ -839,8 +839,8 @@ export default async function SearchPage({
                 </div>
                 <p className="mt-3 text-sm leading-7 text-foreground/70">
                   {deskBriefing.rememberedStackItemTitle
-                    ? `The quickest way back into that workflow is '${deskBriefing.rememberedStackItemTitle}'. Keep it visible here while the rest of the desk fans out around you.`
-                    : 'This remembered workflow stays visible here so your desk posture does not erase the lane you pinned on purpose.'}
+                    ? `Quickest way back: '${deskBriefing.rememberedStackItemTitle}'.`
+                    : 'This pinned stack stays visible here.'}
                 </p>
                 <div className="mt-4 flex flex-wrap gap-3 text-sm font-semibold text-primary">
                   {deskBriefing.rememberedStackHref ? <Link href={deskBriefing.rememberedStackHref}>Open {deskBriefing.rememberedStackTitle}</Link> : null}
@@ -862,7 +862,7 @@ export default async function SearchPage({
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="text-xs uppercase tracking-[0.2em] text-primary">Desk Priority Ladder</p>
-                <h3 className="mt-3 font-headline text-3xl text-foreground">Read the desk in this order</h3>
+                <h3 className="mt-3 font-headline text-3xl text-foreground">Suggested order</h3>
               </div>
               <span className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-ambient">
                 {activityReentry.label} order
@@ -874,7 +874,7 @@ export default async function SearchPage({
                   <p className="text-xs uppercase tracking-[0.2em] text-primary">Priority {index + 1}</p>
                   <h4 className="mt-3 font-headline text-2xl text-foreground">{item}</h4>
                   <p className="mt-3 text-sm leading-6 text-foreground/70">
-                    {index === 0 ? "Start here before scanning the rest of the desk." : index === 1 ? "Use this next if the first surface does not immediately produce a move." : "Keep this in reserve while you work down the desk."}
+                    {index === 0 ? "Start here." : index === 1 ? "Check this next." : "Use if needed."}
                   </p>
                 </div>
               ))}
@@ -944,7 +944,7 @@ export default async function SearchPage({
                     </span>
                   ) : null}
                 </div>
-                <h3 className="mt-3 font-headline text-3xl text-foreground">Read the workstation heat before choosing a lane</h3>
+                <h3 className="mt-3 font-headline text-3xl text-foreground">Live signals</h3>
               </div>
               <span className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-ambient">
                 {liveSignalsDisplay.length} live channels
@@ -1010,7 +1010,7 @@ export default async function SearchPage({
                 </article>
               )) : (
                 <div className="rounded-[1.75rem] bg-white/90 p-5 text-sm leading-7 text-foreground/65 shadow-ambient xl:col-span-3">
-                  As you create tasks from notes and drafts, the desk will start surfacing the richest cross-module threads here.
+                  Linked tasks will appear here.
                 </div>
               )}
             </div>
@@ -1021,7 +1021,7 @@ export default async function SearchPage({
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="text-xs uppercase tracking-[0.2em] text-primary">Desktop Workbench</p>
-                  <h3 className="mt-3 font-headline text-3xl text-foreground">Launch from the command desk</h3>
+                  <h3 className="mt-3 font-headline text-3xl text-foreground">Quick launch</h3>
                 </div>
                 <span className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-ambient">
                   {commandGroup?.count ?? 0} ready moves
@@ -1095,14 +1095,14 @@ export default async function SearchPage({
               <p className="text-xs uppercase tracking-[0.2em] text-primary">Context Rails</p>
               <h3 className="mt-3 font-headline text-3xl text-foreground">Keep live context close</h3>
               <p className="mt-4 text-sm leading-7 text-foreground/70">
-                These shortcuts stay anchored to the freshest task, note, draft, and replay lane so the desktop shell can carry you back into warm work quickly.
+                Shortcuts to recent items and views.
               </p>
               <div className="mt-6 space-y-4">
                 {contextualDisplay.length > 0 ? (
                   contextualDisplay.map((item) => <CommandCard key={item.id} item={item} query={results.query} compact={compactDesk} />)
                 ) : (
                   <div className="rounded-[1.5rem] bg-white/90 p-5 text-sm leading-7 text-foreground/65 shadow-ambient">
-                    As you create notes, drafts, and tasks, the desk will start pinning contextual return paths here.
+                    Recent shortcuts will appear here.
                   </div>
                 )}
               </div>
@@ -1148,7 +1148,7 @@ export default async function SearchPage({
 
             <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
               <p className="text-xs uppercase tracking-[0.2em] text-primary">Replay Surface</p>
-              <h3 className="mt-3 font-headline text-3xl text-foreground">Move between command posture and replay posture</h3>
+              <h3 className="mt-3 font-headline text-3xl text-foreground">Switch views</h3>
               <div className="mt-5 space-y-4">
                 {commandSections.lens.slice(1).map((item) => (
                   <CommandCard key={item.id} item={item} query={results.query} compact />
@@ -1168,7 +1168,7 @@ export default async function SearchPage({
                     </span>
                   ) : null}
                 </div>
-                <h3 className="mt-3 font-headline text-3xl text-foreground">Launch by module, not just by global command</h3>
+                <h3 className="mt-3 font-headline text-3xl text-foreground">Module stacks</h3>
               </div>
               <div className="flex flex-wrap items-center gap-3">
                 <span className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-ambient">
@@ -1216,7 +1216,7 @@ export default async function SearchPage({
                       stack.items.map((item) => <CommandCard key={item.id} item={item} query={results.query} compact={compactDesk} />)
                     ) : (
                       <div className="rounded-[1.25rem] bg-surface-container px-4 py-4 text-sm leading-6 text-foreground/65">
-                        This stack will become denser as more module-specific context builds up in the workstation.
+                        More items will appear here over time.
                       </div>
                     )}
                   </div>
@@ -1229,7 +1229,7 @@ export default async function SearchPage({
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="text-xs uppercase tracking-[0.2em] text-primary">Workspace Navigation</p>
-                <h3 className="mt-3 font-headline text-3xl text-foreground">Open durable surfaces without losing the desk</h3>
+                <h3 className="mt-3 font-headline text-3xl text-foreground">Navigation</h3>
               </div>
               <Link href={activityReentry.href} className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-ambient">
                 {activityReentry.focus === "all" ? "Open Hub" : `Resume ${activityReentry.label}`}
@@ -1249,7 +1249,7 @@ export default async function SearchPage({
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-primary">Search Posture</p>
-              <h3 className="mt-3 font-headline text-3xl text-foreground">Keep query results grounded in the remembered workflow</h3>
+              <h3 className="mt-3 font-headline text-3xl text-foreground">Search summary</h3>
             </div>
             {!rememberedStackRegistry && postureSnapshot.alignedModuleKey !== "activity" && postureSnapshot.alignedModuleKey !== "dashboard" && postureSnapshot.alignedModuleKey !== "modules" && postureSnapshot.alignedModuleKey !== "settings" ? (
               <span className="rounded-full bg-surface-container px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
@@ -1303,7 +1303,7 @@ export default async function SearchPage({
         </section>
       ) : results.query && resultGroups.length === 0 ? (
         <section className="rounded-[2rem] bg-surface-container-low p-6 text-sm text-foreground/60 shadow-ambient">
-          No module matches yet. Try a broader keyword or use one of the command cards above.
+          No matches yet. Try a broader keyword.
         </section>
       ) : null}
     </ShellLayout>
