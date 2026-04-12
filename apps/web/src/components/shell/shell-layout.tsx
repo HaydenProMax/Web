@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { signOutAction } from "@/app/sign-in/actions";
 import { getNavigationItems } from "@/lib/navigation";
 import { getSettingsSnapshot } from "@/server/settings/service";
 
@@ -46,6 +47,15 @@ export async function ShellLayout({ title, description, children }: ShellLayoutP
               </Link>
             ))}
           </nav>
+
+          <form action={signOutAction} className="mt-8 px-2">
+            <button
+              type="submit"
+              className="w-full rounded-full border border-outline-variant/30 bg-white/80 px-4 py-3 text-sm font-semibold text-foreground/70 shadow-ambient transition-colors hover:text-primary"
+            >
+              Sign Out
+            </button>
+          </form>
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col">
