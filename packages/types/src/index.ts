@@ -261,7 +261,6 @@ export type SearchResults = {
 
 export type UserPreferenceSummary = {
   displayName: string;
-  curatorTitle: string;
   theme: string;
   accentColor: string;
   typographyMode: string;

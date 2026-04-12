@@ -33,7 +33,7 @@ function getReplayAlignedModuleKey(defaultActivityFocus: UserPreferenceSummary["
 }
 
 function mapPreference(input: {
-  profile: { displayName: string | null; curatorTitle: string | null } | null;
+  profile: { displayName: string | null } | null;
   preferences: {
     theme: string | null;
     accentColor: string | null;
@@ -45,8 +45,7 @@ function mapPreference(input: {
   legacyDefaultActivityFocus?: string | null;
 }): UserPreferenceSummary {
   return {
-    displayName: input.profile?.displayName ?? "Workspace Owner",
-    curatorTitle: input.profile?.curatorTitle ?? "Private Workstation",
+    displayName: input.profile?.displayName ?? "Hayden",
     theme: input.preferences?.theme ?? "light",
     accentColor: input.preferences?.accentColor ?? "primary",
     typographyMode: input.preferences?.typographyMode ?? "serif-focus",
@@ -103,7 +102,6 @@ export async function getSettingsSnapshot(): Promise<SettingsSnapshot> {
         profile: {
           select: {
             displayName: true,
-            curatorTitle: true
           }
         },
         preferences: {
@@ -201,13 +199,11 @@ export async function updateUserPreferences(input: UserPreferenceSummary) {
   await db.userProfile.upsert({
     where: { userId: ownerId },
     update: {
-      displayName: input.displayName,
-      curatorTitle: input.curatorTitle
+      displayName: input.displayName
     },
     create: {
       userId: ownerId,
-      displayName: input.displayName,
-      curatorTitle: input.curatorTitle
+      displayName: input.displayName
     }
   });
 

@@ -160,17 +160,13 @@ export default async function SettingsPage({
       <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
         <ModuleCard
           title="Profile & Appearance"
-          description="These preferences drive the shell identity, typography direction, locale, and time settings used across the workstation."
+          description="These preferences drive the shell identity, typography direction, locale, and time settings used across Hayden Garden."
           eyebrow="User"
         >
           <form action={updateSettingsPreferencesAction} className="grid gap-4">
             <label className="grid gap-2 text-sm text-foreground/70">
               Display Name
               <input name="displayName" defaultValue={snapshot.preferences.displayName} className="rounded-2xl bg-white px-4 py-3 text-sm text-foreground shadow-ambient outline-none" />
-            </label>
-            <label className="grid gap-2 text-sm text-foreground/70">
-              Curator Title
-              <input name="curatorTitle" defaultValue={snapshot.preferences.curatorTitle} className="rounded-2xl bg-white px-4 py-3 text-sm text-foreground shadow-ambient outline-none" />
             </label>
             <div className="grid gap-4 md:grid-cols-2">
               <label className="grid gap-2 text-sm text-foreground/70">
@@ -184,7 +180,7 @@ export default async function SettingsPage({
               <label className="grid gap-2 text-sm text-foreground/70">
                 Accent
                 <select name="accentColor" defaultValue={snapshot.preferences.accentColor} className="rounded-2xl bg-white px-4 py-3 text-sm text-foreground shadow-ambient outline-none">
-                  <option value="primary">Komorebi Gold</option>
+                  <option value="primary">Garden Gold</option>
                   <option value="forest">Forest</option>
                   <option value="ember">Ember</option>
                 </select>

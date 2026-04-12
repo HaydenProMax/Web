@@ -89,7 +89,6 @@ export async function updateSettingsPreferencesAction(formData: FormData) {
   try {
     await updateUserPreferences({
       displayName: formData.get("displayName")?.toString().trim() ?? "",
-      curatorTitle: formData.get("curatorTitle")?.toString().trim() ?? "",
       theme: parsedTheme,
       accentColor: parsedAccentColor,
       typographyMode: parsedTypographyMode,
