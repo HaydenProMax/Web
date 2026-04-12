@@ -370,7 +370,7 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-sm font-semibold text-foreground/70">Upload Cover / Inline Image</p>
-                  <p className="text-xs text-foreground/50">Upload an image to insert it into the draft. Maximum size: 20MB.</p>
+                  <p className="text-xs text-foreground/50">Upload a JPEG, PNG, or WebP image up to 20MB. Images are automatically optimized for safer article rendering.</p>
                 </div>
                 <div className="flex flex-wrap items-center justify-end gap-2">
                   {latestUploadedImage?.url ? (
@@ -596,4 +596,5 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
     </div>
   );
 }
+
 

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import { auth } from "@/auth";
 import { getDb } from "@/server/db";
-import { readFileFromLocalStorage } from "@/server/media/local-storage";
+import { optimizeImageBuffer, readFileFromLocalStorage } from "@/server/media/local-storage";
 
 export async function GET(
   _request: Request,
@@ -31,10 +31,13 @@ export async function GET(
 
   try {
     const fileBuffer = await readFileFromLocalStorage(storageKey);
-    return new NextResponse(fileBuffer, {
+    const safeImageBuffer = await optimizeImageBuffer(fileBuffer);
+    const responseBody = new Uint8Array(safeImageBuffer);
+
+    return new NextResponse(responseBody, {
       status: 200,
       headers: {
-        "Content-Type": asset.mimeType || "application/octet-stream",
+        "Content-Type": "image/jpeg",
         "Cache-Control": "private, max-age=0, must-revalidate"
       }
     });

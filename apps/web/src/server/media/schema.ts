@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 const MAX_UPLOAD_SIZE = 20 * 1024 * 1024;
+const SUPPORTED_IMAGE_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
 
 export type UploadableFile = {
   name: string;
@@ -48,5 +49,9 @@ export function assertUploadableFile(file: UploadableFile) {
 
   if (!file.type.startsWith("image/")) {
     throw new Error("Local upload currently supports image files only.");
+  }
+
+  if (!SUPPORTED_IMAGE_MIME_TYPES.includes(file.type as (typeof SUPPORTED_IMAGE_MIME_TYPES)[number])) {
+    throw new Error("Supported image formats are JPEG, PNG, and WebP.");
   }
 }

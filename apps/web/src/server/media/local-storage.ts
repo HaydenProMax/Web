@@ -1,8 +1,12 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import crypto from "node:crypto";
+import sharp from "sharp";
 
 import type { UploadableFile } from "./schema";
+
+const MAX_IMAGE_DIMENSION = 2400;
+const OUTPUT_IMAGE_QUALITY = 82;
 
 function sanitizeFileName(input: string) {
   return input
@@ -16,27 +20,49 @@ function getStorageRoot() {
   return path.resolve(process.cwd(), "../../storage/media");
 }
 
+export async function optimizeImageBuffer(inputBuffer: Buffer) {
+  try {
+    return await sharp(inputBuffer, { failOn: "warning" })
+      .rotate()
+      .resize({
+        width: MAX_IMAGE_DIMENSION,
+        height: MAX_IMAGE_DIMENSION,
+        fit: "inside",
+        withoutEnlargement: true
+      })
+      .jpeg({
+        quality: OUTPUT_IMAGE_QUALITY,
+        mozjpeg: true
+      })
+      .toBuffer();
+  } catch {
+    throw new Error("The uploaded image could not be processed. Please use a standard JPEG, PNG, or WebP image.");
+  }
+}
+
 export async function saveFileToLocalStorage(file: UploadableFile) {
   const now = new Date();
   const year = String(now.getUTCFullYear());
   const month = String(now.getUTCMonth() + 1).padStart(2, "0");
   const randomPrefix = crypto.randomBytes(6).toString("hex");
-  const originalFileName = sanitizeFileName(file.name || "upload.bin");
+  const originalFileName = sanitizeFileName(file.name || "upload.jpg");
+  const normalizedFileName = originalFileName.replace(/\.[^.]+$/, "") || "upload";
   const relativeDirectory = path.posix.join(year, month);
-  const relativePath = path.posix.join(relativeDirectory, `${randomPrefix}-${originalFileName}`);
+  const relativePath = path.posix.join(relativeDirectory, `${randomPrefix}-${normalizedFileName}.jpg`);
   const absoluteDirectory = path.join(getStorageRoot(), year, month);
   const absolutePath = path.join(getStorageRoot(), ...relativePath.split("/"));
 
   await fs.mkdir(absoluteDirectory, { recursive: true });
   const arrayBuffer = await file.arrayBuffer();
-  await fs.writeFile(absolutePath, Buffer.from(arrayBuffer));
+  const outputBuffer = await optimizeImageBuffer(Buffer.from(arrayBuffer));
+  await fs.writeFile(absolutePath, outputBuffer);
 
   return {
     storageProvider: "local",
     storageKey: relativePath.replace(/\\/g, "/"),
     originalFileName: file.name || originalFileName,
-    mimeType: file.type || "application/octet-stream",
-    size: file.size
+    mimeType: "image/jpeg",
+    size: outputBuffer.byteLength
   };
 }
 
