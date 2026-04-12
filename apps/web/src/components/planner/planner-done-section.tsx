@@ -21,11 +21,11 @@ export function PlannerDoneSection({ count, children }: PlannerDoneSectionProps)
               Recent wins stay nearby so you can review them or reopen them without hunting.
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="rounded-full bg-white px-3 py-1 text-sm font-semibold text-foreground/55 shadow-ambient">{count}</span>
-            <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-ambient">
+          <div className="grid grid-cols-[6.5rem_3rem] items-center justify-end gap-3">
+            <span className="inline-flex w-[6.5rem] justify-center rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-ambient">
               {open ? "Collapse" : "Expand"}
             </span>
+            <span className="inline-flex w-[3rem] justify-center rounded-full bg-white px-3 py-1 text-sm font-semibold text-foreground/55 shadow-ambient">{count}</span>
           </div>
         </summary>
         <div className="mt-5 space-y-3">{children}</div>

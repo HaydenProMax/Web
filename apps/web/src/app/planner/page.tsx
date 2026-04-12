@@ -174,7 +174,7 @@ function ActiveTaskRow({ task }: { task: PlannerTaskSummary }) {
               <form action={archivePlannerTaskFromListAction}>
                 <input type="hidden" name="taskId" value={task.id} />
                 <button type="submit" className="w-full rounded-[0.85rem] px-3 py-2 text-left text-sm font-semibold text-rose-700 transition-colors duration-200 hover:bg-rose-50">
-                  Archive
+                  Move to archived
                 </button>
               </form>
             </div>
@@ -237,7 +237,9 @@ function SectionCard({
           <h2 className="mt-2 font-headline text-3xl text-foreground">{title}</h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-foreground/65">{description}</p>
         </div>
-        <span className="rounded-full bg-white px-3 py-1 text-sm font-semibold text-foreground/55 shadow-ambient">{count}</span>
+        <div className="flex min-w-[4rem] justify-end">
+          <span className="inline-flex min-w-[3rem] justify-center rounded-full bg-white px-3 py-1 text-sm font-semibold text-foreground/55 shadow-ambient">{count}</span>
+        </div>
       </div>
       <div className="mt-5 space-y-3">{children}</div>
     </section>
@@ -325,7 +327,7 @@ export default async function PlannerPage({
         <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="text-xs uppercase tracking-[0.22em] text-primary/75">Archive</p>
+              <p className="text-xs uppercase tracking-[0.22em] text-primary/75">Archived tasks</p>
               <h1 className="mt-2 font-headline text-4xl text-foreground">Stored for later</h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-foreground/65">
                 Keep inactive tasks out of the daily list without losing them.
@@ -432,7 +434,7 @@ export default async function PlannerPage({
             Full editor
           </Link>
           <Link href="/planner?view=archived" className="rounded-full bg-white px-5 py-3 font-semibold text-primary shadow-ambient transition-colors duration-200 hover:bg-primary/5">
-            Archive ({overview.archivedCount})
+            Archived tasks ({overview.archivedCount})
           </Link>
         </div>
       </section>

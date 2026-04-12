@@ -127,7 +127,7 @@ export default async function EditPlannerTaskPage({
             <form action={archivePlannerTaskAction}>
               <input type="hidden" name="taskId" value={task.id} />
               <button type="submit" className="rounded-full bg-rose-600 px-5 py-2 text-sm font-semibold text-white shadow-ambient transition-colors duration-200 hover:bg-rose-700">
-                Archive
+                Move to archived
               </button>
             </form>
             <Link href={`/planner/${task.id}/edit?confirmDelete=${task.id}`} className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-rose-700 shadow-ambient transition-colors duration-200 hover:bg-rose-50">
