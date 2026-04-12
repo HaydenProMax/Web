@@ -5,6 +5,19 @@ import { redirect } from "next/navigation";
 
 import { archivePlannerTask, createPlannerTask, deleteArchivedPlannerTask, restorePlannerTask, updatePlannerTask, updatePlannerTaskStatus } from "@/server/planner/service";
 
+export type PlannerQuickAddState = {
+  success: boolean;
+  message: string;
+  timestamp: number;
+};
+
+const plannerQuickAddInitialState: PlannerQuickAddState = {
+  success: false,
+  message: "",
+  timestamp: 0
+};
+
+
 function normalizeDateTimeLocal(value: string) {
   if (!value.trim()) {
     return "";
@@ -58,6 +71,30 @@ export async function createPlannerTaskAction(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/planner");
   redirect("/planner?created=1");
+}
+
+export async function quickCreatePlannerTaskAction(
+  _previousState: PlannerQuickAddState = plannerQuickAddInitialState,
+  formData: FormData
+): Promise<PlannerQuickAddState> {
+  try {
+    await createPlannerTask(plannerPayload(formData));
+  } catch {
+    return {
+      success: false,
+      message: "Could not add task.",
+      timestamp: Date.now()
+    };
+  }
+
+  revalidatePath("/");
+  revalidatePath("/planner");
+
+  return {
+    success: true,
+    message: "Task added.",
+    timestamp: Date.now()
+  };
 }
 
 export async function updatePlannerTaskAction(formData: FormData) {

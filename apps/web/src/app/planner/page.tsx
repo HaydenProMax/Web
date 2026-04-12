@@ -3,12 +3,13 @@ import type { ReactNode } from "react";
 
 import type { PlannerTaskSummary } from "@workspace/types/index";
 
+import { PlannerDoneSection } from "@/components/planner/planner-done-section";
+import { PlannerQuickAdd } from "@/components/planner/planner-quick-add";
 import { ShellLayout } from "@/components/shell/shell-layout";
 import { getPlannerOverview, getPlannerTodoView, listPlannerTasks } from "@/server/planner/service";
 
 import {
   archivePlannerTaskFromListAction,
-  createPlannerTaskAction,
   deleteArchivedPlannerTaskFromListAction,
   restorePlannerTaskFromListAction,
   updatePlannerTaskStatusAction
@@ -64,6 +65,18 @@ function timeBadge(task: PlannerTaskSummary) {
   return { label: "No date", className: "border-slate-200 bg-slate-50 text-slate-600" };
 }
 
+function priorityBadge(priority: PlannerTaskSummary["priority"]) {
+  if (priority === "HIGH") {
+    return { label: "High", className: "border-fuchsia-200 bg-fuchsia-50 text-fuchsia-700" };
+  }
+
+  if (priority === "LOW") {
+    return { label: "Low", className: "border-slate-200 bg-slate-50 text-slate-600" };
+  }
+
+  return { label: "Medium", className: "border-sky-200 bg-sky-50 text-sky-700" };
+}
+
 function nextFlowAction(task: PlannerTaskSummary) {
   if (task.status === "TODO") {
     return { label: "Start", status: "IN_PROGRESS" };
@@ -110,6 +123,7 @@ function TaskLinks({ task }: { task: PlannerTaskSummary }) {
 function ActiveTaskRow({ task }: { task: PlannerTaskSummary }) {
   const flowAction = nextFlowAction(task);
   const badge = timeBadge(task);
+  const priority = priorityBadge(task.priority);
 
   return (
     <article className="rounded-[1.6rem] border border-white/70 bg-white/92 p-4 shadow-ambient transition-transform duration-200 hover:translate-y-[-1px]">
@@ -122,8 +136,8 @@ function ActiveTaskRow({ task }: { task: PlannerTaskSummary }) {
             <span className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${badge.className}`}>
               {badge.label}
             </span>
-            <span className="rounded-full bg-surface-container-low px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/70">
-              {task.priority}
+            <span className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${priority.className}`}>
+              {priority.label}
             </span>
           </div>
           <h3 className="mt-3 text-lg font-semibold tracking-[-0.01em] text-foreground">{task.title}</h3>
@@ -140,24 +154,31 @@ function ActiveTaskRow({ task }: { task: PlannerTaskSummary }) {
               Done
             </button>
           </form>
-          {flowAction ? (
-            <form action={updatePlannerTaskStatusAction}>
-              <input type="hidden" name="taskId" value={task.id} />
-              <input type="hidden" name="status" value={flowAction.status} />
-              <button type="submit" className="rounded-full bg-surface-container-low px-4 py-2 text-sm font-semibold text-primary transition-colors duration-200 hover:bg-primary/5">
-                {flowAction.label}
-              </button>
-            </form>
-          ) : null}
           <Link href={`/planner/${task.id}/edit`} className="rounded-full bg-surface-container-low px-4 py-2 text-sm font-semibold text-primary transition-colors duration-200 hover:bg-primary/5">
             Edit
           </Link>
-          <form action={archivePlannerTaskFromListAction}>
-            <input type="hidden" name="taskId" value={task.id} />
-            <button type="submit" className="rounded-full bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition-colors duration-200 hover:bg-rose-100">
-              Archive
-            </button>
-          </form>
+          <details className="group relative">
+            <summary className="cursor-pointer list-none rounded-full bg-surface-container-low px-4 py-2 text-sm font-semibold text-primary transition-colors duration-200 hover:bg-primary/5">
+              More
+            </summary>
+            <div className="absolute right-0 top-full z-10 mt-2 min-w-[9rem] rounded-[1rem] border border-white/70 bg-white/95 p-2 shadow-ambient">
+              {flowAction ? (
+                <form action={updatePlannerTaskStatusAction}>
+                  <input type="hidden" name="taskId" value={task.id} />
+                  <input type="hidden" name="status" value={flowAction.status} />
+                  <button type="submit" className="w-full rounded-[0.85rem] px-3 py-2 text-left text-sm font-semibold text-primary transition-colors duration-200 hover:bg-primary/5">
+                    {flowAction.label}
+                  </button>
+                </form>
+              ) : null}
+              <form action={archivePlannerTaskFromListAction}>
+                <input type="hidden" name="taskId" value={task.id} />
+                <button type="submit" className="w-full rounded-[0.85rem] px-3 py-2 text-left text-sm font-semibold text-rose-700 transition-colors duration-200 hover:bg-rose-50">
+                  Archive
+                </button>
+              </form>
+            </div>
+          </details>
         </div>
       </div>
     </article>
@@ -181,6 +202,9 @@ function DoneTaskRow({ task }: { task: PlannerTaskSummary }) {
         </div>
 
         <div className="flex shrink-0 flex-wrap items-center gap-2">
+          <Link href={`/planner/${task.id}/edit`} className="rounded-full bg-surface-container-low px-4 py-2 text-sm font-semibold text-primary transition-colors duration-200 hover:bg-primary/5">
+            Edit
+          </Link>
           <form action={updatePlannerTaskStatusAction}>
             <input type="hidden" name="taskId" value={task.id} />
             <input type="hidden" name="status" value="TODO" />
@@ -188,9 +212,6 @@ function DoneTaskRow({ task }: { task: PlannerTaskSummary }) {
               Reopen
             </button>
           </form>
-          <Link href={`/planner/${task.id}/edit`} className="rounded-full bg-surface-container-low px-4 py-2 text-sm font-semibold text-primary transition-colors duration-200 hover:bg-primary/5">
-            Edit
-          </Link>
         </div>
       </div>
     </article>
@@ -404,30 +425,7 @@ export default async function PlannerPage({
           </p>
         </div>
 
-        <div className="mx-auto mt-6 max-w-3xl rounded-[1.75rem] border border-white/70 bg-white/92 p-4 shadow-ambient">
-          <form action={createPlannerTaskAction} className="flex flex-col gap-3 md:flex-row md:items-center">
-            <input
-              name="title"
-              placeholder="Add a task for today"
-              className="min-w-0 flex-1 rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none transition-colors duration-200 focus:border-primary/40"
-            />
-            <input type="hidden" name="description" value="" />
-            <input type="hidden" name="priority" value="MEDIUM" />
-            <input type="hidden" name="status" value="TODO" />
-            <input type="hidden" name="scheduledFor" value="" />
-            <input type="hidden" name="dueAt" value="" />
-            <input type="hidden" name="relatedNoteSlug" value="" />
-            <input type="hidden" name="relatedDraftId" value="" />
-            <button type="submit" className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-ambient transition-colors duration-200 hover:bg-primary/90">
-              Add
-            </button>
-          </form>
-          <div className="mt-3 flex flex-wrap items-center justify-center gap-2 text-xs text-foreground/50">
-            <span className="rounded-full bg-surface-container-low px-3 py-1">Quick add</span>
-            <span className="rounded-full bg-surface-container-low px-3 py-1">One-line capture</span>
-            <span className="rounded-full bg-surface-container-low px-3 py-1">Edit later if needed</span>
-          </div>
-        </div>
+        <PlannerQuickAdd />
 
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-sm">
           <Link href="/planner/new" className="rounded-full bg-white px-5 py-3 font-semibold text-primary shadow-ambient transition-colors duration-200 hover:bg-primary/5">
@@ -466,34 +464,15 @@ export default async function PlannerPage({
         )}
       </SectionCard>
 
-      <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
-        <details>
-          <summary className="flex cursor-pointer list-none flex-wrap items-end justify-between gap-3">
-            <div>
-              <p className="text-xs uppercase tracking-[0.22em] text-primary/75">List</p>
-              <h2 className="mt-2 font-headline text-3xl text-foreground">Done</h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-foreground/65">
-                Recent wins stay nearby so you can review them or reopen them without hunting.
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="rounded-full bg-white px-3 py-1 text-sm font-semibold text-foreground/55 shadow-ambient">{doneTasks.length}</span>
-              <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-ambient">
-                Expand
-              </span>
-            </div>
-          </summary>
-          <div className="mt-5 space-y-3">
-            {doneTasks.length > 0 ? (
-              doneTasks.map((task) => <DoneTaskRow key={task.id} task={task} />)
-            ) : (
-              <div className="rounded-[1.6rem] border border-white/70 bg-white/82 px-4 py-5 text-sm text-foreground/60 shadow-ambient">
-                No completed tasks yet.
-              </div>
-            )}
+      <PlannerDoneSection count={doneTasks.length}>
+        {doneTasks.length > 0 ? (
+          doneTasks.map((task) => <DoneTaskRow key={task.id} task={task} />)
+        ) : (
+          <div className="rounded-[1.6rem] border border-white/70 bg-white/82 px-4 py-5 text-sm text-foreground/60 shadow-ambient">
+            No completed tasks yet.
           </div>
-        </details>
-      </section>
+        )}
+      </PlannerDoneSection>
     </ShellLayout>
   );
 }
