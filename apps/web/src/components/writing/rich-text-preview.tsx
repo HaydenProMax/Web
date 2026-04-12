@@ -455,8 +455,24 @@ function renderNode(node: RichTextNode, index: number) {
   if (node.type === "image" && node.src) {
     return (
       <figure key={index} className="space-y-3">
-        <div className="relative h-[280px] overflow-hidden rounded-[1.5rem] bg-surface-container">
-          {renderImage(node.src, node.alt ?? "Preview image", "object-cover")}
+        <div className="overflow-hidden rounded-[1.5rem] bg-surface-container">
+          {canUseNextImage(node.src) ? (
+            <Image
+              src={node.src}
+              alt={node.alt ?? "Preview image"}
+              width={1600}
+              height={1000}
+              className="h-auto max-h-[75vh] w-full object-contain"
+              sizes="(max-width: 1024px) 100vw, 896px"
+              unoptimized={node.src.startsWith("/")}
+            />
+          ) : (
+            <img
+              src={node.src}
+              alt={node.alt ?? "Preview image"}
+              className="h-auto max-h-[75vh] w-full object-contain"
+            />
+          )}
         </div>
         {node.caption ? <figcaption className="text-sm text-foreground/60">{node.caption}</figcaption> : null}
       </figure>
