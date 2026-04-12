@@ -561,6 +561,32 @@ export async function deleteArchivedPlannerTask(taskId: string) {
   });
 }
 
+export async function deletePlannerTask(taskId: string) {
+  const db = getDb();
+  const ownerId = await getCurrentUserId();
+  const existing = await db.plannerTask.findFirst({
+    where: {
+      id: taskId,
+      ownerId,
+      status: {
+        not: "ARCHIVED"
+      }
+    },
+    select: {
+      id: true
+    }
+  });
+
+  if (!existing) {
+    throw new Error("Planner task not found");
+  }
+
+  await db.plannerTask.delete({
+    where: { id: existing.id }
+  });
+}
+
+
 export async function getPlannerOverview(): Promise<PlannerOverview> {
   const db = getDb();
   const ownerId = await getCurrentUserId();

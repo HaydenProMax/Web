@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { archivePlannerTask, createPlannerTask, deleteArchivedPlannerTask, restorePlannerTask, updatePlannerTask, updatePlannerTaskStatus } from "@/server/planner/service";
+import { archivePlannerTask, createPlannerTask, deleteArchivedPlannerTask, deletePlannerTask, restorePlannerTask, updatePlannerTask, updatePlannerTaskStatus } from "@/server/planner/service";
 
 export type PlannerQuickAddState = {
   success: boolean;
@@ -56,6 +56,14 @@ async function completePlannerRestore(taskId: string) {
 
 async function completePlannerPermanentDelete(taskId: string) {
   await deleteArchivedPlannerTask(taskId);
+  revalidatePath("/");
+  revalidatePath("/planner");
+  revalidatePath("/activity");
+}
+
+
+async function completePlannerDelete(taskId: string) {
+  await deletePlannerTask(taskId);
   revalidatePath("/");
   revalidatePath("/planner");
   revalidatePath("/activity");
@@ -203,4 +211,21 @@ export async function deleteArchivedPlannerTaskFromListAction(formData: FormData
   }
 
   redirect("/planner?view=archived&destroyed=1");
+}
+
+export async function deletePlannerTaskAction(formData: FormData) {
+  const taskId = formData.get("taskId")?.toString() ?? "";
+  const confirmed = formData.get("confirmed")?.toString() ?? "";
+
+  if (!taskId || confirmed != "true") {
+    redirect("/planner?error=confirm-delete-required");
+  }
+
+  try {
+    await completePlannerDelete(taskId);
+  } catch {
+    redirect(`/planner/${taskId}/edit?error=delete-failed`);
+  }
+
+  redirect("/planner?destroyed=1");
 }

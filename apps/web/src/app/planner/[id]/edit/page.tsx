@@ -5,7 +5,7 @@ import { PlannerTaskForm } from "@/components/planner/planner-task-form";
 import { ShellLayout } from "@/components/shell/shell-layout";
 import { getPlannerTaskById, listPlannerLinkOptions } from "@/server/planner/service";
 
-import { archivePlannerTaskAction, restorePlannerTaskFromListAction, updatePlannerTaskAction } from "../../actions";
+import { archivePlannerTaskAction, deletePlannerTaskAction, restorePlannerTaskFromListAction, updatePlannerTaskAction } from "../../actions";
 
 function taskMeta(task: { status: string; priority: string; scheduledFor?: string; dueAt?: string; completedAt?: string }) {
   if (task.status === "DONE") {
@@ -38,7 +38,7 @@ export default async function EditPlannerTaskPage({
   searchParams
 }: {
   params: Promise<{ id: string }>;
-  searchParams?: Promise<{ error?: string; restored?: string }>;
+  searchParams?: Promise<{ error?: string; restored?: string; confirmDelete?: string }>;
 }) {
   const [{ id }, resolvedSearchParams, task, linkOptions] = await Promise.all([
     params,
@@ -51,6 +51,8 @@ export default async function EditPlannerTaskPage({
     notFound();
   }
 
+  const confirmDelete = resolvedSearchParams?.confirmDelete === task.id;
+
   return (
     <ShellLayout title="Edit task" description="Keep the task aligned with what you actually need to do next.">
       {resolvedSearchParams?.error === "update-failed" ? (
@@ -61,7 +63,7 @@ export default async function EditPlannerTaskPage({
 
       {resolvedSearchParams?.error === "delete-failed" ? (
         <section className="rounded-[2rem] bg-rose-100 px-6 py-4 text-sm text-rose-700 shadow-ambient">
-          Could not archive the task. Please try again.
+          Could not delete the task. Please try again.
         </section>
       ) : resolvedSearchParams?.error === "restore-failed" ? (
         <section className="rounded-[2rem] bg-rose-100 px-6 py-4 text-sm text-rose-700 shadow-ambient">
@@ -99,13 +101,38 @@ export default async function EditPlannerTaskPage({
         </section>
       ) : (
         <>
-          <div className="flex justify-end">
+          {confirmDelete ? (
+            <section className="rounded-[2rem] border border-rose-200 bg-rose-50 p-6 shadow-ambient">
+              <p className="text-xs uppercase tracking-[0.2em] text-rose-700">Delete confirmation</p>
+              <h2 className="mt-3 font-headline text-3xl text-foreground">Delete this task?</h2>
+              <p className="mt-3 text-sm leading-6 text-foreground/70">
+                <strong>{task.title}</strong> will be permanently removed.
+              </p>
+              <div className="mt-5 flex flex-wrap items-center gap-3">
+                <form action={deletePlannerTaskAction}>
+                  <input type="hidden" name="taskId" value={task.id} />
+                  <input type="hidden" name="confirmed" value="true" />
+                  <button type="submit" className="rounded-full bg-rose-700 px-5 py-3 text-sm font-semibold text-white shadow-ambient transition-colors duration-200 hover:bg-rose-800">
+                    Delete forever
+                  </button>
+                </form>
+                <Link href={`/planner/${task.id}/edit`} className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-primary shadow-ambient transition-colors duration-200 hover:bg-primary/5">
+                  Cancel
+                </Link>
+              </div>
+            </section>
+          ) : null}
+
+          <div className="flex flex-wrap justify-end gap-3">
             <form action={archivePlannerTaskAction}>
               <input type="hidden" name="taskId" value={task.id} />
               <button type="submit" className="rounded-full bg-rose-600 px-5 py-2 text-sm font-semibold text-white shadow-ambient transition-colors duration-200 hover:bg-rose-700">
                 Archive
               </button>
             </form>
+            <Link href={`/planner/${task.id}/edit?confirmDelete=${task.id}`} className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-rose-700 shadow-ambient transition-colors duration-200 hover:bg-rose-50">
+              Delete
+            </Link>
           </div>
 
           <PlannerTaskForm
