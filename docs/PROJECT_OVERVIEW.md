@@ -2637,4 +2637,40 @@ ode, so browser/manual verification is still recommended for the full archive ->
 
 - Increased local image upload limit from 10MB to 20MB and updated the writing draft form hint so upload failures match the actual supported size.
 
+## Current Release Snapshot - 2026-04-12
+
+- Historical sealed baseline: `V6.1.0`
+- Latest tagged stable release: `V8.0.1`
+- Current working line: `V8.1`
+- Production status: Linux production environment is already updated and running.
+
+### Product State
+
+- Hayden Garden is now a stable single-user workstation for desktop web use.
+- Core daily loops are active across Knowledge, Writing, Planner / Todo, Archive, Search, and Settings.
+- Current work should prioritize UX polish, regression coverage, search depth, and operational stability instead of broad new surface area.
+
+### Writing Status
+
+- draft archive / restore is live
+- published article delete flow is live
+- Markdown block support is live in the editor and preview
+- writing list and article management flow have been simplified
+
+### Planner / Todo Status
+
+- planner homepage now uses Today / Upcoming / Done structure
+- quick add is live on the planner homepage
+- direct task actions now cover Done / Start / Pause / Reopen
+- archived task view and permanent delete are live
+- task cards were simplified for faster scanning
+- focus filters now use All / High / Doing
+- completed-task presentation is lighter and collapsed by default
+
+### Suggested Next Priorities
+
+- improve search depth and result ergonomics
+- strengthen backup and restore posture
+- continue cross-module linking polish
+- harden production operations and failure visibility
 

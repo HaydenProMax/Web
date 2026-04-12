@@ -4,7 +4,7 @@
 
 V1 is sealed as the historical first deliverable.
 
-It is no longer the current release line. The active stable baseline is now V6.1 sealed.
+It is no longer the current release line. The active stable baseline is now V8.0.1, with V8.1 currently used for planner and todo UX refinement.
 
 This means the first deliverable is now treated as feature-complete for the single-user desktop web goal, and no further feature work should be added to V1 unless it is required to preserve historical stability or close a release-blocking defect.
 
