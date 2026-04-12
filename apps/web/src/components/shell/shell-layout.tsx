@@ -121,40 +121,18 @@ export async function ShellLayout({ title, description, children }: ShellLayoutP
                 <p className="text-xs uppercase tracking-[0.2em] text-primary">Sanctuary</p>
                 <h1 className="font-headline text-3xl text-foreground md:text-4xl">{title}</h1>
               </div>
-              <div className="flex w-full max-w-xl flex-col gap-3">
+              <div className="w-full max-w-xl">
                 <form action="/search" className="flex items-center gap-3 rounded-full bg-surface-container-low px-3 py-2 shadow-ambient">
-                <input
-                  type="search"
-                  name="q"
-                  placeholder="Search or run a command..."
-                  className="min-w-0 flex-1 bg-transparent px-3 py-2 text-sm text-foreground outline-none placeholder:text-foreground/45"
-                />
-                <button type="submit" className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90">
-                  Go
-                </button>
+                  <input
+                    type="search"
+                    name="q"
+                    placeholder="Search or run a command..."
+                    className="min-w-0 flex-1 bg-transparent px-3 py-2 text-sm text-foreground outline-none placeholder:text-foreground/45"
+                  />
+                  <button type="submit" className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90">
+                    Go
+                  </button>
                 </form>
-                <div className="flex flex-wrap items-center gap-2">
-                  <Link href={activityReentry.href} className="inline-flex w-fit items-center rounded-full bg-surface-container-low px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-ambient">
-                    Resume {activityReentry.label} Lens
-                  </Link>
-                  <span className="inline-flex w-fit items-center rounded-full bg-surface-container-low px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary shadow-ambient">
-                    Signed in as {sessionIdentity}
-                  </span>
-                </div>
-                <div className="flex flex-wrap items-center gap-2 rounded-[1.25rem] bg-surface-container-low px-3 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-primary shadow-ambient">
-                  <span>Current Posture</span>
-                  <span className="rounded-full bg-white/80 px-2 py-1 text-[10px] tracking-[0.14em]">{postureSnapshot.currentLensLabel}</span>
-                  <span className="rounded-full bg-white/80 px-2 py-1 text-[10px] tracking-[0.14em]">Habit {postureSnapshot.defaultLensLabel}</span>
-                  <Link href={postureSnapshot.alignedModuleHref} className="rounded-full bg-white/80 px-2 py-1 text-[10px] tracking-[0.14em] hover:text-primary-dim">
-                    {postureSnapshot.alignedModuleName}
-                  </Link>
-                  <Link href={rememberedWorkflow.href} className="rounded-full bg-white/80 px-2 py-1 text-[10px] tracking-[0.14em] hover:text-primary-dim">
-                    {rememberedWorkflow.active ? `Workflow ${rememberedWorkflow.title}` : "No pinned workflow"}
-                  </Link>
-                  <Link href="/settings#replay-habit" className="rounded-full bg-white px-2 py-1 text-[10px] tracking-[0.14em] hover:text-primary-dim">
-                    Tune
-                  </Link>
-                </div>
               </div>
             </div>
           </header>
