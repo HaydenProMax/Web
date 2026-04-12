@@ -1,259 +1,16 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
 
-import type { PlannerTaskSummary } from "@workspace/types/index";
-
-import { PlannerDoneSection } from "@/components/planner/planner-done-section";
+import { PlannerFocusBoard } from "@/components/planner/planner-focus-board";
 import { PlannerQuickAdd } from "@/components/planner/planner-quick-add";
 import { ShellLayout } from "@/components/shell/shell-layout";
 import { getPlannerOverview, getPlannerTodoView, listPlannerTasks } from "@/server/planner/service";
 
 import {
-  archivePlannerTaskFromListAction,
   deleteArchivedPlannerTaskFromListAction,
-  restorePlannerTaskFromListAction,
-  updatePlannerTaskStatusAction
+  restorePlannerTaskFromListAction
 } from "./actions";
 
 export const dynamic = "force-dynamic";
-
-function formatTaskTimeLabel(task: PlannerTaskSummary) {
-  if (task.status === "DONE") {
-    return task.completedAt ? `Done ${new Date(task.completedAt).toLocaleString("zh-CN")}` : "Done";
-  }
-
-  if (task.dueAt && new Date(task.dueAt).getTime() < Date.now()) {
-    return `Overdue - ${new Date(task.dueAt).toLocaleString("zh-CN")}`;
-  }
-
-  if (task.dueAt) {
-    return `Due ${new Date(task.dueAt).toLocaleString("zh-CN")}`;
-  }
-
-  if (task.scheduledFor) {
-    return `Planned ${new Date(task.scheduledFor).toLocaleString("zh-CN")}`;
-  }
-
-  return task.status === "IN_PROGRESS" ? "In progress" : "Ready today";
-}
-
-function statusChip(task: PlannerTaskSummary) {
-  if (task.status === "DONE") {
-    return "DONE";
-  }
-
-  if (task.status === "IN_PROGRESS") {
-    return "DOING";
-  }
-
-  return "TODO";
-}
-
-function timeBadge(task: PlannerTaskSummary) {
-  if (task.status === "DONE") {
-    return { label: "Done", className: "border-emerald-200 bg-emerald-50 text-emerald-700" };
-  }
-
-  if (task.dueAt && new Date(task.dueAt).getTime() < Date.now()) {
-    return { label: "Overdue", className: "border-rose-200 bg-rose-50 text-rose-700" };
-  }
-
-  if (task.scheduledFor || task.dueAt) {
-    return { label: "Today", className: "border-amber-200 bg-amber-50 text-amber-700" };
-  }
-
-  return { label: "No date", className: "border-slate-200 bg-slate-50 text-slate-600" };
-}
-
-function priorityBadge(priority: PlannerTaskSummary["priority"]) {
-  if (priority === "HIGH") {
-    return { label: "High", className: "border-fuchsia-200 bg-fuchsia-50 text-fuchsia-700" };
-  }
-
-  if (priority === "LOW") {
-    return { label: "Low", className: "border-slate-200 bg-slate-50 text-slate-600" };
-  }
-
-  return { label: "Medium", className: "border-sky-200 bg-sky-50 text-sky-700" };
-}
-
-function nextFlowAction(task: PlannerTaskSummary) {
-  if (task.status === "TODO") {
-    return { label: "Start", status: "IN_PROGRESS" };
-  }
-
-  if (task.status === "IN_PROGRESS") {
-    return { label: "Pause", status: "TODO" };
-  }
-
-  if (task.status === "DONE") {
-    return { label: "Reopen", status: "TODO" };
-  }
-
-  return null;
-}
-
-function TaskLinks({ task }: { task: PlannerTaskSummary }) {
-  if (!task.relatedNoteTitle && !task.relatedDraftTitle) {
-    return null;
-  }
-
-  return (
-    <div className="mt-3 flex flex-wrap gap-2 text-xs text-primary">
-      {task.relatedNoteTitle && task.relatedNoteSlug ? (
-        <Link
-          href={`/knowledge/${task.relatedNoteSlug}`}
-          className="rounded-full border border-primary/10 bg-white px-3 py-1.5 font-semibold shadow-ambient transition-colors duration-200 hover:bg-primary/5"
-        >
-          Note: {task.relatedNoteTitle}
-        </Link>
-      ) : null}
-      {task.relatedDraftTitle && task.relatedDraftId ? (
-        <Link
-          href={`/writing/drafts/${task.relatedDraftId}`}
-          className="rounded-full border border-primary/10 bg-white px-3 py-1.5 font-semibold shadow-ambient transition-colors duration-200 hover:bg-primary/5"
-        >
-          Draft: {task.relatedDraftTitle}
-        </Link>
-      ) : null}
-    </div>
-  );
-}
-
-function ActiveTaskRow({ task }: { task: PlannerTaskSummary }) {
-  const flowAction = nextFlowAction(task);
-  const badge = timeBadge(task);
-  const priority = priorityBadge(task.priority);
-
-  return (
-    <article className="rounded-[1.6rem] border border-white/70 bg-white/92 p-4 shadow-ambient transition-transform duration-200 hover:translate-y-[-1px]">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex h-8 min-w-8 items-center justify-center rounded-full border border-primary/15 bg-primary/5 px-2 text-[11px] font-semibold tracking-[0.18em] text-primary">
-              {statusChip(task)}
-            </span>
-            <span className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${badge.className}`}>
-              {badge.label}
-            </span>
-            <span className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${priority.className}`}>
-              {priority.label}
-            </span>
-          </div>
-          <h3 className="mt-3 text-lg font-semibold tracking-[-0.01em] text-foreground">{task.title}</h3>
-          {task.description ? <p className="mt-2 max-w-3xl text-sm leading-6 text-foreground/70">{task.description}</p> : null}
-          <p className="mt-3 text-xs font-medium uppercase tracking-[0.14em] text-foreground/45">{formatTaskTimeLabel(task)}</p>
-          <TaskLinks task={task} />
-        </div>
-
-        <div className="flex shrink-0 flex-wrap items-center gap-2 lg:max-w-[22rem] lg:justify-end">
-          <form action={updatePlannerTaskStatusAction}>
-            <input type="hidden" name="taskId" value={task.id} />
-            <input type="hidden" name="status" value="DONE" />
-            <button type="submit" className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-ambient transition-colors duration-200 hover:bg-primary/90">
-              Done
-            </button>
-          </form>
-          <Link href={`/planner/${task.id}/edit`} className="rounded-full bg-surface-container-low px-4 py-2 text-sm font-semibold text-primary transition-colors duration-200 hover:bg-primary/5">
-            Edit
-          </Link>
-          <details className="group relative">
-            <summary className="cursor-pointer list-none rounded-full bg-surface-container-low px-4 py-2 text-sm font-semibold text-primary transition-colors duration-200 hover:bg-primary/5">
-              More
-            </summary>
-            <div className="absolute right-0 top-full z-10 mt-2 min-w-[9rem] rounded-[1rem] border border-white/70 bg-white/95 p-2 shadow-ambient">
-              {flowAction ? (
-                <form action={updatePlannerTaskStatusAction}>
-                  <input type="hidden" name="taskId" value={task.id} />
-                  <input type="hidden" name="status" value={flowAction.status} />
-                  <button type="submit" className="w-full rounded-[0.85rem] px-3 py-2 text-left text-sm font-semibold text-primary transition-colors duration-200 hover:bg-primary/5">
-                    {flowAction.label}
-                  </button>
-                </form>
-              ) : null}
-              <form action={archivePlannerTaskFromListAction}>
-                <input type="hidden" name="taskId" value={task.id} />
-                <button type="submit" className="w-full rounded-[0.85rem] px-3 py-2 text-left text-sm font-semibold text-rose-700 transition-colors duration-200 hover:bg-rose-50">
-                  Move to archived
-                </button>
-              </form>
-            </div>
-          </details>
-        </div>
-      </div>
-    </article>
-  );
-}
-
-function DoneTaskRow({ task }: { task: PlannerTaskSummary }) {
-  return (
-    <article className="rounded-[1.6rem] border border-white/65 bg-white/82 p-4 shadow-ambient">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-700">
-              DONE
-            </span>
-          </div>
-          <h3 className="mt-3 text-lg font-semibold tracking-[-0.01em] text-foreground/75 line-through decoration-primary/30">{task.title}</h3>
-          {task.description ? <p className="mt-2 max-w-3xl text-sm leading-6 text-foreground/60">{task.description}</p> : null}
-          <p className="mt-3 text-xs font-medium uppercase tracking-[0.14em] text-foreground/45">{formatTaskTimeLabel(task)}</p>
-          <TaskLinks task={task} />
-        </div>
-
-        <div className="flex shrink-0 flex-wrap items-center gap-2">
-          <Link href={`/planner/${task.id}/edit`} className="rounded-full bg-surface-container-low px-4 py-2 text-sm font-semibold text-primary transition-colors duration-200 hover:bg-primary/5">
-            Edit
-          </Link>
-          <form action={updatePlannerTaskStatusAction}>
-            <input type="hidden" name="taskId" value={task.id} />
-            <input type="hidden" name="status" value="TODO" />
-            <button type="submit" className="rounded-full bg-surface-container-low px-4 py-2 text-sm font-semibold text-primary transition-colors duration-200 hover:bg-primary/5">
-              Reopen
-            </button>
-          </form>
-        </div>
-      </div>
-    </article>
-  );
-}
-
-function SectionCard({
-  title,
-  count,
-  description,
-  children
-}: {
-  title: string;
-  count: number;
-  description: string;
-  children: ReactNode;
-}) {
-  return (
-    <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="text-xs uppercase tracking-[0.22em] text-primary/75">List</p>
-          <h2 className="mt-2 font-headline text-3xl text-foreground">{title}</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-foreground/65">{description}</p>
-        </div>
-        <div className="flex min-w-[4rem] justify-end">
-          <span className="inline-flex min-w-[3rem] justify-center rounded-full bg-white px-3 py-1 text-sm font-semibold text-foreground/55 shadow-ambient">{count}</span>
-        </div>
-      </div>
-      <div className="mt-5 space-y-3">{children}</div>
-    </section>
-  );
-}
-
-function StatCard({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-[1.5rem] border border-white/70 bg-white/88 p-5 shadow-ambient">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-primary/70">{label}</p>
-      <p className="mt-3 font-headline text-3xl text-foreground">{value}</p>
-    </div>
-  );
-}
 
 export default async function PlannerPage({
   searchParams
@@ -377,7 +134,6 @@ export default async function PlannerPage({
                     <p className="mt-3 text-xs font-medium uppercase tracking-[0.14em] text-foreground/45">
                       Updated {new Date(task.updatedAt).toLocaleString("zh-CN")}
                     </p>
-                    <TaskLinks task={task} />
                   </div>
                   <div className="flex shrink-0 flex-wrap gap-2">
                     <form action={restorePlannerTaskFromListAction}>
@@ -405,10 +161,6 @@ export default async function PlannerPage({
       </ShellLayout>
     );
   }
-
-  const todayTasks = todoView?.todayTasks ?? [];
-  const upcomingTasks = todoView?.upcomingTasks ?? [];
-  const doneTasks = todoView?.doneTasks ?? [];
 
   return (
     <ShellLayout title="Planner" description="A lighter daily list.">
@@ -439,42 +191,12 @@ export default async function PlannerPage({
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-4">
-        <StatCard label="Today" value={todayTasks.length} />
-        <StatCard label="Upcoming" value={upcomingTasks.length} />
-        <StatCard label="Doing" value={overview.inProgressCount} />
-        <StatCard label="Done" value={overview.doneCount} />
-      </section>
-
-      <SectionCard title="Today" count={todayTasks.length} description="Unscheduled work, today's work, and overdue work stay in one place so nothing urgent slips out of sight.">
-        {todayTasks.length > 0 ? (
-          todayTasks.map((task) => <ActiveTaskRow key={task.id} task={task} />)
-        ) : (
-          <div className="rounded-[1.6rem] border border-white/70 bg-white/82 px-4 py-5 text-sm text-foreground/60 shadow-ambient">
-            Nothing urgent right now. Add the next task when you are ready.
-          </div>
-        )}
-      </SectionCard>
-
-      <SectionCard title="Upcoming" count={upcomingTasks.length} description="Scheduled work stays visible without taking over today's attention.">
-        {upcomingTasks.length > 0 ? (
-          upcomingTasks.map((task) => <ActiveTaskRow key={task.id} task={task} />)
-        ) : (
-          <div className="rounded-[1.6rem] border border-white/70 bg-white/82 px-4 py-5 text-sm text-foreground/60 shadow-ambient">
-            No upcoming tasks yet.
-          </div>
-        )}
-      </SectionCard>
-
-      <PlannerDoneSection count={doneTasks.length}>
-        {doneTasks.length > 0 ? (
-          doneTasks.map((task) => <DoneTaskRow key={task.id} task={task} />)
-        ) : (
-          <div className="rounded-[1.6rem] border border-white/70 bg-white/82 px-4 py-5 text-sm text-foreground/60 shadow-ambient">
-            No completed tasks yet.
-          </div>
-        )}
-      </PlannerDoneSection>
+      <PlannerFocusBoard
+        overview={overview}
+        todayTasks={todoView?.todayTasks ?? []}
+        upcomingTasks={todoView?.upcomingTasks ?? []}
+        doneTasks={todoView?.doneTasks ?? []}
+      />
     </ShellLayout>
   );
 }
