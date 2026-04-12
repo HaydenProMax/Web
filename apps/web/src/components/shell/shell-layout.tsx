@@ -1,13 +1,8 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { auth } from "@/auth";
-
-import { signOutAction } from "@/app/sign-in/actions";
 import { getNavigationItems } from "@/lib/navigation";
-import { getPreferredActivityReentry } from "@/server/activity/preferences";
-import { getRememberedWorkflowSummary } from "@/server/search/preferences";
-import { getSettingsSnapshot, getSystemPostureSnapshot } from "@/server/settings/service";
+import { getSettingsSnapshot } from "@/server/settings/service";
 
 type ShellLayoutProps = {
   title: string;
@@ -16,16 +11,10 @@ type ShellLayoutProps = {
 };
 
 export async function ShellLayout({ title, description, children }: ShellLayoutProps) {
-  const [session, navigationItems, snapshot, activityReentry, postureSnapshot, rememberedWorkflow] = await Promise.all([
-    auth(),
+  const [navigationItems, snapshot] = await Promise.all([
     getNavigationItems(),
-    getSettingsSnapshot(),
-    getPreferredActivityReentry(),
-    getSystemPostureSnapshot(),
-    getRememberedWorkflowSummary()
+    getSettingsSnapshot()
   ]);
-
-  const sessionIdentity = session?.user?.email ?? session?.user?.name ?? "Signed-in workspace user";
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -57,61 +46,6 @@ export async function ShellLayout({ title, description, children }: ShellLayoutP
               </Link>
             ))}
           </nav>
-
-          <section className="mt-8 rounded-[1.75rem] bg-surface-container-low p-5 shadow-ambient">
-            <p className="text-xs uppercase tracking-[0.2em] text-primary">Desktop Console</p>
-            <h2 className="mt-3 font-headline text-2xl text-foreground">Keep the workstation posture in reach</h2>
-            <p className="mt-3 text-sm leading-6 text-foreground/65">Your desktop shell now keeps the live replay lane and next-step launch close without sending you back through a page body first.</p>
-            <div className="mt-5 space-y-3 text-xs uppercase tracking-[0.16em] text-primary">
-              <div className="rounded-[1.25rem] bg-white/80 px-4 py-3 shadow-ambient">
-                <span>Current Lens</span>
-                <p className="mt-2 text-sm font-semibold tracking-normal text-foreground">{postureSnapshot.currentLensLabel}</p>
-              </div>
-              <div className="rounded-[1.25rem] bg-white/80 px-4 py-3 shadow-ambient">
-                <span>Aligned Module</span>
-                <p className="mt-2 text-sm font-semibold tracking-normal text-foreground">{postureSnapshot.alignedModuleName}</p>
-              </div>
-              <div className="rounded-[1.25rem] bg-white/80 px-4 py-3 shadow-ambient">
-                <span>Workflow Memory</span>
-                <p className="mt-2 text-sm font-semibold tracking-normal text-foreground">{rememberedWorkflow.active ? rememberedWorkflow.title : "Following live posture"}</p>
-              </div>
-            </div>
-            <div className="mt-5 flex flex-col gap-3">
-              <Link href={activityReentry.nextStep.href} className="rounded-full bg-primary px-4 py-3 text-center text-sm font-semibold text-white shadow-ambient">
-                {activityReentry.nextStep.label}
-              </Link>
-              <div className="flex gap-3">
-                <Link href={activityReentry.href} className="flex-1 rounded-full bg-white px-4 py-3 text-center text-sm font-semibold text-primary shadow-ambient">
-                  Resume Lens
-                </Link>
-                <Link href={rememberedWorkflow.href} className="flex-1 rounded-full bg-white px-4 py-3 text-center text-sm font-semibold text-primary shadow-ambient">
-                  {rememberedWorkflow.active ? "Open Workflow" : "Open Command Desk"}
-                </Link>
-              </div>
-              <Link href="/settings#replay-habit" className="rounded-full bg-white px-4 py-3 text-center text-sm font-semibold text-primary shadow-ambient">
-                Tune Habit
-              </Link>
-            </div>
-          </section>
-
-          <div className="mt-8 rounded-[1.5rem] bg-white/80 px-5 py-4 text-sm text-foreground/65 shadow-ambient">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Session Active</p>
-                <p className="mt-2 text-sm font-semibold text-foreground">{sessionIdentity}</p>
-              </div>
-              <form action={signOutAction}>
-                <button type="submit" className="rounded-full bg-surface-container-low px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-primary shadow-ambient">
-                  Sign Out
-                </button>
-              </form>
-            </div>
-            <p className="mt-2 text-sm text-foreground/60">This shell is unlocked because an Auth.js session is already active in this browser.</p>
-          </div>
-
-          <Link href="/modules" className="mt-8 rounded-full bg-gradient-to-br from-primary to-primary-dim px-5 py-4 text-center text-sm font-semibold text-white shadow-ambient">
-            Manage Modules
-          </Link>
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col">
@@ -148,6 +82,3 @@ export async function ShellLayout({ title, description, children }: ShellLayoutP
     </div>
   );
 }
-
-
-
