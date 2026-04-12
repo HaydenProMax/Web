@@ -17,25 +17,19 @@ export async function ShellLayout({ title, description, children }: ShellLayoutP
     getSettingsSnapshot()
   ]);
 
-  const displayName = snapshot.preferences.displayName?.trim() || "Hayden";
-
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="flex min-h-screen">
         <aside className="hidden w-72 shrink-0 flex-col bg-surface-container px-6 py-8 md:flex">
-          <div className="mb-10 px-2">
-            <p className="font-headline text-[2rem] italic leading-none text-primary">Hayden Garden</p>
-            <p className="mt-4 font-headline text-2xl leading-none text-foreground">{displayName}</p>
+          <div className="mb-10 rounded-[2rem] border border-white/60 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.96),_rgba(246,238,222,0.9)_54%,_rgba(229,212,173,0.8)_100%)] px-5 py-5 shadow-ambient">
+            <div className="whitespace-nowrap font-headline leading-none">
+              <p className="text-[2rem] tracking-[-0.06em] text-foreground/80">Hayden Garden</p>
+            </div>
+            <div className="mt-4 h-px w-14 bg-primary/18" />
+            <p className="mt-3 max-w-[14rem] font-headline text-[1.02rem] italic leading-7 tracking-[-0.01em] text-primary/88">
+              Tend the days, and the days will shape the garden.
+            </p>
           </div>
-
-          <form action={signOutAction} className="mb-8 px-2">
-            <button
-              type="submit"
-              className="w-full rounded-full border border-outline-variant/30 bg-white/80 px-4 py-3 text-sm font-semibold text-foreground/70 shadow-ambient transition-colors hover:text-primary"
-            >
-              Sign Out
-            </button>
-          </form>
 
           <nav className="flex flex-1 flex-col gap-2">
             {navigationItems.map((item) => (
@@ -54,6 +48,18 @@ export async function ShellLayout({ title, description, children }: ShellLayoutP
                 </span>
               </Link>
             ))}
+
+            <form action={signOutAction} className="pt-2">
+              <button
+                type="submit"
+                className="w-full rounded-2xl px-4 py-3 text-left text-sm font-medium text-foreground/70 transition-colors hover:bg-surface-container-low hover:text-primary"
+              >
+                <span className="flex items-center justify-between gap-3">
+                  <span>Sign Out</span>
+                  <span className="text-xs text-foreground/35">Exit</span>
+                </span>
+              </button>
+            </form>
           </nav>
         </aside>
 
