@@ -16,8 +16,8 @@ const sans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Komorebi Personal Workstation",
-  description: "A modular personal workstation for planning, knowledge, and writing."
+  title: "Hayden Garden",
+  description: "A personal garden for knowledge capture, life notes, and writing."
 };
 
 export default function RootLayout({
@@ -31,4 +31,3 @@ export default function RootLayout({
     </html>
   );
 }
-

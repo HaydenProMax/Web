@@ -17,16 +17,15 @@ export async function ShellLayout({ title, description, children }: ShellLayoutP
     getSettingsSnapshot()
   ]);
 
+  const displayName = snapshot.preferences.displayName?.trim() || "Hayden";
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="flex min-h-screen">
         <aside className="hidden w-72 shrink-0 flex-col bg-surface-container px-6 py-8 md:flex">
           <div className="mb-10 px-2">
-            <p className="font-headline text-2xl italic text-primary">Komorebi</p>
-            <p className="mt-2 text-xs uppercase tracking-[0.2em] text-foreground/60">
-              {snapshot.preferences.displayName || "Personal Workstation"}
-            </p>
-            <p className="mt-2 text-sm text-foreground/55">{snapshot.preferences.curatorTitle}</p>
+            <p className="font-headline text-[2rem] italic leading-none text-primary">Hayden Garden</p>
+            <p className="mt-4 font-headline text-2xl leading-none text-foreground">{displayName}</p>
           </div>
 
           <form action={signOutAction} className="mb-8 px-2">
@@ -56,7 +55,6 @@ export async function ShellLayout({ title, description, children }: ShellLayoutP
               </Link>
             ))}
           </nav>
-
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col">

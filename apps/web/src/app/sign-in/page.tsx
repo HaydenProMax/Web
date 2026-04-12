@@ -24,10 +24,10 @@ export default async function SignInPage({
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-6 py-12 text-foreground">
       <section className="w-full max-w-xl rounded-[2rem] bg-surface-container p-8 shadow-ambient">
-        <p className="text-xs uppercase tracking-[0.2em] text-primary">Komorebi Access</p>
-        <h1 className="mt-3 font-headline text-4xl text-foreground">Sign in to your workstation</h1>
+        <p className="text-xs uppercase tracking-[0.2em] text-primary">Hayden Garden Access</p>
+        <h1 className="mt-3 font-headline text-4xl text-foreground">Sign in to your garden</h1>
         <p className="mt-4 text-sm leading-6 text-foreground/70">
-          Your workstation uses a private single-user sign-in flow, so every module resolves ownership from the active session and keeps notes, tasks, writing, and archive history under one personal workspace.
+          Your garden uses a private single-user sign-in flow, so notes, life logs, writing, and archive history all stay inside one personal space.
         </p>
 
         {redirectedFromProtectedPage ? (
@@ -38,7 +38,7 @@ export default async function SignInPage({
 
         {error ? (
           <div className="mt-6 rounded-[1.5rem] bg-white/80 px-5 py-4 text-sm text-rose-600 shadow-ambient">
-            The email or access code did not match this workstation.
+            The email or access code did not match this garden.
           </div>
         ) : null}
 
@@ -62,13 +62,13 @@ export default async function SignInPage({
             />
           </label>
           <button type="submit" className="mt-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white">
-            Enter Workspace
+            Enter Garden
           </button>
         </form>
 
         <div className="mt-8 rounded-[1.5rem] bg-white/80 p-5 text-sm leading-6 text-foreground/65">
-          <p className="font-semibold text-primary">Private workspace access</p>
-          <p className="mt-2">The default workspace account is <span className="font-medium text-foreground">{defaultEmail}</span>.</p>
+          <p className="font-semibold text-primary">Private garden access</p>
+          <p className="mt-2">The default account is <span className="font-medium text-foreground">{defaultEmail}</span>.</p>
           <p className="mt-1">The access code is read from <code className="rounded bg-surface-container-low px-1.5 py-0.5">AUTH_DEMO_PASSWORD</code> in the root <code className="rounded bg-surface-container-low px-1.5 py-0.5">.env</code>.</p>
         </div>
 
@@ -76,7 +76,7 @@ export default async function SignInPage({
           <Link href="https://authjs.dev" className="text-primary">
             Auth.js
           </Link>{" "}
-          handles the session boundary, while workstation data remains in PostgreSQL.
+          handles the session boundary, while your garden data remains in PostgreSQL.
         </div>
       </section>
     </main>
