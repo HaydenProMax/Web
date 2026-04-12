@@ -29,6 +29,15 @@ export async function ShellLayout({ title, description, children }: ShellLayoutP
             <p className="mt-2 text-sm text-foreground/55">{snapshot.preferences.curatorTitle}</p>
           </div>
 
+          <form action={signOutAction} className="mb-8 px-2">
+            <button
+              type="submit"
+              className="w-full rounded-full border border-outline-variant/30 bg-white/80 px-4 py-3 text-sm font-semibold text-foreground/70 shadow-ambient transition-colors hover:text-primary"
+            >
+              Sign Out
+            </button>
+          </form>
+
           <nav className="flex flex-1 flex-col gap-2">
             {navigationItems.map((item) => (
               <Link
@@ -48,14 +57,6 @@ export async function ShellLayout({ title, description, children }: ShellLayoutP
             ))}
           </nav>
 
-          <form action={signOutAction} className="mt-8 px-2">
-            <button
-              type="submit"
-              className="w-full rounded-full border border-outline-variant/30 bg-white/80 px-4 py-3 text-sm font-semibold text-foreground/70 shadow-ambient transition-colors hover:text-primary"
-            >
-              Sign Out
-            </button>
-          </form>
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col">
