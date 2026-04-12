@@ -71,6 +71,19 @@ function comparePlannerTasks(left: PlannerTaskSummary, right: PlannerTaskSummary
   return new Date(right.updatedAt).getTime() - new Date(left.updatedAt).getTime();
 }
 
+function compareActiveTodoTasks(left: PlannerTaskSummary, right: PlannerTaskSummary) {
+  const leftAnchor = left.scheduledFor ?? left.dueAt;
+  const rightAnchor = right.scheduledFor ?? right.dueAt;
+  const leftTimestamp = leftAnchor ? new Date(leftAnchor).getTime() : Number.MIN_SAFE_INTEGER;
+  const rightTimestamp = rightAnchor ? new Date(rightAnchor).getTime() : Number.MIN_SAFE_INTEGER;
+
+  if (leftTimestamp !== rightTimestamp) {
+    return leftTimestamp - rightTimestamp;
+  }
+
+  return comparePlannerTasks(left, right);
+}
+
 async function fetchPlannerTasks(ownerId: string, archived = false) {
   const db = getDb();
   return db.plannerTask.findMany({
@@ -138,6 +151,14 @@ function isWithinRange(value: string | undefined, start: Date, end: Date) {
 
   const timestamp = new Date(value).getTime();
   return timestamp >= start.getTime() && timestamp <= end.getTime();
+}
+
+function isPast(value?: string) {
+  if (!value) {
+    return false;
+  }
+
+  return new Date(value).getTime() < startOfToday().getTime();
 }
 
 function sortByRelevantDate(tasks: PlannerTaskSummary[]) {
@@ -259,6 +280,47 @@ export async function getPlannerPlanningView(limitPerLane = 5) {
     todayTasks,
     weekTasks,
     overdueTasks
+  };
+}
+
+export async function getPlannerTodoView(limitDone = 12) {
+  const ownerId = await getCurrentUserId();
+  const tasks: PlannerTaskSummary[] = (await fetchPlannerTasks(ownerId, false)).map(mapPlannerTask);
+  const todayStart = startOfToday();
+  const todayEnd = endOfToday();
+
+  const activeTasks = tasks.filter((task) => task.status !== "DONE");
+  const doneTasks = tasks
+    .filter((task) => task.status === "DONE")
+    .sort((left, right) => {
+      const leftDoneAt = left.completedAt ? new Date(left.completedAt).getTime() : 0;
+      const rightDoneAt = right.completedAt ? new Date(right.completedAt).getTime() : 0;
+      if (leftDoneAt !== rightDoneAt) {
+        return rightDoneAt - leftDoneAt;
+      }
+
+      return new Date(right.updatedAt).getTime() - new Date(left.updatedAt).getTime();
+    })
+    .slice(0, limitDone);
+
+  const todayTasks = activeTasks
+    .filter((task) => {
+      const anchor = task.scheduledFor ?? task.dueAt;
+      return !anchor || isPast(task.dueAt) || isWithinRange(anchor, todayStart, todayEnd);
+    })
+    .sort(compareActiveTodoTasks);
+
+  const upcomingTasks = activeTasks
+    .filter((task) => {
+      const anchor = task.scheduledFor ?? task.dueAt;
+      return anchor ? new Date(anchor).getTime() > todayEnd.getTime() : false;
+    })
+    .sort(compareActiveTodoTasks);
+
+  return {
+    todayTasks,
+    upcomingTasks,
+    doneTasks
   };
 }
 
@@ -498,6 +560,7 @@ export async function deleteArchivedPlannerTask(taskId: string) {
     where: { id: existing.id }
   });
 }
+
 export async function getPlannerOverview(): Promise<PlannerOverview> {
   const db = getDb();
   const ownerId = await getCurrentUserId();
@@ -517,11 +580,3 @@ export async function getPlannerOverview(): Promise<PlannerOverview> {
     archivedCount
   };
 }
-
-
-
-
-
-
-
-
