@@ -1,5 +1,5 @@
-import { ShellLayout } from "@/components/shell/shell-layout";
 import { PlannerTaskForm } from "@/components/planner/planner-task-form";
+import { ShellLayout } from "@/components/shell/shell-layout";
 import { listPlannerLinkOptions } from "@/server/planner/service";
 
 import { createPlannerTaskAction } from "./actions";
@@ -22,25 +22,24 @@ export default async function NewPlannerTaskPage({
       ? `Follow up on ${selectedNote.title}`
       : "";
   const seededDescription = selectedDraft
-    ? "Capture the next execution step for this draft and keep the writing flow moving."
+    ? "Capture the next step and keep this draft moving."
     : selectedNote
-      ? "Turn the current note into a concrete next step so the idea keeps moving."
+      ? "Turn this note into a concrete next step."
       : "";
 
   return (
-    <ShellLayout
-      title="New Task"
-      description="Planner now supports linking work back to the notes and drafts that generated it, turning the task layer into a real coordination surface."
-    >
+    <ShellLayout title="New task" description="Create a task without leaving the planner flow.">
       {resolvedSearchParams?.error === "create-failed" ? (
         <section className="rounded-[2rem] bg-rose-100 px-6 py-4 text-sm text-rose-700 shadow-ambient">
-          The task could not be created. Check the required fields and try again.
+          Could not create the task. Check the required fields and try again.
         </section>
       ) : null}
 
       <PlannerTaskForm
         action={createPlannerTaskAction}
         linkOptions={linkOptions}
+        titleText="Create task"
+        introText="Capture it now and adjust the details only if you need to."
         initialData={{
           title: seededTitle,
           description: seededDescription,

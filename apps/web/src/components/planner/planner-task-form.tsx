@@ -30,17 +30,29 @@ type PlannerTaskFormProps = {
   cancelLabel?: string;
 };
 
+function priorityTone(priority: PlannerTaskPriority) {
+  if (priority === "HIGH") {
+    return "border-fuchsia-200 bg-fuchsia-50 text-fuchsia-700";
+  }
+
+  if (priority === "LOW") {
+    return "border-slate-200 bg-slate-50 text-slate-600";
+  }
+
+  return "border-sky-200 bg-sky-50 text-sky-700";
+}
+
 export function PlannerTaskForm({
   action,
   initialData,
   linkOptions,
   taskId,
   mode = "create",
-  submitLabel = mode === "edit" ? "Save Changes" : "Create Task",
-  titleText = mode === "edit" ? "Refine this task" : "Capture a new task",
+  submitLabel = mode === "edit" ? "Save task" : "Create task",
+  titleText = mode === "edit" ? "Edit task" : "New task",
   introText = mode === "edit"
-    ? "Update title, timing, status, and links."
-    : "Create a task and link it to a note or draft if needed.",
+    ? "Update the task, timing, and links."
+    : "Add the task now, refine it later if needed.",
   cancelHref = "/planner",
   cancelLabel = "Back to planner"
 }: PlannerTaskFormProps) {
@@ -57,15 +69,20 @@ export function PlannerTaskForm({
   const selectedDraft = linkOptions.drafts.find((option) => option.value === relatedDraftId);
 
   return (
-    <div className="grid gap-8 xl:grid-cols-[1.05fr_0.95fr]">
-      <section className="rounded-[2rem] bg-surface-container-low p-8 shadow-ambient">
-        <div className="mb-8 space-y-2">
-          <p className="text-xs uppercase tracking-[0.2em] text-primary">Planner Form</p>
-          <h2 className="font-headline text-3xl text-foreground">{titleText}</h2>
-          <p className="text-sm leading-6 text-foreground/70">{introText}</p>
+    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
+      <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient lg:p-8">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-[0.22em] text-primary/75">Planner</p>
+            <h2 className="mt-2 font-headline text-3xl text-foreground">{titleText}</h2>
+            <p className="mt-2 text-sm leading-6 text-foreground/65">{introText}</p>
+          </div>
+          <Link href={cancelHref} className="text-sm font-semibold text-primary transition-colors duration-200 hover:text-primary/80">
+            {cancelLabel}
+          </Link>
         </div>
 
-        <form action={action} className="space-y-6">
+        <form action={action} className="mt-8 space-y-6">
           {taskId ? <input type="hidden" name="taskId" value={taskId} /> : null}
 
           <div className="space-y-2">
@@ -75,7 +92,7 @@ export function PlannerTaskForm({
               name="title"
               value={title}
               onChange={(event) => setTitle(event.target.value)}
-              className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none"
+              className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none transition-colors duration-200 focus:border-primary/40"
             />
           </div>
 
@@ -84,10 +101,11 @@ export function PlannerTaskForm({
             <textarea
               id="description"
               name="description"
-              rows={5}
+              rows={4}
               value={description}
               onChange={(event) => setDescription(event.target.value)}
-              className="w-full rounded-[1.5rem] border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none"
+              className="w-full rounded-[1.5rem] border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none transition-colors duration-200 focus:border-primary/40"
+              placeholder="Optional"
             />
           </div>
 
@@ -99,7 +117,7 @@ export function PlannerTaskForm({
                 name="priority"
                 value={priority}
                 onChange={(event) => setPriority(event.target.value as PlannerTaskPriority)}
-                className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none"
+                className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none transition-colors duration-200 focus:border-primary/40"
               >
                 <option value="LOW">Low</option>
                 <option value="MEDIUM">Medium</option>
@@ -114,10 +132,10 @@ export function PlannerTaskForm({
                 name="status"
                 value={status}
                 onChange={(event) => setStatus(event.target.value as "TODO" | "IN_PROGRESS" | "DONE")}
-                className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none"
+                className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none transition-colors duration-200 focus:border-primary/40"
               >
                 <option value="TODO">Todo</option>
-                <option value="IN_PROGRESS">In Progress</option>
+                <option value="IN_PROGRESS">In progress</option>
                 <option value="DONE">Done</option>
               </select>
             </div>
@@ -125,132 +143,111 @@ export function PlannerTaskForm({
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <label htmlFor="scheduledFor" className="text-sm font-semibold text-foreground/70">Scheduled For</label>
+              <label htmlFor="scheduledFor" className="text-sm font-semibold text-foreground/70">Scheduled</label>
               <input
                 id="scheduledFor"
                 name="scheduledFor"
                 type="datetime-local"
                 value={scheduledFor}
                 onChange={(event) => setScheduledFor(event.target.value)}
-                className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none"
+                className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none transition-colors duration-200 focus:border-primary/40"
               />
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="dueAt" className="text-sm font-semibold text-foreground/70">Due At</label>
+              <label htmlFor="dueAt" className="text-sm font-semibold text-foreground/70">Due</label>
               <input
                 id="dueAt"
                 name="dueAt"
                 type="datetime-local"
                 value={dueAt}
                 onChange={(event) => setDueAt(event.target.value)}
-                className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none"
+                className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none transition-colors duration-200 focus:border-primary/40"
               />
             </div>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <label htmlFor="relatedNoteSlug" className="text-sm font-semibold text-foreground/70">Linked Note</label>
+              <label htmlFor="relatedNoteSlug" className="text-sm font-semibold text-foreground/70">Note</label>
               <select
                 id="relatedNoteSlug"
                 name="relatedNoteSlug"
                 value={relatedNoteSlug}
                 onChange={(event) => setRelatedNoteSlug(event.target.value)}
-                className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none"
+                className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none transition-colors duration-200 focus:border-primary/40"
               >
                 <option value="">No linked note</option>
                 {linkOptions.notes.map((option) => (
                   <option key={option.value} value={option.value}>{option.title}</option>
                 ))}
               </select>
-              <p className="text-xs leading-5 text-foreground/55">
-                {selectedNote ? selectedNote.meta : "Link this task to a note."}
-              </p>
+              <p className="text-xs leading-5 text-foreground/55">{selectedNote ? selectedNote.meta : "Optional"}</p>
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="relatedDraftId" className="text-sm font-semibold text-foreground/70">Linked Draft</label>
+              <label htmlFor="relatedDraftId" className="text-sm font-semibold text-foreground/70">Draft</label>
               <select
                 id="relatedDraftId"
                 name="relatedDraftId"
                 value={relatedDraftId}
                 onChange={(event) => setRelatedDraftId(event.target.value)}
-                className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none"
+                className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none transition-colors duration-200 focus:border-primary/40"
               >
                 <option value="">No linked draft</option>
                 {linkOptions.drafts.map((option) => (
                   <option key={option.value} value={option.value}>{option.title}</option>
                 ))}
               </select>
-              <p className="text-xs leading-5 text-foreground/55">
-                {selectedDraft ? selectedDraft.meta : "Link this task to a draft."}
-              </p>
+              <p className="text-xs leading-5 text-foreground/55">{selectedDraft ? selectedDraft.meta : "Optional"}</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <button type="submit" className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white">
+          <div className="flex flex-wrap items-center gap-3 pt-2">
+            <button type="submit" className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-ambient transition-colors duration-200 hover:bg-primary/90">
               {submitLabel}
             </button>
-            <Link href={cancelHref} className="text-sm font-semibold text-primary">
-              {cancelLabel}
+            <Link href={cancelHref} className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-primary shadow-ambient transition-colors duration-200 hover:bg-primary/5">
+              Cancel
             </Link>
           </div>
         </form>
       </section>
 
-      <aside className="space-y-6">
+      <aside className="space-y-4">
         <div className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
-          <p className="text-xs uppercase tracking-[0.2em] text-primary">Preview</p>
-          <h3 className="mt-3 font-headline text-2xl">Task summary</h3>
-          <p className="mt-3 text-sm leading-6 text-foreground/70">
-            {mode === "edit"
-              ? "Review the current task details before saving."
-              : "Review title, timing, priority, and links here."}
-          </p>
+          <p className="text-xs uppercase tracking-[0.22em] text-primary/75">Summary</p>
+          <h3 className="mt-3 font-headline text-2xl text-foreground">{title || "Untitled task"}</h3>
+          <p className="mt-3 text-sm leading-6 text-foreground/65">{description || "No description yet."}</p>
+
+          <div className="mt-5 flex flex-wrap gap-2">
+            <span className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] ${priorityTone(priority)}`}>
+              {priority}
+            </span>
+            <span className="rounded-full border border-primary/15 bg-primary/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+              {status}
+            </span>
+          </div>
         </div>
 
         <div className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
-          <p className="text-xs uppercase tracking-[0.2em] text-primary">Current Values</p>
-          <div className="mt-4 space-y-4 rounded-[1.5rem] bg-white/80 p-5">
+          <p className="text-xs uppercase tracking-[0.22em] text-primary/75">Context</p>
+          <div className="mt-4 space-y-4 text-sm text-foreground/70">
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-primary">Title</p>
-              <p className="mt-2 font-headline text-2xl text-foreground">{title || "Untitled task"}</p>
+              <p className="text-xs uppercase tracking-[0.18em] text-foreground/45">Scheduled</p>
+              <p className="mt-1">{scheduledFor || "Not set"}</p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-primary">Description</p>
-              <p className="mt-2 text-sm leading-6 text-foreground/70">{description || "No description yet."}</p>
+              <p className="text-xs uppercase tracking-[0.18em] text-foreground/45">Due</p>
+              <p className="mt-1">{dueAt || "Not set"}</p>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-primary">Priority</p>
-                <p className="mt-2 text-sm font-semibold text-foreground">{priority}</p>
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-primary">Status</p>
-                <p className="mt-2 text-sm font-semibold text-foreground">{status}</p>
-              </div>
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-foreground/45">Note</p>
+              <p className="mt-1">{selectedNote?.title || "None"}</p>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-primary">Scheduled</p>
-                <p className="mt-2 text-sm text-foreground/70">{scheduledFor || "Not scheduled"}</p>
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-primary">Due</p>
-                <p className="mt-2 text-sm text-foreground/70">{dueAt || "No deadline"}</p>
-              </div>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-primary">Linked Note</p>
-                <p className="mt-2 text-sm text-foreground/70">{selectedNote?.title || "No linked note"}</p>
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-primary">Linked Draft</p>
-                <p className="mt-2 text-sm text-foreground/70">{selectedDraft?.title || "No linked draft"}</p>
-              </div>
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-foreground/45">Draft</p>
+              <p className="mt-1">{selectedDraft?.title || "None"}</p>
             </div>
           </div>
         </div>
@@ -258,4 +255,3 @@ export function PlannerTaskForm({
     </div>
   );
 }
-
