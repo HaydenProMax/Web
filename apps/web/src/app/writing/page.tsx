@@ -92,6 +92,7 @@ export default async function WritingPage({
     archived?: string;
     restored?: string;
     destroyed?: string;
+    deleted?: string;
     error?: string;
     view?: string;
     confirmDelete?: string;
@@ -145,6 +146,12 @@ export default async function WritingPage({
         </section>
       ) : null}
 
+      {resolvedSearchParams?.deleted === "1" ? (
+        <section className="rounded-[2rem] bg-primary-container/40 px-6 py-4 text-sm text-primary shadow-ambient">
+          Published article deleted. The draft has been kept.
+        </section>
+      ) : null}
+
       {resolvedSearchParams?.error === "archive-failed" ? (
         <section className="rounded-[2rem] bg-rose-100 px-6 py-4 text-sm text-rose-700 shadow-ambient">
           Draft archiving failed. Please try again.
@@ -161,9 +168,17 @@ export default async function WritingPage({
         <section className="rounded-[2rem] bg-amber-100 px-6 py-4 text-sm text-amber-800 shadow-ambient">
           Permanent delete requires a confirmation step.
         </section>
+      ) : resolvedSearchParams?.error === "confirm-article-delete-required" ? (
+        <section className="rounded-[2rem] bg-amber-100 px-6 py-4 text-sm text-amber-800 shadow-ambient">
+          Article delete requires a confirmation step.
+        </section>
+      ) : resolvedSearchParams?.error === "delete-published-failed" ? (
+        <section className="rounded-[2rem] bg-rose-100 px-6 py-4 text-sm text-rose-700 shadow-ambient">
+          Published article delete failed. Please try again.
+        </section>
       ) : resolvedSearchParams?.error === "permanent-delete-failed" ? (
         <section className="rounded-[2rem] bg-rose-100 px-6 py-4 text-sm text-rose-700 shadow-ambient">
-          Permanent delete failed. Archived drafts that still back a live article cannot be deleted.
+          Permanent delete failed. Archived drafts that have already been published cannot be deleted.
         </section>
       ) : invalidDeleteTarget ? (
         <section className="rounded-[2rem] bg-amber-100 px-6 py-4 text-sm text-amber-800 shadow-ambient">
@@ -194,7 +209,7 @@ export default async function WritingPage({
           </p>
           {draftPendingDelete.publishedPostSlug ? (
             <p className="mt-3 text-sm leading-6 text-rose-700">
-              This archived draft still backs a live article and cannot be deleted permanently.
+              This archived draft has already been published and cannot be deleted permanently.
             </p>
           ) : null}
           <div className="mt-5 flex flex-wrap items-center gap-3">
@@ -265,7 +280,7 @@ export default async function WritingPage({
                         </Link>
                       ) : (
                         <span className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-foreground/50 shadow-ambient">
-                          Live article linked
+                          Published
                         </span>
                       )}
                     </div>
@@ -359,7 +374,8 @@ export default async function WritingPage({
                       </div>
                       <div className="flex flex-wrap gap-3 text-sm font-semibold text-primary">
                         <Link href={`/writing/${post.slug}`}>Open article</Link>
-                        {post.sourceDraftId ? <Link href={`/writing/drafts/${post.sourceDraftId}`}>Manage draft</Link> : null}
+                        {post.sourceDraftId ? <Link href={`/writing/drafts/${post.sourceDraftId}`}>Open draft</Link> : null}
+                        <Link href={`/writing/${post.slug}?confirmDelete=1`}>Delete article</Link>
                       </div>
                     </div>
                   </article>
@@ -367,7 +383,7 @@ export default async function WritingPage({
               </div>
             ) : (
               <div className="rounded-[2rem] bg-surface-container-low p-6 text-sm text-foreground/60 shadow-ambient">
-                No published entries yet. Publish a draft to start the live reading feed.
+                No published articles yet. Publish a draft to create your first article.
               </div>
             )}
           </section>

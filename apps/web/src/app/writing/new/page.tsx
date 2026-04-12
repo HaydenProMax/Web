@@ -98,7 +98,7 @@ export default async function NewWritingDraftPage({
           <div className="mt-6 rounded-[1.5rem] bg-white/80 p-5 shadow-ambient">
             <p className="text-xs uppercase tracking-[0.2em] text-primary">Source</p>
             <h3 className="mt-3 font-headline text-2xl text-foreground">{sourceNote.title}</h3>
-            <p className="mt-3 text-sm leading-6 text-foreground/70">This draft starts from the linked knowledge note.</p>
+            <p className="mt-3 text-sm leading-6 text-foreground/70">This draft starts from the selected knowledge note.</p>
           </div>
         ) : null}
       </section>

@@ -510,6 +510,46 @@ export async function deleteArchivedWritingDraft(id: string) {
     });
   });
 }
+export async function deletePublishedWritingPost(id: string) {
+  const db = getDb();
+  const ownerId = await getCurrentUserId();
+  const existingPost = await db.writingPost.findFirst({
+    where: { id, ownerId, status: "PUBLISHED" },
+    select: {
+      id: true,
+      slug: true
+    }
+  });
+
+  if (!existingPost) {
+    throw new Error("Published article not found.");
+  }
+
+  await db.$transaction(async (tx: Prisma.TransactionClient) => {
+    await tx.archiveItem.deleteMany({
+      where: {
+        ownerId,
+        sourceType: "POST",
+        postId: existingPost.id
+      }
+    });
+
+    await tx.mediaUsage.deleteMany({
+      where: {
+        moduleKey: "writing",
+        entityType: "post",
+        entityId: existingPost.id
+      }
+    });
+
+    await tx.writingPost.delete({
+      where: { id: existingPost.id }
+    });
+  });
+
+  return { id: existingPost.id, slug: existingPost.slug };
+}
+
 export async function updateWritingDraft(id: string, input: unknown) {
   const parsed = writingDraftInputSchema.parse(input);
   const db = getDb();

@@ -156,14 +156,14 @@ export default async function WritingDraftDetailPage({
           </article>
 
           <article className="rounded-[1.5rem] bg-white/80 p-5 shadow-ambient">
-            <p className="text-xs uppercase tracking-[0.2em] text-primary">Live Article</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-primary">Published Article</p>
             <h3 className="mt-3 font-headline text-2xl text-foreground">{draft.publishedPostTitle ?? "Not published yet"}</h3>
             <p className="mt-3 text-sm leading-6 text-foreground/70">
-              {draft.publishedPostSlug ? `Last published ${formatTimestamp(draft.publishedAt)}.` : "Publish this draft to create the live article."}
+              {draft.publishedPostSlug ? `Last published ${formatTimestamp(draft.publishedAt)}.` : "Publish this draft to create the article."}
             </p>
             {draft.publishedPostSlug ? (
               <Link href={`/writing/${draft.publishedPostSlug}`} className="mt-4 inline-flex text-sm font-semibold text-primary">
-                Open live article
+                Open article
               </Link>
             ) : null}
           </article>

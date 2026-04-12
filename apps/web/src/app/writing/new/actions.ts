@@ -7,6 +7,7 @@ import {
   archiveWritingDraft,
   createWritingDraft,
   deleteArchivedWritingDraft,
+  deletePublishedWritingPost,
   publishWritingDraft,
   restoreWritingDraft,
   updateWritingDraft
@@ -58,6 +59,12 @@ async function completeWritingPermanentDelete(draftId: string) {
   await deleteArchivedWritingDraft(draftId);
   revalidateWritingPaths();
   revalidatePath(`/writing/drafts/${draftId}`);
+}
+
+async function completePublishedArticleDelete(postId: string) {
+  const deleted = await deletePublishedWritingPost(postId);
+  revalidateWritingPaths();
+  revalidatePath(`/writing/${deleted.slug}`);
 }
 
 export async function createWritingDraftAction(formData: FormData) {
@@ -157,6 +164,23 @@ export async function restoreWritingDraftFromListAction(formData: FormData) {
   }
 
   redirect("/writing?view=archived&restored=1");
+}
+
+export async function deletePublishedWritingPostAction(formData: FormData) {
+  const postId = formData.get("postId")?.toString() ?? "";
+  const confirmed = formData.get("confirmed")?.toString() ?? "";
+
+  if (!postId || confirmed !== "true") {
+    redirect("/writing?error=confirm-article-delete-required");
+  }
+
+  try {
+    await completePublishedArticleDelete(postId);
+  } catch {
+    redirect("/writing?error=delete-published-failed");
+  }
+
+  redirect("/writing?deleted=1");
 }
 
 export async function deleteArchivedWritingDraftFromListAction(formData: FormData) {

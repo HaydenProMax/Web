@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { RichTextPreview } from "@/components/writing/rich-text-preview";
+import { deletePublishedWritingPostAction } from "@/app/writing/new/actions";
 import { ShellLayout } from "@/components/shell/shell-layout";
+import { RichTextPreview } from "@/components/writing/rich-text-preview";
 import { getPublishedWritingPost } from "@/server/writing/service";
 
 function formatTimestamp(value?: string) {
@@ -24,10 +25,11 @@ export default async function WritingPostPage({
   searchParams
 }: {
   params: Promise<{ slug: string }>;
-  searchParams?: Promise<{ published?: string }>;
+  searchParams?: Promise<{ published?: string; confirmDelete?: string }>;
 }) {
   const { slug } = await params;
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const confirmDelete = resolvedSearchParams?.confirmDelete === "1";
   const post = await getPublishedWritingPost(slug);
 
   if (!post) {
@@ -38,21 +40,34 @@ export default async function WritingPostPage({
     <ShellLayout title={post.title} description={post.summary}>
       {resolvedSearchParams?.published === "1" ? (
         <section className="mx-auto mb-8 w-full max-w-4xl rounded-[2rem] bg-primary-container/40 px-6 py-4 text-sm text-primary shadow-ambient">
-          Draft published successfully. You are viewing the live article now.
+          Draft published successfully. You are viewing the article now.
         </section>
       ) : null}
 
       <section className="mx-auto mb-8 w-full max-w-4xl rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
         <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
           <div className="space-y-3">
-            <p className="text-xs uppercase tracking-[0.2em] text-primary">Published Management</p>
-            <h2 className="font-headline text-3xl text-foreground">This is the live article surface</h2>
+            <p className="text-xs uppercase tracking-[0.2em] text-primary">Published Article</p>
+            <h2 className="font-headline text-3xl text-foreground">This is the published article</h2>
             <p className="max-w-3xl text-sm leading-6 text-foreground/70">
-              Use this page to read what is already live, then jump back to the source draft or knowledge note when you need to revise, republish, or reconnect the article to its original thinking.
+              Read the published article here, then return to the source draft or note when you want to revise it.
             </p>
           </div>
 
           <div className="flex flex-wrap gap-3">
+            {confirmDelete ? (
+              <form action={deletePublishedWritingPostAction}>
+                <input type="hidden" name="postId" value={post.id} />
+                <input type="hidden" name="confirmed" value="true" />
+                <button type="submit" className="rounded-full bg-rose-700 px-5 py-3 text-sm font-semibold text-white shadow-ambient">
+                  Confirm Delete Article
+                </button>
+              </form>
+            ) : (
+              <Link href={`/writing/${post.slug}?confirmDelete=1`} className="rounded-full bg-rose-700 px-5 py-3 text-sm font-semibold text-white shadow-ambient">
+                Delete Article
+              </Link>
+            )}
             {post.sourceDraftId ? (
               <Link href={`/writing/drafts/${post.sourceDraftId}`} className="rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-ambient">
                 Open source draft
@@ -63,25 +78,39 @@ export default async function WritingPostPage({
                 Open source note
               </Link>
             ) : null}
+            {confirmDelete ? (
+              <Link href={`/writing/${post.slug}`} className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-primary shadow-ambient">
+                Cancel
+              </Link>
+            ) : null}
           </div>
         </div>
+
+        {confirmDelete ? (
+          <div className="mt-6 rounded-[1.5rem] border border-rose-200 bg-rose-50 p-5 shadow-ambient">
+            <p className="text-xs uppercase tracking-[0.2em] text-rose-700">Delete Confirmation</p>
+            <p className="mt-3 text-sm leading-6 text-foreground/70">
+              Deleting this article will remove the published version, but the draft will be kept.
+            </p>
+          </div>
+        ) : null}
 
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           <article className="rounded-[1.5rem] bg-white/80 p-5 shadow-ambient">
             <p className="text-xs uppercase tracking-[0.2em] text-primary">Publication</p>
             <h3 className="mt-3 font-headline text-2xl text-foreground">{formatTimestamp(post.publishedAt)}</h3>
-            <p className="mt-3 text-sm leading-6 text-foreground/70">The live article was last pushed at this time.</p>
+            <p className="mt-3 text-sm leading-6 text-foreground/70">This article was last published at this time.</p>
           </article>
           <article className="rounded-[1.5rem] bg-white/80 p-5 shadow-ambient">
             <p className="text-xs uppercase tracking-[0.2em] text-primary">Revision Memory</p>
             <h3 className="mt-3 font-headline text-2xl text-foreground">{post.versionCount ?? 1} versions</h3>
-            <p className="mt-3 text-sm leading-6 text-foreground/70">Republishing the source draft will keep growing this article's version trail.</p>
+            <p className="mt-3 text-sm leading-6 text-foreground/70">Republishing the draft will continue this article's version history.</p>
           </article>
           <article className="rounded-[1.5rem] bg-white/80 p-5 shadow-ambient">
             <p className="text-xs uppercase tracking-[0.2em] text-primary">Source Context</p>
             <h3 className="mt-3 font-headline text-2xl text-foreground">{post.sourceNoteTitle ?? post.sourceDraftTitle ?? "Standalone article"}</h3>
             <p className="mt-3 text-sm leading-6 text-foreground/70">
-              {post.sourceNoteSlug ? "This article is still linked back to a Knowledge note." : post.sourceDraftId ? "This article remains managed by a live source draft." : "This article is currently standing on its own."}
+              {post.sourceNoteSlug ? "This article came from a knowledge note." : post.sourceDraftId ? "This article came from a draft and can still be updated from it." : "This article stands on its own."}
             </p>
           </article>
         </div>
