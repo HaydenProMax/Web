@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import type { ModuleKey, SettingsSnapshot, SystemPostureSnapshot, UserModuleSummary, UserPreferenceSummary } from "@workspace/types/index";
 
+import { auth } from "@/auth";
 import { ACTIVITY_FOCUS_DEFAULT_COOKIE, getActivityFocusLabel, resolveActivityFocus } from "@/lib/activity-focus";
 import { getCurrentUserId } from "@/server/auth/current-user";
 import { getPreferredActivityReentry } from "@/server/activity/preferences";
@@ -33,7 +34,13 @@ function getReplayAlignedModuleKey(defaultActivityFocus: UserPreferenceSummary["
 }
 
 function mapPreference(input: {
-  profile: { displayName: string | null } | null;
+  profile: {
+    displayName: string | null;
+    avatarMediaId: string | null;
+    avatarMedia: {
+      storageKey: string;
+    } | null;
+  } | null;
   preferences: {
     theme: string | null;
     accentColor: string | null;
@@ -41,11 +48,15 @@ function mapPreference(input: {
     locale: string | null;
     timezone: string | null;
     defaultActivityFocus: string | null;
+    workspaceMotto: string | null;
   } | null;
   legacyDefaultActivityFocus?: string | null;
 }): UserPreferenceSummary {
   return {
-    displayName: input.profile?.displayName ?? "Hayden",
+    displayName: input.profile?.displayName?.trim() || "Hayden Garden",
+    workspaceMotto: input.preferences?.workspaceMotto?.trim() || "Tend gently. Grow steadily.",
+    avatarMediaId: input.profile?.avatarMediaId ?? undefined,
+    avatarUrl: input.profile?.avatarMedia?.storageKey ? buildLocalMediaUrl(input.profile.avatarMedia.storageKey) : undefined,
     theme: input.preferences?.theme ?? "light",
     accentColor: input.preferences?.accentColor ?? "primary",
     typographyMode: input.preferences?.typographyMode ?? "serif-focus",
@@ -102,6 +113,12 @@ export async function getSettingsSnapshot(): Promise<SettingsSnapshot> {
         profile: {
           select: {
             displayName: true,
+            avatarMediaId: true,
+            avatarMedia: {
+              select: {
+                storageKey: true
+              }
+            }
           }
         },
         preferences: {
@@ -111,7 +128,8 @@ export async function getSettingsSnapshot(): Promise<SettingsSnapshot> {
             typographyMode: true,
             locale: true,
             timezone: true,
-            defaultActivityFocus: true
+            defaultActivityFocus: true,
+            workspaceMotto: true
           }
         }
       }
@@ -147,6 +165,51 @@ export async function getSettingsSnapshot(): Promise<SettingsSnapshot> {
   return {
     preferences,
     modules: modules.map((module: (typeof modules)[number]) => mapModule({ ...module, replayAlignedKey }))
+  };
+}
+
+function buildLocalMediaUrl(storageKey: string) {
+  return `/api/media/files/${storageKey}`;
+}
+
+export async function getShellIdentity() {
+  const session = await auth();
+  const ownerId = await getCurrentUserId();
+  const db = getDb();
+
+  const user = await db.user.findUnique({
+    where: { id: ownerId },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      profile: {
+        select: {
+          displayName: true,
+          avatarMedia: {
+            select: {
+              storageKey: true
+            }
+          }
+        }
+      }
+    }
+  });
+
+  const label = user?.profile?.displayName?.trim()
+    || user?.name?.trim()
+    || session?.user?.name?.trim()
+    || user?.email
+    || session?.user?.email
+    || "Hayden";
+  const avatarUrl = user?.profile?.avatarMedia?.storageKey ? buildLocalMediaUrl(user.profile.avatarMedia.storageKey) : undefined;
+  const initials = label.trim().charAt(0).toUpperCase() || "H";
+
+  return {
+    id: user?.id ?? ownerId,
+    label,
+    avatarUrl,
+    initials
   };
 }
 
@@ -199,11 +262,13 @@ export async function updateUserPreferences(input: UserPreferenceSummary) {
   await db.userProfile.upsert({
     where: { userId: ownerId },
     update: {
-      displayName: input.displayName
+      displayName: input.displayName,
+      avatarMediaId: input.avatarMediaId ?? null
     },
     create: {
       userId: ownerId,
-      displayName: input.displayName
+      displayName: input.displayName,
+      avatarMediaId: input.avatarMediaId ?? null
     }
   });
 
@@ -215,7 +280,8 @@ export async function updateUserPreferences(input: UserPreferenceSummary) {
       typographyMode: input.typographyMode,
       locale: input.locale,
       timezone: input.timezone,
-      defaultActivityFocus: input.defaultActivityFocus
+      defaultActivityFocus: input.defaultActivityFocus,
+      workspaceMotto: input.workspaceMotto
     },
     create: {
       userId: ownerId,
@@ -224,7 +290,8 @@ export async function updateUserPreferences(input: UserPreferenceSummary) {
       typographyMode: input.typographyMode,
       locale: input.locale,
       timezone: input.timezone,
-      defaultActivityFocus: input.defaultActivityFocus
+      defaultActivityFocus: input.defaultActivityFocus,
+      workspaceMotto: input.workspaceMotto
     }
   });
 }

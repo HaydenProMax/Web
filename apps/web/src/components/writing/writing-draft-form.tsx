@@ -134,6 +134,10 @@ function serializeDraftState(input: {
   return JSON.stringify(input);
 }
 
+function isUploadedImageAsset(asset: MediaAssetSummary) {
+  return asset.kind === "IMAGE" && Boolean(asset.url);
+}
+
 export function WritingDraftForm({ action, initialData, mode }: WritingDraftFormProps) {
   const initialBlocks = useMemo(() => parseInitialBlocks(initialData.content), [initialData.content]);
   const [title, setTitle] = useState(initialData.title);
@@ -145,7 +149,8 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
   const [videoCaption, setVideoCaption] = useState("");
   const [uploadMessage, setUploadMessage] = useState<string>("");
   const [uploadedAssets, setUploadedAssets] = useState<MediaAssetSummary[]>([]);
-  const latestUploadedImage = uploadedAssets.find((asset) => asset.kind === "IMAGE" && asset.url);
+  const imageAssets = uploadedAssets.filter((asset) => asset.kind === "IMAGE" && asset.url);
+  const latestUploadedImage = imageAssets[0];
   const [isUploading, startUploadTransition] = useTransition();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -243,9 +248,14 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
     setUploadedAssets((current) => [result.data!, ...current]);
     if (result.data.url) {
       setBlocks((current) => appendImageBlock(current, result.data!));
+      setCoverImageUrl((current) => current || result.data!.url || "");
     }
 
-    setUploadMessage(`Uploaded ${result.data.originalFileName} and inserted it into the draft content.`);
+    setUploadMessage(
+      result.data.url && !coverImageUrl
+        ? `Uploaded ${result.data.originalFileName}, inserted it into the draft content, and set it as the cover.`
+        : `Uploaded ${result.data.originalFileName} and inserted it into the draft content.`
+    );
   }
 
   async function handleVideoEmbed() {
@@ -457,17 +467,86 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
               {uploadMessage ? <p className="text-xs text-primary">{uploadMessage}</p> : null}
             </div>
 
-            <div className="space-y-2">
-              <label htmlFor="coverImageUrl" className="text-sm font-semibold text-foreground/70">
-                Cover Image URL
-              </label>
-              <input
-                id="coverImageUrl"
-                name="coverImageUrl"
-                value={coverImageUrl}
-                onChange={(event) => setCoverImageUrl(event.target.value)}
-                className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none"
-              />
+            <div className="space-y-3 rounded-[1.5rem] bg-white/80 p-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold text-foreground/70">Cover Image</p>
+                  <p className="text-xs text-foreground/50">Choose from uploaded images or paste a direct image URL.</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {latestUploadedImage?.url && latestUploadedImage.url !== coverImageUrl ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCoverImageUrl(latestUploadedImage.url ?? "");
+                        setUploadMessage(`Set ${latestUploadedImage.originalFileName} as the cover image.`);
+                      }}
+                      className="rounded-full bg-surface-container-low px-4 py-2 text-sm font-semibold text-primary"
+                    >
+                      Use Last Upload
+                    </button>
+                  ) : null}
+                  {coverImageUrl ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCoverImageUrl("");
+                        setUploadMessage("Cleared the cover image.");
+                      }}
+                      className="rounded-full bg-surface-container-low px-4 py-2 text-sm font-semibold text-primary"
+                    >
+                      Clear Cover
+                    </button>
+                  ) : null}
+                </div>
+              </div>
+              {coverImageUrl ? (
+                <div className="overflow-hidden rounded-[1.25rem] border border-outline-variant/20 bg-surface-container-low">
+                  <img src={coverImageUrl} alt={title || "Draft cover"} className="h-48 w-full object-cover" />
+                </div>
+              ) : (
+                <div className="flex h-32 items-center justify-center rounded-[1.25rem] border border-dashed border-outline-variant/30 bg-surface-container-low text-sm text-foreground/45">
+                  No cover selected yet.
+                </div>
+              )}
+              {imageAssets.length > 0 ? (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {imageAssets.slice(0, 4).map((asset) => (
+                    <button
+                      key={`cover-${asset.id}`}
+                      type="button"
+                      onClick={() => {
+                        setCoverImageUrl(asset.url ?? "");
+                        setUploadMessage(`Set ${asset.originalFileName} as the cover image.`);
+                      }}
+                      className={asset.url === coverImageUrl
+                        ? "overflow-hidden rounded-[1.25rem] border-2 border-primary bg-primary/5 text-left"
+                        : "overflow-hidden rounded-[1.25rem] border border-outline-variant/20 bg-surface-container-low text-left"}
+                    >
+                      <img src={asset.url} alt={asset.altText || asset.originalFileName} className="h-28 w-full object-cover" />
+                      <div className="flex items-center justify-between gap-3 px-3 py-2">
+                        <span className="truncate text-xs font-semibold text-foreground/70">{asset.originalFileName}</span>
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
+                          {asset.url === coverImageUrl ? "Current" : "Set cover"}
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+              <div className="space-y-2">
+                <label htmlFor="coverImageUrl" className="text-sm font-semibold text-foreground/70">
+                  Cover Image URL
+                </label>
+                <input
+                  id="coverImageUrl"
+                  name="coverImageUrl"
+                  value={coverImageUrl}
+                  onChange={(event) => setCoverImageUrl(event.target.value)}
+                  placeholder="Paste a direct image URL if you are not using an uploaded file"
+                  className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none"
+                />
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -562,6 +641,20 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
                   <p className="text-xs text-foreground/50">
                     {asset.kind} - {asset.kind === "EMBED" ? (asset.embedUrl ?? "Embed URL") : `${Math.max(1, Math.round(asset.size / 1024))} KB`}
                   </p>
+                  {isUploadedImageAsset(asset) ? (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCoverImageUrl(asset.url ?? "");
+                          setUploadMessage(`Set ${asset.originalFileName} as the cover image.`);
+                        }}
+                        className="rounded-full bg-surface-container-low px-3 py-2 text-xs font-semibold text-primary"
+                      >
+                        {asset.url === coverImageUrl ? "Current Cover" : "Set as Cover"}
+                      </button>
+                    </div>
+                  ) : null}
                 </div>
               ))}
             </div>

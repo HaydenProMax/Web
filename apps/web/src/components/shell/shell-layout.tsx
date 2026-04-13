@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 import { signOutAction } from "@/app/sign-in/actions";
 import { getNavigationItems } from "@/lib/navigation";
-import { getSettingsSnapshot } from "@/server/settings/service";
+import { getSettingsSnapshot, getShellIdentity } from "@/server/settings/service";
 
 type ShellLayoutProps = {
   title: string;
@@ -12,24 +12,35 @@ type ShellLayoutProps = {
 };
 
 export async function ShellLayout({ title, description, children }: ShellLayoutProps) {
-  const [navigationItems, snapshot] = await Promise.all([
+  const [navigationItems, snapshot, identity] = await Promise.all([
     getNavigationItems(),
-    getSettingsSnapshot()
+    getSettingsSnapshot(),
+    getShellIdentity()
   ]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="flex min-h-screen">
         <aside className="hidden w-72 shrink-0 flex-col bg-surface-container px-6 py-8 md:flex">
-          <div className="mb-10 rounded-[2rem] border border-white/60 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.96),_rgba(246,238,222,0.9)_54%,_rgba(229,212,173,0.8)_100%)] px-5 py-5 shadow-ambient">
-            <div className="whitespace-nowrap font-headline leading-none">
-              <p className="text-[2rem] tracking-[-0.06em] text-foreground/80">Hayden Garden</p>
+          <Link href="/settings" className="group mb-10 rounded-[2rem] bg-surface-container-low px-5 py-5 shadow-ambient transition-transform hover:-translate-y-1">
+            <div className="flex items-center gap-4">
+              {identity.avatarUrl ? (
+                <img
+                  src={identity.avatarUrl}
+                  alt={identity.label}
+                  className="h-16 w-16 rounded-full object-cover shadow-ambient"
+                />
+              ) : (
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/85 text-xl font-semibold text-primary shadow-ambient">
+                  {identity.initials}
+                </div>
+              )}
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-primary/75">Account</p>
+                <p className="mt-2 truncate py-1 font-headline text-[1.8rem] leading-[1.08] tracking-[-0.05em] text-foreground transition-colors group-hover:text-primary">{identity.label}</p>
+              </div>
             </div>
-            <div className="mt-4 h-px w-14 bg-primary/18" />
-            <p className="mt-3 max-w-[14rem] font-headline text-[1.02rem] italic leading-7 tracking-[-0.01em] text-primary/88">
-              Tend the days, and the days will shape the garden.
-            </p>
-          </div>
+          </Link>
 
           <nav className="flex flex-1 flex-col gap-2">
             {navigationItems.map((item) => (
@@ -66,9 +77,14 @@ export async function ShellLayout({ title, description, children }: ShellLayoutP
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-10 border-b border-outline-variant/20 bg-background/90 px-6 py-4 backdrop-blur md:px-10">
             <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              <div>
+              <div className="flex min-w-0 items-center gap-6">
+                <div className="shrink-0">
                 <p className="text-xs uppercase tracking-[0.2em] text-primary">Sanctuary</p>
-                <h1 className="font-headline text-3xl text-foreground md:text-4xl">{title}</h1>
+                  <h1 className="font-headline text-3xl text-foreground md:text-4xl">{title}</h1>
+                </div>
+                <p className="hidden min-w-0 flex-1 truncate pt-3 text-base text-foreground/55 lg:block">
+                  {snapshot.preferences.workspaceMotto}
+                </p>
               </div>
               <div className="w-full max-w-xl">
                 <form action="/search" className="flex items-center gap-3 rounded-full bg-surface-container-low px-3 py-2 shadow-ambient">

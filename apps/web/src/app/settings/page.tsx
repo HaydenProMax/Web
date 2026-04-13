@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { SettingsSnapshot } from "@workspace/types/index";
 
 import { ModuleCard } from "@/components/shell/module-card";
+import { SettingsAvatarField } from "@/components/settings/settings-avatar-field";
 import { SystemPostureNav } from "@/components/shell/system-posture-nav";
 import { SystemPostureSnapshotCard } from "@/components/shell/system-posture-snapshot";
 import { toggleModuleEnabledAction, updateSettingsPreferencesAction } from "@/app/settings/actions";
@@ -159,63 +160,78 @@ export default async function SettingsPage({
 
       <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
         <ModuleCard
-          title="Profile & Appearance"
-          description="Name, theme, typography, locale, and time settings."
+          title="Personalize Your Workspace"
+          description="Choose how your workspace looks, feels, and speaks to you."
           eyebrow="User"
         >
           <form action={updateSettingsPreferencesAction} className="grid gap-4">
+            <SettingsAvatarField
+              initialAvatarUrl={snapshot.preferences.avatarUrl}
+              initialAvatarMediaId={snapshot.preferences.avatarMediaId}
+              displayName={snapshot.preferences.displayName}
+            />
             <label className="grid gap-2 text-sm text-foreground/70">
               Display Name
               <input name="displayName" defaultValue={snapshot.preferences.displayName} className="rounded-2xl bg-white px-4 py-3 text-sm text-foreground shadow-ambient outline-none" />
             </label>
+            <label className="grid gap-2 text-sm text-foreground/70">
+              Workspace Motto
+              <textarea
+                name="workspaceMotto"
+                defaultValue={snapshot.preferences.workspaceMotto}
+                rows={3}
+                className="rounded-2xl bg-white px-4 py-3 text-sm text-foreground shadow-ambient outline-none"
+                placeholder="A short line to greet you on the dashboard."
+              />
+            </label>
             <div className="grid gap-4 md:grid-cols-2">
               <label className="grid gap-2 text-sm text-foreground/70">
-                Theme
+                Color Theme
                 <select name="theme" defaultValue={snapshot.preferences.theme} className="rounded-2xl bg-white px-4 py-3 text-sm text-foreground shadow-ambient outline-none">
                   <option value="light">Light</option>
-                  <option value="mist">Mist</option>
-                  <option value="paper">Paper</option>
+                  <option value="mist">Soft Mist</option>
+                  <option value="paper">Warm Paper</option>
                 </select>
               </label>
               <label className="grid gap-2 text-sm text-foreground/70">
-                Accent
+                Accent Color
                 <select name="accentColor" defaultValue={snapshot.preferences.accentColor} className="rounded-2xl bg-white px-4 py-3 text-sm text-foreground shadow-ambient outline-none">
                   <option value="primary">Garden Gold</option>
-                  <option value="forest">Forest</option>
-                  <option value="ember">Ember</option>
+                  <option value="forest">Forest Green</option>
+                  <option value="ember">Ember Red</option>
                 </select>
               </label>
             </div>
             <div className="grid gap-4 md:grid-cols-3">
               <label className="grid gap-2 text-sm text-foreground/70">
-                Typography
+                Reading Style
                 <select name="typographyMode" defaultValue={snapshot.preferences.typographyMode} className="rounded-2xl bg-white px-4 py-3 text-sm text-foreground shadow-ambient outline-none">
-                  <option value="serif-focus">Serif Focus</option>
+                  <option value="serif-focus">Quiet Serif</option>
                   <option value="editorial">Editorial</option>
-                  <option value="compact">Compact</option>
+                  <option value="compact">Compact Sans</option>
                 </select>
               </label>
               <label className="grid gap-2 text-sm text-foreground/70">
-                Locale
+                Language & Region
                 <input name="locale" defaultValue={snapshot.preferences.locale} className="rounded-2xl bg-white px-4 py-3 text-sm text-foreground shadow-ambient outline-none" />
               </label>
               <label className="grid gap-2 text-sm text-foreground/70">
-                Timezone
+                Time Zone
                 <input name="timezone" defaultValue={snapshot.preferences.timezone} className="rounded-2xl bg-white px-4 py-3 text-sm text-foreground shadow-ambient outline-none" />
               </label>
             </div>
             <label className="grid gap-2 text-sm text-foreground/70">
-              Default Replay Lens
+              Default Focus View
               <select name="defaultActivityFocus" defaultValue={snapshot.preferences.defaultActivityFocus} className="rounded-2xl bg-white px-4 py-3 text-sm text-foreground shadow-ambient outline-none">
-                <option value="all">All Motion</option>
-                <option value="planner">Execution</option>
-                <option value="knowledge">Thinking</option>
-                <option value="writing">Publishing</option>
-                <option value="archive">History</option>
+                <option value="all">Everything</option>
+                <option value="planner">Tasks</option>
+                <option value="knowledge">Notes</option>
+                <option value="writing">Writing</option>
+                <option value="archive">Archive</option>
               </select>
             </label>
             <button type="submit" className="inline-flex w-fit rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white">
-              Save Preferences
+              Save Changes
             </button>
           </form>
         </ModuleCard>

@@ -261,6 +261,9 @@ export type SearchResults = {
 
 export type UserPreferenceSummary = {
   displayName: string;
+  workspaceMotto: string;
+  avatarMediaId?: string;
+  avatarUrl?: string;
   theme: string;
   accentColor: string;
   typographyMode: string;

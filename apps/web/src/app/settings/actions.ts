@@ -81,6 +81,7 @@ export async function updateSettingsPreferencesAction(formData: FormData) {
   const parsedTypographyMode = parseTypographyModeInput(formData.get("typographyMode")?.toString());
   const locale = formData.get("locale")?.toString().trim() ?? "";
   const timezone = formData.get("timezone")?.toString().trim() ?? "";
+  const workspaceMotto = formData.get("workspaceMotto")?.toString().trim() ?? "";
 
   if (!parsedDefaultFocus || !parsedTheme || !parsedAccentColor || !parsedTypographyMode || !locale || !timezone) {
     redirect("/settings?error=preferences-save-failed");
@@ -89,6 +90,8 @@ export async function updateSettingsPreferencesAction(formData: FormData) {
   try {
     await updateUserPreferences({
       displayName: formData.get("displayName")?.toString().trim() ?? "",
+      workspaceMotto,
+      avatarMediaId: formData.get("avatarMediaId")?.toString().trim() || undefined,
       theme: parsedTheme,
       accentColor: parsedAccentColor,
       typographyMode: parsedTypographyMode,
