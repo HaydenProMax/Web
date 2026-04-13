@@ -25,17 +25,17 @@ export default async function KnowledgeDetailPage({
   return (
     <ShellLayout
       title={note.title}
-      description="Knowledge notes are designed as reusable, structured entries that can later support backlinks, domain navigation, archive integration, and now writing handoff."
+      description="A structured note with linked writing and reuse across the workspace."
     >
       {resolvedSearchParams?.created === "1" ? (
         <section className="rounded-[2rem] bg-primary-container/40 px-6 py-4 text-sm text-primary shadow-ambient">
-          Note created successfully. It is now part of the live Knowledge library.
+          Note created successfully.
         </section>
       ) : null}
 
       {resolvedSearchParams?.saved === "1" ? (
         <section className="rounded-[2rem] bg-primary-container/40 px-6 py-4 text-sm text-primary shadow-ambient">
-          Note saved successfully. The latest changes are now reflected in the knowledge library.
+          Note saved successfully.
         </section>
       ) : resolvedSearchParams?.restored === "1" ? (
         <section className="rounded-[2rem] bg-primary-container/40 px-6 py-4 text-sm text-primary shadow-ambient">
@@ -49,7 +49,7 @@ export default async function KnowledgeDetailPage({
 
       {note.isArchived ? (
         <section className="rounded-[2rem] bg-secondary-container/40 px-6 py-4 text-sm text-foreground shadow-ambient">
-          This note is archived. Restore it before creating new linked work from it.
+          This note is archived. Restore it to use it again.
         </section>
       ) : null}
 
@@ -63,13 +63,13 @@ export default async function KnowledgeDetailPage({
           {!note.isArchived ? (
             <>
               <Link href={`/writing/new?sourceNote=${note.slug}`} className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-primary shadow-ambient">
-                Start Draft from Note
+                New Draft
               </Link>
               <Link href={`/planner/new?note=${note.slug}`} className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-primary shadow-ambient">
-                Create Task from Note
+                New Task
               </Link>
               <Link href="/archive" className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-primary shadow-ambient">
-                View Archive
+                Archive
               </Link>
               <form action={archiveKnowledgeNoteAction.bind(null, note.slug)}>
                 <button type="submit" className="rounded-full bg-rose-600 px-5 py-2 text-sm font-semibold text-white shadow-ambient">
@@ -114,11 +114,11 @@ export default async function KnowledgeDetailPage({
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-primary">Writing Links</p>
-            <h2 className="mt-3 font-headline text-2xl text-foreground">Related drafts and articles</h2>
+            <h2 className="mt-3 font-headline text-2xl text-foreground">Related writing</h2>
           </div>
 {!note.isArchived ? (
           <Link href={`/writing/new?sourceNote=${note.slug}`} className="text-sm font-semibold text-primary">
-            Create from note
+            New draft
           </Link>
         ) : null}
         </div>
@@ -138,14 +138,14 @@ export default async function KnowledgeDetailPage({
           </div>
         ) : (
           <p className="mt-6 text-sm leading-6 text-foreground/70">
-            No writing has been linked to this note yet. Start a draft from this note to turn the idea into a longer piece.
+            No related writing yet.
           </p>
         )}
       </section>
 
       <div className="flex items-center gap-4">
         <Link href="/knowledge" className="text-sm font-semibold text-primary">Back to knowledge</Link>
-        <Link href="/knowledge/new" className="text-sm font-semibold text-primary">Create another note</Link>
+        <Link href="/knowledge/new" className="text-sm font-semibold text-primary">New note</Link>
       </div>
     </ShellLayout>
   );

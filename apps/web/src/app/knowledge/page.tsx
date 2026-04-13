@@ -68,7 +68,7 @@ export default async function KnowledgePage({
   return (
     <ShellLayout
       title="Knowledge"
-      description="Knowledge now supports structured notes with domains, tags, and reading pages, giving the workstation a second durable content surface beyond Writing."
+      description="Browse notes by domain and tag, then jump back into the ones worth expanding."
     >
       {resolvedSearchParams?.created === "1" ? (
         <section className="rounded-[2rem] bg-primary-container/40 px-6 py-4 text-sm text-primary shadow-ambient">
@@ -147,8 +147,8 @@ export default async function KnowledgePage({
 
       <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
         <p className="text-xs uppercase tracking-[0.2em] text-primary">Replay Context</p>
-        <h2 className="mt-3 font-headline text-3xl text-foreground">Knowledge can hand off to your current replay lens</h2>
-        <p className="mt-3 text-sm leading-6 text-foreground/70">The workstation currently treats {activityReentry.label} as your active re-entry mode. Use it when you want to step back out of the note library and resume the broader flow.</p>
+        <h2 className="mt-3 font-headline text-3xl text-foreground">Resume your current flow</h2>
+        <p className="mt-3 text-sm leading-6 text-foreground/70">Your current focus is {activityReentry.label}. Jump back when you want to leave the library and continue there.</p>
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <Link href={activityReentry.nextStep.href} className="rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-ambient">
             {activityReentry.nextStep.label}
@@ -168,7 +168,7 @@ export default async function KnowledgePage({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-primary">Recent Touches</p>
-            <h2 className="mt-3 font-headline text-3xl text-foreground">{archivedView ? "Recently archived notes" : "A quick re-entry stream for recently edited notes"}</h2>
+            <h2 className="mt-3 font-headline text-3xl text-foreground">{archivedView ? "Recently archived notes" : "Recently updated notes"}</h2>
           </div>
           <span className="text-sm text-foreground/50">{noteTouches.length} {archivedView ? "archived notes" : "visible note updates"}</span>
         </div>
@@ -180,7 +180,7 @@ export default async function KnowledgePage({
                 <p className="text-xs text-foreground/50">{formatTouchTime(note.updatedAt)}</p>
               </div>
               <h3 className="mt-3 font-headline text-2xl text-foreground">{note.title}</h3>
-              <p className="mt-3 text-sm leading-6 text-foreground/70">{note.summary || (archivedView ? "Archived note ready to restore." : "Note updated and ready to revisit.")}</p>
+              <p className="mt-3 text-sm leading-6 text-foreground/70">{note.summary || (archivedView ? "Ready to restore." : "Updated and ready to revisit.")}</p>
               {!archivedView ? (
                 <Link href={`/knowledge/${note.slug}`} className="mt-4 inline-flex text-sm font-semibold text-primary">
                   Re-open note
@@ -223,7 +223,7 @@ export default async function KnowledgePage({
                 </Link>
               ) : null}
               {!hasActiveFilter ? (
-                <span className="rounded-full bg-white/80 px-4 py-2 text-sm text-foreground/60">Browsing all {archivedView ? "archived" : "live"} notes</span>
+                <span className="rounded-full bg-white/80 px-4 py-2 text-sm text-foreground/60">All {archivedView ? "archived" : "live"} notes</span>
               ) : null}
             </div>
           </div>
@@ -305,12 +305,12 @@ export default async function KnowledgePage({
                     {!archivedView ? (
                       <>
                         <Link href={`/knowledge/${note.slug}`} className="inline-flex text-sm font-semibold text-primary">
-                          Open note
+                          Open
                         </Link>
                         <form action={archiveKnowledgeNoteFromListAction}>
                           <input type="hidden" name="slug" value={note.slug} />
                           <button type="submit" className="rounded-full bg-rose-600 px-4 py-2 text-sm font-semibold text-white shadow-ambient">
-                            Archive Note
+                            Archive
                           </button>
                         </form>
                       </>
@@ -319,14 +319,14 @@ export default async function KnowledgePage({
                         <form action={restoreKnowledgeNoteFromListAction}>
                           <input type="hidden" name="slug" value={note.slug} />
                           <button type="submit" className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-ambient">
-                            Restore Note
+                            Restore
                           </button>
                         </form>
                         <Link href={`/knowledge/${note.slug}`} className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-primary shadow-ambient">
-                          Open Note
+                          Open
                         </Link>
                         <Link href={buildKnowledgeFilterHref({ view: "archived", domain: activeFilters.domain, tag: activeFilters.tag }) + `&confirmDelete=${note.slug}`} className="rounded-full bg-rose-700 px-4 py-2 text-sm font-semibold text-white shadow-ambient">
-                          Delete Permanently
+                          Delete
                         </Link>
                       </>
                     )}
@@ -336,7 +336,7 @@ export default async function KnowledgePage({
             </div>
           ) : (
             <div className="rounded-[2rem] bg-surface-container-low p-6 text-sm text-foreground/60 shadow-ambient">
-              {hasActiveFilter ? "No notes match the current filters yet." : archivedView ? "No archived notes yet." : "No live notes yet. Create a note to start shaping the library and dashboard."}
+              {hasActiveFilter ? "No notes match the current filters yet." : archivedView ? "No archived notes yet." : "No live notes yet."}
             </div>
           )}
         </div>

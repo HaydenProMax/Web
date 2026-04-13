@@ -32,11 +32,11 @@ export default async function NewKnowledgeNotePage({
   return (
     <ShellLayout
       title="New Note"
-      description="Capture a structured note with enough shape for domains, tags, linked writing, and later re-entry."
+      description="Capture a note with blocks, tags, and live preview."
     >
       {resolvedSearchParams?.error === "invalid-content-json" ? (
         <section className="rounded-[2rem] bg-rose-100 px-6 py-4 text-sm text-rose-700 shadow-ambient">
-          The content JSON could not be parsed. Please fix the JSON structure and try again.
+          The note content could not be prepared. Please try again.
         </section>
       ) : null}
 

@@ -24,11 +24,11 @@ export default async function EditKnowledgeNotePage({
   return (
     <ShellLayout
       title={`Edit ${note.title}`}
-      description="Knowledge editing uses the same structured note model as creation, so changes stay inside the module while preserving domains, tags, and reading flow."
+      description="Update the note and preview the final reading view as you edit."
     >
       {resolvedSearchParams?.error === "invalid-content-json" ? (
         <section className="rounded-[2rem] bg-rose-100 px-6 py-4 text-sm text-rose-700 shadow-ambient">
-          The content JSON could not be parsed. Please fix the JSON structure and try again.
+          The note content could not be prepared. Please try again.
         </section>
       ) : null}
 
