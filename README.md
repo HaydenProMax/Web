@@ -4,9 +4,9 @@ Single-user modular workstation for planning, knowledge capture, writing, publis
 
 ## Version Status
 
-- Historical milestone: `V6.1.0` was the earlier sealed workstation baseline.
-- Current stable release line: `V8.0.1`.
-- Current working line: `V8.1` planner and todo UX polish.
+- Historical sealed baseline: `V6.1.0`.
+- Current stable release line: `V9.0.0`.
+- Current focus after release: production hardening and the next round of UX polish.
 
 Current live scope includes:
 
@@ -14,17 +14,17 @@ Current live scope includes:
 - planner todo workspace with Today / Upcoming / Done
 - task quick add, edit, done, reopen, archive, and delete flows
 - lightweight focus filters: All / High / Doing
-- knowledge notes with domains and tags
-- writing drafts, Markdown block support, publishing, and article delete flow
+- knowledge notes with document-style editing, Markdown-first authoring, and Mermaid preview
+- writing drafts, Markdown block support, cover selection, publishing, and article delete flow
 - archive records and replay surfaces
 - global search and command center
-- settings, module toggles, and Linux production deployment support
+- settings, profile/avatar editing, and Linux production deployment support
 
 What this means in practice:
 
-- `V6.1.0` is no longer the current release description
-- `V8.0.1` is the latest tagged stable line in git
-- current production work can focus on regression coverage, UX polish, stability, search, and cross-module refinement
+- `V6.1.0` remains the historical sealed baseline
+- `V9.0.0` is the latest tagged stable line in git
+- current production work can focus on regression coverage, stability, search, backup posture, and cross-module refinement
 
 ## Current Product Shape
 
@@ -75,6 +75,12 @@ It is not positioned as:
    - `pnpm db:seed`
 6. Start the app:
    - `pnpm dev`
+
+WSL recommendation:
+
+- use Node.js `22.x`
+- run the workspace from `/mnt/d/HaydenWeb`
+- if Prisma schema changed, run `pnpm db:generate` before `pnpm dev`
 
 Default seeded workspace account:
 

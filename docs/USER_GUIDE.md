@@ -376,20 +376,21 @@
 当前项目状态是：
 
 - 历史封版基线：`V6.1.0`
-- 当前稳定发布线：`V8.0.1`
-- 当前工作线：`V8.1`，主要继续打磨 Planner / Todo 体验
+- 当前稳定发布线：`V9.0.0`
+- 当前版本重点：Knowledge 编辑体验、Writing 封面选择、Settings 个人资料能力
 - 单人私有工作站
 - Web 桌面优先
 - 核心工作流已经可用，并已上线 Linux 生产环境
 
 目前已经稳定可用的核心能力包括：
 
-- Knowledge 笔记记录与整理
-- Writing 草稿、Markdown 块、发布、正式文章删除
+- Knowledge 文档式编辑、Markdown 优先、Mermaid 预览、笔记记录与整理
+- Writing 草稿、Markdown 块、封面图选择、发布、正式文章删除
 - Planner / Todo 的新建、编辑、完成、重开、归档、删除
 - Today / Upcoming / Done 任务视图
 - 轻量筛选：All / High / Doing
 - Search / Archive / Settings 基础工作流
+- Settings 中头像、显示名、工作台短句可配置
 
 当前最适合把它当成：
 

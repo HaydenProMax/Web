@@ -3,8 +3,8 @@
 ## Release Line
 
 - Historical sealed baseline: `V6.1.0`
-- Latest tagged stable release: `V8.0.1`
-- Current working line: `V8.1`
+- Latest tagged stable release: `V9.0.0`
+- Current post-release posture: stabilize production, keep UX light, and prepare the next iteration
 
 ## Current Product State
 
@@ -19,13 +19,14 @@ Core modules in regular use:
 - Search
 - Settings
 
-## Delivered Since V6.1
+## Delivered Through V9.0.0
 
 ### Writing
 
 - draft archive / restore support
 - published article delete flow
 - Markdown block support in the editor and preview
+- better cover-image selection from uploaded media
 - writing list cleanup and lighter overview cards
 - draft and article management aligned with the published flow
 
@@ -41,6 +42,20 @@ Core modules in regular use:
 - focus filters: All / High / Doing
 - simplified task card hierarchy and lighter completed-task presentation
 
+### Knowledge
+
+- knowledge list/detail/new/edit pages redesigned for a calmer document flow
+- note editor is now Markdown-first instead of small-card first
+- document-style editing replaces the earlier cramped block editing experience
+- right-side preview is shorter and easier to scan
+- fenced Mermaid blocks now render inline in preview
+
+### Settings / Shell
+
+- sidebar brand and identity flow refined around Hayden Garden
+- profile editing now supports avatar upload and display-name updates
+- workspace motto remains configurable and visible in the shell
+
 ### Product / Shell
 
 - shell brand updated to Hayden Garden
@@ -53,6 +68,7 @@ Core modules in regular use:
 - end-to-end note -> draft -> publish flow is usable
 - todo flow is practical for daily personal use
 - Linux production deployment is running
+- knowledge authoring is now much closer to real daily use
 - the app now behaves like a real personal workstation rather than a prototype
 
 ## Current Priority Areas

@@ -2,13 +2,13 @@
 
 ## Current Release Status
 
-As of 2026-04-11, the current single-user desktop web release line is defined as V6.1 sealed.
+As of 2026-04-15, the current single-user desktop web stable release line is `V9.0.0`.
 
 From this point forward:
 
-- V6.1 is the frozen baseline
-- further work should default to a new release line unless it is required to preserve V6.1 stability
-- V6.1 changes should focus on regression repair, release clarity, and deployment hardening
+- `V6.1.0` remains the frozen historical baseline
+- `V9.0.0` is the latest stable tag
+- current work should focus on production stability, UX polish, and selective next-version expansion rather than rebuilding core module scope
 
 ## Quick Re-entry
 
@@ -18,6 +18,14 @@ For a concise archived snapshot of the current architecture, module design, impl
 - `docs/V2_CHINESE_UI_TRACKING.md` for the current Chinese UI adaptation checklist
 
 Use this overview file as the detailed rolling log after reading the snapshot.
+
+## Current Stable Highlights
+
+- Planner now supports a practical personal todo loop with Today / Upcoming / Done, quick actions, archive, and delete flows.
+- Writing supports draft authoring, publishing, article management, Markdown blocks, and friendlier cover-image selection.
+- Knowledge now uses a calmer document-style editing experience with Markdown-first authoring and inline Mermaid preview.
+- Settings and shell identity now support avatar, display name, and workspace-level personalization.
+- Linux production deployment has already been exercised as the real runtime path.
 
 
 ## Goal

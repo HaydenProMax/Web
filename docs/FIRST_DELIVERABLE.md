@@ -1,12 +1,12 @@
 ﻿# First Deliverable
 
-## Historical V1 Seal Status
+## Historical Deliverable Status
 
-V1 is sealed as the historical first deliverable.
+The original first deliverable is sealed as historical scope.
 
-It is no longer the current release line. The active stable baseline is now V8.0.1, with V8.1 currently used for planner and todo UX refinement.
+It is no longer the current release line. The active stable release is now `V9.0.0`.
 
-This means the first deliverable is now treated as feature-complete for the single-user desktop web goal, and no further feature work should be added to V1 unless it is required to preserve historical stability or close a release-blocking defect.
+This means the first deliverable is treated as complete for the original single-user desktop web goal, while later versions extend the product with better planner UX, stronger writing flows, profile controls, and a redesigned knowledge editor.
 
 ## Definition
 
@@ -136,8 +136,8 @@ The remaining work is release hygiene:
 
 From this point forward:
 
-- V1 remains the frozen baseline
-- bug fixes and regression fixes may still be applied to V1
-- new feature depth should default to Phase 2
+- the first deliverable remains a historical milestone
+- later feature work belongs to the active release line instead of the original deliverable
+- the current stable line is `V9.0.0`
 
 
