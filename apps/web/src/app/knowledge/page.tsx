@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { archiveKnowledgeNoteFromListAction, deleteArchivedKnowledgeNoteFromListAction, restoreKnowledgeNoteFromListAction } from "@/app/knowledge/new/actions";
-import { ModuleCard } from "@/components/shell/module-card";
 import { ShellLayout } from "@/components/shell/shell-layout";
 import { getPreferredActivityReentry } from "@/server/activity/preferences";
 import { getKnowledgeLibrarySummary, listKnowledgeNotes } from "@/server/knowledge/service";
@@ -68,7 +67,7 @@ export default async function KnowledgePage({
   return (
     <ShellLayout
       title="Knowledge"
-      description="Browse notes by domain and tag, then jump back into the ones worth expanding."
+      description=""
     >
       {resolvedSearchParams?.created === "1" ? (
         <section className="rounded-[2rem] bg-primary-container/40 px-6 py-4 text-sm text-primary shadow-ambient">
@@ -108,21 +107,6 @@ export default async function KnowledgePage({
         </section>
       ) : null}
 
-      <div className="flex flex-wrap items-center justify-end gap-3">
-        <Link href={archivedView ? "/knowledge" : "/knowledge?view=archived"} className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-primary shadow-ambient">
-          {archivedView ? "View Live Notes" : `View Archived Notes (${library.overview.archivedCount})`}
-        </Link>
-        <Link href={activityReentry.href} className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-primary shadow-ambient">
-          Resume {activityReentry.label} Lens
-        </Link>
-        {!archivedView ? (
-          <Link href="/knowledge/new" className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white">
-            New Note
-          </Link>
-        ) : null}
-      </div>
-
-
       {notePendingDelete ? (
         <section className="rounded-[2rem] border border-rose-200 bg-rose-50 p-6 shadow-ambient">
           <p className="text-xs uppercase tracking-[0.2em] text-rose-700">Delete Confirmation</p>
@@ -145,200 +129,276 @@ export default async function KnowledgePage({
         </section>
       ) : null}
 
-      <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
-        <p className="text-xs uppercase tracking-[0.2em] text-primary">Replay Context</p>
-        <h2 className="mt-3 font-headline text-3xl text-foreground">Resume your current flow</h2>
-        <p className="mt-3 text-sm leading-6 text-foreground/70">Your current focus is {activityReentry.label}. Jump back when you want to leave the library and continue there.</p>
-        <div className="mt-5 flex flex-wrap items-center gap-3">
-          <Link href={activityReentry.nextStep.href} className="rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-ambient">
-            {activityReentry.nextStep.label}
-          </Link>
-          <p className="text-sm leading-6 text-foreground/60">{activityReentry.nextStep.description}</p>
-        </div>
-      </section>
-
-      <section className="grid gap-6 lg:grid-cols-4">
-        <ModuleCard title={archivedView ? "Archived Notes" : "Notes"} description={archivedView ? `${library.overview.noteCount} archived notes are available for restore.` : `${library.overview.noteCount} live notes are in the current knowledge view.`} eyebrow="Core" />
-        <ModuleCard title="Domains" description={`${library.overview.domainCount} active domains are organizing the current thought spaces.`} eyebrow="Taxonomy" />
-        <ModuleCard title="Tags" description={`${library.overview.tagCount} reusable tags are ready for future linking and filtering.`} eyebrow="Metadata" />
-        <ModuleCard title="Archive Pool" description={`${library.overview.archivedCount} total notes are currently archived.`} eyebrow="State" />
-      </section>
-
-      <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-primary">Recent Touches</p>
-            <h2 className="mt-3 font-headline text-3xl text-foreground">{archivedView ? "Recently archived notes" : "Recently updated notes"}</h2>
+      <section className="rounded-[3rem] bg-[linear-gradient(180deg,rgba(255,255,255,0.32),rgba(245,243,239,0.76))] px-8 py-10 shadow-ambient md:px-12">
+        <div className="flex flex-col gap-8 xl:flex-row xl:items-start xl:justify-between">
+          <div className="max-w-4xl">
+            <h2 className="font-headline text-6xl leading-none tracking-[-0.05em] text-foreground md:text-7xl">
+              {archivedView ? "Archived Notes" : "The Index"}
+            </h2>
           </div>
-          <span className="text-sm text-foreground/50">{noteTouches.length} {archivedView ? "archived notes" : "visible note updates"}</span>
-        </div>
-        <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {noteTouches.length > 0 ? noteTouches.map((note) => (
-            <article key={note.id} className="rounded-[1.5rem] bg-white/80 p-5 shadow-ambient">
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-xs uppercase tracking-[0.2em] text-primary">{note.domainName ?? "Knowledge"}</p>
-                <p className="text-xs text-foreground/50">{formatTouchTime(note.updatedAt)}</p>
-              </div>
-              <h3 className="mt-3 font-headline text-2xl text-foreground">{note.title}</h3>
-              <p className="mt-3 text-sm leading-6 text-foreground/70">{note.summary || (archivedView ? "Ready to restore." : "Updated and ready to revisit.")}</p>
-              {!archivedView ? (
-                <Link href={`/knowledge/${note.slug}`} className="mt-4 inline-flex text-sm font-semibold text-primary">
-                  Re-open note
-                </Link>
-              ) : (
-                <form action={restoreKnowledgeNoteFromListAction} className="mt-4">
-                  <input type="hidden" name="slug" value={note.slug} />
-                  <button type="submit" className="inline-flex text-sm font-semibold text-primary">
-                    Restore note
-                  </button>
-                </form>
-              )}
-            </article>
-          )) : (
-            <div className="rounded-[1.5rem] bg-white/80 p-4 text-sm text-foreground/60">
-              {archivedView ? "No archived notes yet." : "No recent note activity yet. As notes are created or revised, they will appear here for quick re-entry."}
-            </div>
-          )}
+
+          <div className="flex flex-wrap items-center gap-3 xl:justify-end">
+            <Link href={archivedView ? "/knowledge" : "/knowledge?view=archived"} className="rounded-full bg-white/85 px-5 py-3 text-sm font-semibold text-primary shadow-ambient">
+              {archivedView ? "View Live Notes" : `Archived (${library.overview.archivedCount})`}
+            </Link>
+            <Link href={activityReentry.href} className="rounded-full bg-white/85 px-5 py-3 text-sm font-semibold text-primary shadow-ambient">
+              Resume {activityReentry.label}
+            </Link>
+            {!archivedView ? (
+              <Link href="/knowledge/new" className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white">
+                New Note
+              </Link>
+            ) : null}
+          </div>
         </div>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
-        <div className="space-y-6">
-          <div className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
+      <section className="grid gap-8 xl:grid-cols-[280px_minmax(0,1fr)]">
+        <aside className="space-y-6 rounded-[2.5rem] bg-surface-container-low px-6 py-8 shadow-ambient xl:sticky xl:top-28 xl:self-start">
+          <div>
+            <p className="text-xs uppercase tracking-[0.2em] text-secondary">Library</p>
+            <p className="mt-1 text-[11px] text-foreground/45">Browse by status and taxonomy.</p>
+          </div>
+
+          <nav className="space-y-2">
+            <Link
+              href="/knowledge"
+              className={archivedView
+                ? "flex items-center justify-between rounded-full px-4 py-3 text-sm text-foreground/55 transition-colors hover:bg-white/70 hover:text-primary"
+                : "flex items-center justify-between rounded-full bg-white px-4 py-3 text-sm font-semibold text-primary shadow-ambient"}
+            >
+              <span>Live Notes</span>
+              <span>{baseLibrary.overview.noteCount - (archivedView ? library.overview.noteCount : 0)}</span>
+            </Link>
+            <Link
+              href="/knowledge?view=archived"
+              className={archivedView
+                ? "flex items-center justify-between rounded-full bg-white px-4 py-3 text-sm font-semibold text-primary shadow-ambient"
+                : "flex items-center justify-between rounded-full px-4 py-3 text-sm text-foreground/55 transition-colors hover:bg-white/70 hover:text-primary"}
+            >
+              <span>Archived</span>
+              <span>{baseLibrary.overview.archivedCount}</span>
+            </Link>
+          </nav>
+
+          <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="font-headline text-2xl text-foreground">Active Filters</h2>
+              <p className="text-xs uppercase tracking-[0.2em] text-secondary">Filters</p>
               {hasActiveFilter ? (
-                <Link href={archivedView ? "/knowledge?view=archived" : "/knowledge"} className="text-sm font-semibold text-primary">Clear all</Link>
+                <Link href={archivedView ? "/knowledge?view=archived" : "/knowledge"} className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+                  Clear
+                </Link>
               ) : null}
             </div>
-            <div className="mt-4 flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2">
               {activeFilters.domain ? (
-                <Link href={buildKnowledgeFilterHref({ view: archivedView ? "archived" : undefined, tag: activeFilters.tag })} className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white">
-                  Domain: {activeDomainLabel}
+                <Link href={buildKnowledgeFilterHref({ view: archivedView ? "archived" : undefined, tag: activeFilters.tag })} className="rounded-full bg-primary px-4 py-2 text-xs font-semibold text-white">
+                  {activeDomainLabel}
                 </Link>
               ) : null}
               {activeFilters.tag ? (
-                <Link href={buildKnowledgeFilterHref({ view: archivedView ? "archived" : undefined, domain: activeFilters.domain })} className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white">
-                  Tag: {activeTagLabel}
+                <Link href={buildKnowledgeFilterHref({ view: archivedView ? "archived" : undefined, domain: activeFilters.domain })} className="rounded-full bg-primary px-4 py-2 text-xs font-semibold text-white">
+                  {activeTagLabel}
                 </Link>
               ) : null}
               {!hasActiveFilter ? (
-                <span className="rounded-full bg-white/80 px-4 py-2 text-sm text-foreground/60">All {archivedView ? "archived" : "live"} notes</span>
+                <span className="rounded-full bg-white/80 px-4 py-2 text-xs text-foreground/55">All notes</span>
               ) : null}
             </div>
           </div>
 
-          <div className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
-            <h2 className="font-headline text-2xl text-foreground">Domains</h2>
-            <div className="mt-4 flex flex-wrap gap-3">
+          <div className="space-y-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-secondary">Domains</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
               {library.domains.length > 0 ? library.domains.map((domain) => {
                 const isActive = activeFilters.domain === domain.slug;
                 return (
                   <Link
                     key={domain.slug}
                     href={buildKnowledgeFilterHref({ view: archivedView ? "archived" : undefined, domain: isActive ? undefined : domain.slug, tag: activeFilters.tag })}
-                    className={`rounded-full px-4 py-2 text-sm font-semibold ${isActive ? "bg-primary text-white" : "bg-white/80 text-primary"}`}
+                    className={isActive
+                      ? "rounded-full bg-primary px-4 py-2 text-xs font-semibold text-white"
+                      : "rounded-full bg-white/80 px-4 py-2 text-xs font-semibold text-primary"}
                   >
                     {domain.label} ({domain.count})
                   </Link>
                 );
               }) : (
-                <p className="text-sm text-foreground/60">No domains yet.</p>
+                <p className="text-sm text-foreground/50">No domains yet.</p>
               )}
             </div>
           </div>
 
-          <div className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
-            <h2 className="font-headline text-2xl text-foreground">Tags</h2>
-            <div className="mt-4 flex flex-wrap gap-3">
+          <div className="space-y-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-secondary">Tags</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
               {library.tags.length > 0 ? library.tags.map((tag) => {
                 const isActive = activeFilters.tag === tag.slug;
                 return (
                   <Link
                     key={tag.slug}
                     href={buildKnowledgeFilterHref({ view: archivedView ? "archived" : undefined, domain: activeFilters.domain, tag: isActive ? undefined : tag.slug })}
-                    className={`rounded-full px-4 py-2 text-sm font-semibold ${isActive ? "bg-primary text-white" : "bg-white/80 text-primary"}`}
+                    className={isActive
+                      ? "rounded-full bg-primary px-4 py-2 text-xs font-semibold text-white"
+                      : "rounded-full bg-white/80 px-4 py-2 text-xs font-semibold text-primary"}
                   >
                     {tag.label} ({tag.count})
                   </Link>
                 );
               }) : (
-                <p className="text-sm text-foreground/60">No tags yet.</p>
+                <p className="text-sm text-foreground/50">No tags yet.</p>
               )}
             </div>
           </div>
-        </div>
 
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="font-headline text-3xl">{archivedView ? "Archived Notes" : "Recent Notes"}</h2>
-            <span className="text-sm text-foreground/50">Showing {notes.length} of {archivedView ? library.overview.archivedCount : library.overview.noteCount} {archivedView ? "archived notes" : "live notes"}</span>
-          </div>
+          {!archivedView ? (
+            <Link href="/knowledge/new" className="inline-flex w-full items-center justify-center rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white">
+              New Note
+            </Link>
+          ) : null}
+        </aside>
 
-          {notes.length > 0 ? (
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-2">
-              {notes.map((note) => (
-                <article key={note.id} className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
-                  <div className="flex flex-wrap gap-2 text-xs uppercase tracking-[0.2em] text-primary">
-                    {note.domainName ? (
-                      note.domainSlug ? (
-                        <Link href={buildKnowledgeFilterHref({ view: archivedView ? "archived" : undefined, domain: note.domainSlug, tag: activeFilters.tag })}>
-                          {note.domainName}
-                        </Link>
-                      ) : <span>{note.domainName}</span>
-                    ) : null}
-                    <span>{note.contentBlockCount} blocks</span>
+        <div className="space-y-10">
+          <section className="rounded-[2.5rem] bg-surface-container-low p-8 shadow-ambient">
+            <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] text-primary">Recent Touches</p>
+                <h2 className="mt-3 font-headline text-4xl tracking-[-0.03em] text-foreground">
+                  {archivedView ? "Recently archived" : "Recently updated"}
+                </h2>
+              </div>
+              <p className="text-sm text-foreground/50">{noteTouches.length} visible notes</p>
+            </div>
+
+            <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+              {noteTouches.length > 0 ? noteTouches.map((note) => (
+                <article key={note.id} className="rounded-[2rem] bg-surface-container-lowest p-6 shadow-ambient transition-colors hover:bg-white">
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="rounded-full bg-surface-container-low px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-secondary">
+                      {note.domainName ?? "Knowledge"}
+                    </span>
+                    <time className="text-[11px] text-foreground/45">{formatTouchTime(note.updatedAt)}</time>
                   </div>
-                  <h3 className="mt-3 font-headline text-2xl text-foreground">{note.title}</h3>
-                  <p className="mt-3 text-sm leading-6 text-foreground/70">{note.summary || "No summary yet."}</p>
-                  {note.tagLinks.length > 0 ? (
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {note.tagLinks.map((tag) => (
-                        <Link key={tag.slug} href={buildKnowledgeFilterHref({ view: archivedView ? "archived" : undefined, domain: activeFilters.domain, tag: tag.slug })} className="rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-primary">
-                          {tag.label}
-                        </Link>
-                      ))}
-                    </div>
-                  ) : null}
-                  <p className="mt-4 text-xs text-foreground/50">Updated {new Date(note.updatedAt).toLocaleString("zh-CN")}</p>
-                  <div className="mt-4 flex flex-wrap items-center gap-3">
-                    {!archivedView ? (
-                      <>
-                        <Link href={`/knowledge/${note.slug}`} className="inline-flex text-sm font-semibold text-primary">
-                          Open
-                        </Link>
-                        <form action={archiveKnowledgeNoteFromListAction}>
-                          <input type="hidden" name="slug" value={note.slug} />
-                          <button type="submit" className="rounded-full bg-rose-600 px-4 py-2 text-sm font-semibold text-white shadow-ambient">
-                            Archive
-                          </button>
-                        </form>
-                      </>
-                    ) : (
-                      <>
-                        <form action={restoreKnowledgeNoteFromListAction}>
-                          <input type="hidden" name="slug" value={note.slug} />
-                          <button type="submit" className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-ambient">
-                            Restore
-                          </button>
-                        </form>
-                        <Link href={`/knowledge/${note.slug}`} className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-primary shadow-ambient">
-                          Open
-                        </Link>
-                        <Link href={buildKnowledgeFilterHref({ view: "archived", domain: activeFilters.domain, tag: activeFilters.tag }) + `&confirmDelete=${note.slug}`} className="rounded-full bg-rose-700 px-4 py-2 text-sm font-semibold text-white shadow-ambient">
-                          Delete
-                        </Link>
-                      </>
-                    )}
-                  </div>
+                  <h3 className="mt-5 font-headline text-[2rem] leading-tight tracking-[-0.03em] text-foreground">{note.title}</h3>
+                  <p className="mt-4 text-sm leading-7 text-foreground/65">
+                    {note.summary || (archivedView ? "Ready to restore." : "Updated and ready to revisit.")}
+                  </p>
+                  {!archivedView ? (
+                    <Link href={`/knowledge/${note.slug}`} className="mt-6 inline-flex text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                      Open Note
+                    </Link>
+                  ) : (
+                    <form action={restoreKnowledgeNoteFromListAction} className="mt-6">
+                      <input type="hidden" name="slug" value={note.slug} />
+                      <button type="submit" className="inline-flex text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                        Restore
+                      </button>
+                    </form>
+                  )}
                 </article>
-              ))}
+              )) : (
+                <div className="rounded-[2rem] bg-surface-container-lowest p-6 text-sm text-foreground/60 shadow-ambient">
+                  {archivedView ? "No archived notes yet." : "No recent note activity yet."}
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="rounded-[2rem] bg-surface-container-low p-6 text-sm text-foreground/60 shadow-ambient">
-              {hasActiveFilter ? "No notes match the current filters yet." : archivedView ? "No archived notes yet." : "No live notes yet."}
+          </section>
+
+          <section className="space-y-6">
+            <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] text-primary">Library View</p>
+                <h2 className="mt-3 font-headline text-5xl tracking-[-0.04em] text-foreground">
+                  {archivedView ? "Archived Collection" : "Curated Notes"}
+                </h2>
+              </div>
+              <p className="text-sm text-foreground/50">
+                Showing {notes.length} of {archivedView ? library.overview.archivedCount : library.overview.noteCount}
+              </p>
             </div>
-          )}
+
+            {notes.length > 0 ? (
+              <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
+                {notes.map((note, index) => (
+                  <article
+                    key={note.id}
+                    className={index % 5 === 3
+                      ? "md:col-span-2 rounded-[2.2rem] bg-surface-container-lowest p-8 shadow-ambient transition-colors hover:bg-white"
+                      : "rounded-[2.2rem] bg-surface-container-lowest p-8 shadow-ambient transition-colors hover:bg-white"}
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <span className="rounded-full bg-surface-container-low px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-secondary">
+                        {note.domainName ?? "Knowledge"}
+                      </span>
+                      <time className="text-[11px] text-foreground/45">
+                        {new Date(note.updatedAt).toLocaleDateString("zh-CN")}
+                      </time>
+                    </div>
+
+                    <h3 className="mt-6 font-headline text-[2.35rem] leading-[1.02] tracking-[-0.04em] text-foreground">
+                      {note.title}
+                    </h3>
+                    <p className="mt-5 line-clamp-4 text-sm leading-7 text-foreground/68">
+                      {note.summary || "No summary yet."}
+                    </p>
+
+                    {note.tagLinks.length > 0 ? (
+                      <div className="mt-6 flex flex-wrap gap-2">
+                        {note.tagLinks.slice(0, 4).map((tag) => (
+                          <Link
+                            key={tag.slug}
+                            href={buildKnowledgeFilterHref({ view: archivedView ? "archived" : undefined, domain: activeFilters.domain, tag: tag.slug })}
+                            className="rounded-full bg-tertiary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-tertiary"
+                          >
+                            {tag.label}
+                          </Link>
+                        ))}
+                      </div>
+                    ) : null}
+
+                    <div className="mt-8 flex flex-wrap items-center gap-3">
+                      {!archivedView ? (
+                        <>
+                          <Link href={`/knowledge/${note.slug}`} className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                            Open Note
+                          </Link>
+                          <form action={archiveKnowledgeNoteFromListAction}>
+                            <input type="hidden" name="slug" value={note.slug} />
+                            <button type="submit" className="rounded-full bg-secondary-container px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-secondary">
+                              Archive
+                            </button>
+                          </form>
+                        </>
+                      ) : (
+                        <>
+                          <form action={restoreKnowledgeNoteFromListAction}>
+                            <input type="hidden" name="slug" value={note.slug} />
+                            <button type="submit" className="rounded-full bg-primary px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-white">
+                              Restore
+                            </button>
+                          </form>
+                          <Link href={`/knowledge/${note.slug}`} className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                            Open
+                          </Link>
+                          <Link href={buildKnowledgeFilterHref({ view: "archived", domain: activeFilters.domain, tag: activeFilters.tag }) + `&confirmDelete=${note.slug}`} className="rounded-full bg-rose-700 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-white">
+                            Delete
+                          </Link>
+                        </>
+                      )}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-[2.2rem] bg-surface-container-low p-8 text-sm text-foreground/60 shadow-ambient">
+                {hasActiveFilter ? "No notes match the current filters yet." : archivedView ? "No archived notes yet." : "No live notes yet."}
+              </div>
+            )}
+          </section>
         </div>
       </section>
     </ShellLayout>

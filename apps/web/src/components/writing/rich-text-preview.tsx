@@ -3,6 +3,8 @@ import { Fragment, type ReactNode } from "react";
 
 import type { RichTextNode } from "@workspace/types/index";
 
+import { MermaidPreview } from "@/components/writing/mermaid-preview";
+
 type RichTextPreviewProps = {
   title?: string;
   summary?: string;
@@ -32,7 +34,8 @@ type MarkdownBlock =
   | { type: "task-list"; items: MarkdownTaskItem[] }
   | { type: "table"; table: MarkdownTable }
   | { type: "rule" }
-  | { type: "code"; code: string };
+  | { type: "code"; code: string }
+  | { type: "mermaid"; code: string };
 
 function canUseNextImage(value?: string) {
   if (!value) {
@@ -169,6 +172,8 @@ function parseMarkdownBlocks(content: string): MarkdownBlock[] {
     }
 
     if (trimmed.startsWith("```")) {
+      const fenceMatch = trimmed.match(/^```(\w+)?/);
+      const language = fenceMatch?.[1]?.toLowerCase();
       const codeLines: string[] = [];
       index += 1;
       while (index < lines.length && !lines[index].trim().startsWith("```")) {
@@ -178,7 +183,11 @@ function parseMarkdownBlocks(content: string): MarkdownBlock[] {
       if (index < lines.length) {
         index += 1;
       }
-      blocks.push({ type: "code", code: codeLines.join("\n") });
+      if (language === "mermaid") {
+        blocks.push({ type: "mermaid", code: codeLines.join("\n") });
+      } else {
+        blocks.push({ type: "code", code: codeLines.join("\n") });
+      }
       continue;
     }
 
@@ -419,6 +428,10 @@ function renderMarkdownBlock(content: string, key: number) {
               <code>{block.code}</code>
             </pre>
           );
+        }
+
+        if (block.type === "mermaid") {
+          return <MermaidPreview key={blockKey} chart={block.code} />;
         }
 
         return (

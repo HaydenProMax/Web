@@ -53,100 +53,129 @@ export default async function KnowledgeDetailPage({
         </section>
       ) : null}
 
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.2em] text-primary">
-          {note.domainName ? (note.domainSlug ? <Link href={`/knowledge?domain=${note.domainSlug}`}>{note.domainName}</Link> : <span>{note.domainName}</span>) : null}
-          <span>{note.contentBlockCount} blocks</span>
-          <span>Updated {new Date(note.updatedAt).toLocaleString("zh-CN")}</span>
-        </div>
-        <div className="flex items-center gap-3">
-          {!note.isArchived ? (
-            <>
-              <Link href={`/writing/new?sourceNote=${note.slug}`} className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-primary shadow-ambient">
-                New Draft
-              </Link>
-              <Link href={`/planner/new?note=${note.slug}`} className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-primary shadow-ambient">
-                New Task
-              </Link>
-              <Link href="/archive" className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-primary shadow-ambient">
-                Archive
-              </Link>
-              <form action={archiveKnowledgeNoteAction.bind(null, note.slug)}>
-                <button type="submit" className="rounded-full bg-rose-600 px-5 py-2 text-sm font-semibold text-white shadow-ambient">
-                  Archive Note
-                </button>
-              </form>
-              <Link href={`/knowledge/${note.slug}/edit`} className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white">
-                Edit Note
-              </Link>
-            </>
-          ) : (
-            <>
-              <form action={restoreKnowledgeNoteFromListAction}>
-                <input type="hidden" name="slug" value={note.slug} />
-                <button type="submit" className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white shadow-ambient">
-                  Restore Note
-                </button>
-              </form>
-              <Link href="/knowledge?view=archived" className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-primary shadow-ambient">
-                Back to Archived Notes
-              </Link>
-            </>
-          )}
-        </div>
-      </div>
+      <section className="rounded-[3rem] bg-[linear-gradient(180deg,rgba(255,255,255,0.36),rgba(245,243,239,0.78))] px-8 py-10 shadow-ambient md:px-12">
+        <div className="flex flex-col gap-8 xl:flex-row xl:items-start xl:justify-between">
+          <div className="max-w-4xl">
+            <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.2em] text-primary/80">
+              {note.domainName ? (
+                note.domainSlug ? <Link href={`/knowledge?domain=${note.domainSlug}`}>{note.domainName}</Link> : <span>{note.domainName}</span>
+              ) : (
+                <span>Knowledge</span>
+              )}
+              <span>{note.contentBlockCount} blocks</span>
+              <span>{new Date(note.updatedAt).toLocaleDateString("zh-CN")}</span>
+            </div>
+            <h2 className="mt-6 font-headline text-6xl leading-none tracking-[-0.05em] text-foreground md:text-7xl">
+              {note.title}
+            </h2>
+            {note.summary ? (
+              <p className="mt-6 max-w-2xl text-base leading-8 text-foreground/65">{note.summary}</p>
+            ) : null}
+            {note.tagLinks.length > 0 ? (
+              <div className="mt-8 flex flex-wrap gap-2">
+                {note.tagLinks.map((tag) => (
+                  <Link
+                    key={tag.slug}
+                    href={`/knowledge?tag=${tag.slug}`}
+                    className="rounded-full bg-tertiary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-tertiary"
+                  >
+                    {tag.label}
+                  </Link>
+                ))}
+              </div>
+            ) : null}
+          </div>
 
-      {note.tagLinks.length > 0 ? (
-        <div className="flex flex-wrap gap-3">
-          {note.tagLinks.map((tag) => (
-            <Link key={tag.slug} href={`/knowledge?tag=${tag.slug}`} className="rounded-full bg-surface-container-low px-4 py-2 text-sm font-semibold text-primary shadow-ambient">
-              {tag.label}
-            </Link>
-          ))}
+          <div className="flex flex-wrap items-center gap-3 xl:justify-end">
+            {!note.isArchived ? (
+              <>
+                <Link href={`/knowledge/${note.slug}/edit`} className="rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white">
+                  Edit Note
+                </Link>
+                <Link href={`/writing/new?sourceNote=${note.slug}`} className="rounded-full bg-white/85 px-5 py-3 text-sm font-semibold text-primary shadow-ambient">
+                  New Draft
+                </Link>
+                <Link href={`/planner/new?note=${note.slug}`} className="rounded-full bg-white/85 px-5 py-3 text-sm font-semibold text-primary shadow-ambient">
+                  New Task
+                </Link>
+                <form action={archiveKnowledgeNoteAction.bind(null, note.slug)}>
+                  <button type="submit" className="rounded-full bg-secondary-container px-5 py-3 text-sm font-semibold text-secondary">
+                    Archive
+                  </button>
+                </form>
+              </>
+            ) : (
+              <>
+                <form action={restoreKnowledgeNoteFromListAction}>
+                  <input type="hidden" name="slug" value={note.slug} />
+                  <button type="submit" className="rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-ambient">
+                    Restore
+                  </button>
+                </form>
+                <Link href="/knowledge?view=archived" className="rounded-full bg-white/85 px-5 py-3 text-sm font-semibold text-primary shadow-ambient">
+                  Back to Archive
+                </Link>
+              </>
+            )}
+          </div>
         </div>
-      ) : null}
-
-      <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
-        <RichTextPreview title={note.title} summary={note.summary} content={note.content} emptyMessage="This note is empty." />
       </section>
 
-      <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-primary">Writing Links</p>
-            <h2 className="mt-3 font-headline text-2xl text-foreground">Related writing</h2>
-          </div>
-{!note.isArchived ? (
-          <Link href={`/writing/new?sourceNote=${note.slug}`} className="text-sm font-semibold text-primary">
-            New draft
-          </Link>
-        ) : null}
+      <section className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="rounded-[2.5rem] bg-surface-container-low p-8 shadow-ambient md:p-10">
+          <RichTextPreview title={undefined} summary={undefined} content={note.content} emptyMessage="This note is empty." />
         </div>
-        {note.relatedWriting.length > 0 ? (
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
-            {note.relatedWriting.map((item) => (
-              <Link key={`${item.kind}-${item.id}`} href={item.href} className="rounded-[1.5rem] bg-white/80 p-4 shadow-ambient">
-                <p className="text-xs uppercase tracking-[0.2em] text-primary">{item.kind === "draft" ? "Draft" : "Published"}</p>
-                <h3 className="mt-3 font-headline text-xl text-foreground">{item.title}</h3>
-                <p className="mt-2 text-sm text-foreground/60">
-                  {item.kind === "draft"
-                    ? `Updated ${item.updatedAt ? new Date(item.updatedAt).toLocaleString("zh-CN") : "recently"}`
-                    : `Published ${item.publishedAt ? new Date(item.publishedAt).toLocaleString("zh-CN") : "recently"}`}
-                </p>
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <p className="mt-6 text-sm leading-6 text-foreground/70">
-            No related writing yet.
-          </p>
-        )}
-      </section>
 
-      <div className="flex items-center gap-4">
-        <Link href="/knowledge" className="text-sm font-semibold text-primary">Back to knowledge</Link>
-        <Link href="/knowledge/new" className="text-sm font-semibold text-primary">New note</Link>
-      </div>
+        <aside className="space-y-6 xl:sticky xl:top-28 xl:self-start">
+          <section className="rounded-[2.2rem] bg-surface-container-low p-6 shadow-ambient">
+            <p className="text-xs uppercase tracking-[0.2em] text-primary">Reading Note</p>
+            <h3 className="mt-4 font-headline text-3xl leading-tight text-foreground">Part of your living index</h3>
+            <p className="mt-4 text-sm leading-7 text-foreground/65">
+              Use this page as a quiet reading surface, then branch into writing or planning when the note is ready to move.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link href="/knowledge" className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                Back to Index
+              </Link>
+              <Link href="/knowledge/new" className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                New Note
+              </Link>
+            </div>
+          </section>
+
+          <section className="rounded-[2.2rem] bg-surface-container-low p-6 shadow-ambient">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] text-primary">Writing Links</p>
+                <h3 className="mt-3 font-headline text-2xl text-foreground">Related writing</h3>
+              </div>
+              {!note.isArchived ? (
+                <Link href={`/writing/new?sourceNote=${note.slug}`} className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                  New Draft
+                </Link>
+              ) : null}
+            </div>
+
+            {note.relatedWriting.length > 0 ? (
+              <div className="mt-6 space-y-4">
+                {note.relatedWriting.map((item) => (
+                  <Link key={`${item.kind}-${item.id}`} href={item.href} className="block rounded-[1.6rem] bg-surface-container-lowest p-5 shadow-ambient transition-colors hover:bg-white">
+                    <p className="text-[10px] uppercase tracking-[0.18em] text-secondary">{item.kind === "draft" ? "Draft" : "Published"}</p>
+                    <h4 className="mt-3 font-headline text-2xl leading-tight text-foreground">{item.title}</h4>
+                    <p className="mt-3 text-sm text-foreground/58">
+                      {item.kind === "draft"
+                        ? `Updated ${item.updatedAt ? new Date(item.updatedAt).toLocaleDateString("zh-CN") : "recently"}`
+                        : `Published ${item.publishedAt ? new Date(item.publishedAt).toLocaleDateString("zh-CN") : "recently"}`}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-6 text-sm leading-7 text-foreground/65">No related writing yet.</p>
+            )}
+          </section>
+        </aside>
+      </section>
     </ShellLayout>
   );
 }

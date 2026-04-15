@@ -5,7 +5,7 @@ import { useMemo, useRef, useState, useTransition } from "react";
 
 import type { MediaAssetSummary, RichTextNode } from "@workspace/types/index";
 
-import { BlockEditor } from "@/components/writing/block-editor";
+import { KnowledgeDocumentEditor } from "@/components/knowledge/knowledge-document-editor";
 import {
   appendImageBlock,
   appendVideoBlock,
@@ -70,6 +70,7 @@ export function KnowledgeNoteForm({ action, initialData, mode = "create" }: Know
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const previewNodes = useMemo(() => editorBlocksToRichTextNodes(blocks), [blocks]);
+  const previewExcerptNodes = useMemo(() => previewNodes.slice(0, 5), [previewNodes]);
   const serializedContent = useMemo(() => JSON.stringify(previewNodes, null, 2), [previewNodes]);
   const imageAssets = uploadedAssets.filter(isUploadedImageAsset);
 
@@ -229,9 +230,9 @@ export function KnowledgeNoteForm({ action, initialData, mode = "create" }: Know
                 <p className="text-xs text-foreground/50">Start simple, then add more structure only when you need it.</p>
               </div>
               <div className="flex flex-wrap gap-2">
+                <button type="button" onClick={() => addBlock("markdown")} className="rounded-full bg-primary px-3 py-2 text-xs font-semibold text-white">Add Markdown</button>
                 <button type="button" onClick={() => addBlock("paragraph")} className="rounded-full bg-surface-container-low px-3 py-2 text-xs font-semibold text-primary">Add Paragraph</button>
                 <button type="button" onClick={() => addBlock("heading")} className="rounded-full bg-surface-container-low px-3 py-2 text-xs font-semibold text-primary">Add Heading</button>
-                <button type="button" onClick={() => addBlock("markdown")} className="rounded-full bg-surface-container-low px-3 py-2 text-xs font-semibold text-primary">Add Markdown</button>
               </div>
             </div>
 
@@ -241,7 +242,7 @@ export function KnowledgeNoteForm({ action, initialData, mode = "create" }: Know
               </div>
             ) : null}
 
-            <BlockEditor blocks={blocks} onChange={setBlocks} />
+            <KnowledgeDocumentEditor blocks={blocks} onChange={setBlocks} />
           </div>
 
           <details className="rounded-[1.5rem] bg-white/80 p-4 shadow-ambient">
@@ -384,23 +385,31 @@ export function KnowledgeNoteForm({ action, initialData, mode = "create" }: Know
         </form>
       </section>
 
-      <aside className="space-y-6">
+      <aside className="space-y-6 xl:sticky xl:top-28 xl:self-start">
         <div className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
           <p className="text-xs uppercase tracking-[0.2em] text-primary">Live Preview</p>
           <h3 className="mt-3 font-headline text-2xl">Preview</h3>
           <p className="mt-3 text-sm leading-6 text-foreground/70">
-            This is how the note will read when opened.
+            A shortened reading preview for the current edit.
           </p>
         </div>
 
         <div className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
+          <div className="mb-4 flex items-center justify-between gap-3 text-xs text-foreground/50">
+            <span>Showing the first {Math.min(previewExcerptNodes.length, 5)} blocks</span>
+            {previewNodes.length > previewExcerptNodes.length ? (
+              <span>{previewNodes.length - previewExcerptNodes.length} more hidden</span>
+            ) : null}
+          </div>
+          <div className="max-h-[72vh] overflow-y-auto pr-2">
           <RichTextPreview
             title={title || "Untitled note"}
             summary={summary}
-            content={previewNodes}
+            content={previewExcerptNodes}
             compact
             emptyMessage="Add content to preview the note."
           />
+          </div>
         </div>
       </aside>
     </div>
