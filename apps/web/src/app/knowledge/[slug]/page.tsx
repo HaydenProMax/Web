@@ -25,7 +25,6 @@ export default async function KnowledgeDetailPage({
   return (
     <ShellLayout
       title={note.title}
-      description="A structured note with linked writing and reuse across the workspace."
     >
       {resolvedSearchParams?.created === "1" ? (
         <section className="rounded-[2rem] bg-primary-container/40 px-6 py-4 text-sm text-primary shadow-ambient">
@@ -127,22 +126,6 @@ export default async function KnowledgeDetailPage({
         </div>
 
         <aside className="space-y-6 xl:sticky xl:top-28 xl:self-start">
-          <section className="rounded-[2.2rem] bg-surface-container-low p-6 shadow-ambient">
-            <p className="text-xs uppercase tracking-[0.2em] text-primary">Reading Note</p>
-            <h3 className="mt-4 font-headline text-3xl leading-tight text-foreground">Part of your living index</h3>
-            <p className="mt-4 text-sm leading-7 text-foreground/65">
-              Use this page as a quiet reading surface, then branch into writing or planning when the note is ready to move.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link href="/knowledge" className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-                Back to Index
-              </Link>
-              <Link href="/knowledge/new" className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-                New Note
-              </Link>
-            </div>
-          </section>
-
           <section className="rounded-[2.2rem] bg-surface-container-low p-6 shadow-ambient">
             <div className="flex items-center justify-between gap-4">
               <div>
