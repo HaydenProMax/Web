@@ -7,7 +7,7 @@ import { getSettingsSnapshot, getShellIdentity } from "@/server/settings/service
 
 type ShellLayoutProps = {
   title: string;
-  description: string;
+  description?: string;
   children: ReactNode;
 };
 
@@ -104,7 +104,9 @@ export async function ShellLayout({ title, description, children }: ShellLayoutP
 
           <main className="flex-1 px-6 py-10 md:px-10">
             <div className="mx-auto flex w-full max-w-7xl flex-col gap-8">
-              <p className="max-w-2xl text-base leading-7 text-foreground/70">{description}</p>
+              {description ? (
+                <p className="max-w-2xl text-base leading-7 text-foreground/70">{description}</p>
+              ) : null}
               {children}
             </div>
           </main>

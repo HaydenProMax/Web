@@ -12,7 +12,8 @@ import {
   areRichTextNodes,
   createEditorBlock,
   editorBlocksToRichTextNodes,
-  richTextNodesToEditorBlocks
+  richTextNodesToEditorBlocks,
+  type WritingEditorBlock
 } from "@/components/writing/block-editor-state";
 import { RichTextPreview } from "@/components/writing/rich-text-preview";
 
@@ -52,6 +53,25 @@ function parseInitialBlocks(content: string) {
 
 function isUploadedImageAsset(asset: MediaAssetSummary) {
   return asset.kind === "IMAGE" && Boolean(asset.url);
+}
+
+function applyImageAssetToBlock(blocks: WritingEditorBlock[], blockId: string, asset: MediaAssetSummary): WritingEditorBlock[] {
+  const imageUrl = asset.url ?? "";
+  if (!imageUrl) {
+    return blocks;
+  }
+
+  return blocks.map((block) =>
+    block.id === blockId
+      ? {
+          ...block,
+          type: "image",
+          src: imageUrl,
+          alt: asset.altText || asset.originalFileName,
+          caption: block.caption || asset.originalFileName
+        }
+      : block
+  );
 }
 
 export function KnowledgeNoteForm({ action, initialData, mode = "create" }: KnowledgeNoteFormProps) {
@@ -103,7 +123,7 @@ export function KnowledgeNoteForm({ action, initialData, mode = "create" }: Know
       setBlocks((current) => appendImageBlock(current, result.data!));
     }
 
-    setUploadMessage(`Uploaded ${result.data.originalFileName} and inserted it into the note.`);
+    setUploadMessage(`${result.data.originalFileName} uploaded and added to the note.`);
   }
 
   async function handleVideoEmbed() {
@@ -147,7 +167,7 @@ export function KnowledgeNoteForm({ action, initialData, mode = "create" }: Know
     setBlocks((current) => appendVideoBlock(current, result.data!, provider, videoCaption.trim()));
     setVideoUrl("");
     setVideoCaption("");
-    setUploadMessage(`Added a ${provider} video block to the note.`);
+    setUploadMessage(`${provider} video added to the note.`);
   }
 
   function addBlock(type: RichTextNode["type"]) {
@@ -158,12 +178,12 @@ export function KnowledgeNoteForm({ action, initialData, mode = "create" }: Know
     <div className="grid gap-8 xl:grid-cols-[1.08fr_0.92fr]">
       <section className="rounded-[2rem] bg-surface-container-low p-8 shadow-ambient">
         <div className="mb-8 space-y-2">
-          <p className="text-xs uppercase tracking-[0.2em] text-primary">Knowledge Form</p>
-          <h2 className="font-headline text-3xl text-foreground">{mode === "edit" ? "Refine this note" : "Capture a new note"}</h2>
+          <p className="text-xs uppercase tracking-[0.2em] text-primary">Editor</p>
+          <h2 className="font-headline text-3xl text-foreground">{mode === "edit" ? "Edit note" : "New note"}</h2>
           <p className="text-sm leading-6 text-foreground/70">
             {mode === "edit"
-              ? "Edit blocks on the left and review the result on the right."
-              : "Start with blocks, then shape the note as you go."}
+              ? "Write on the left and glance at the reading view on the right."
+              : "Start with Markdown, then add structure only when it helps."}
           </p>
         </div>
 
@@ -193,8 +213,8 @@ export function KnowledgeNoteForm({ action, initialData, mode = "create" }: Know
 
           <div className="rounded-[1.5rem] bg-white/80 p-4 shadow-ambient">
             <div className="mb-4">
-              <p className="text-sm font-semibold text-foreground/70">Knowledge Context</p>
-              <p className="mt-1 text-xs text-foreground/50">Use domain and tags to make the note easier to find later.</p>
+              <p className="text-sm font-semibold text-foreground/70">Context</p>
+              <p className="mt-1 text-xs text-foreground/50">Add just enough context to find this note later.</p>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
@@ -226,13 +246,13 @@ export function KnowledgeNoteForm({ action, initialData, mode = "create" }: Know
           <div className="space-y-4 rounded-[1.5rem] bg-white/80 p-4 shadow-ambient">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="text-sm font-semibold text-foreground/70">Content Blocks</p>
-                <p className="text-xs text-foreground/50">Start simple, then add more structure only when you need it.</p>
+                <p className="text-sm font-semibold text-foreground/70">Content</p>
+                <p className="text-xs text-foreground/50">Markdown first. Add other blocks only when needed.</p>
               </div>
               <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={() => addBlock("markdown")} className="rounded-full bg-primary px-3 py-2 text-xs font-semibold text-white">Add Markdown</button>
-                <button type="button" onClick={() => addBlock("paragraph")} className="rounded-full bg-surface-container-low px-3 py-2 text-xs font-semibold text-primary">Add Paragraph</button>
-                <button type="button" onClick={() => addBlock("heading")} className="rounded-full bg-surface-container-low px-3 py-2 text-xs font-semibold text-primary">Add Heading</button>
+                <button type="button" onClick={() => addBlock("markdown")} className="rounded-full bg-primary px-3 py-2 text-xs font-semibold text-white">Markdown</button>
+                <button type="button" onClick={() => addBlock("paragraph")} className="rounded-full bg-surface-container-low px-3 py-2 text-xs font-semibold text-primary">Paragraph</button>
+                <button type="button" onClick={() => addBlock("heading")} className="rounded-full bg-surface-container-low px-3 py-2 text-xs font-semibold text-primary">Heading</button>
               </div>
             </div>
 
@@ -242,16 +262,24 @@ export function KnowledgeNoteForm({ action, initialData, mode = "create" }: Know
               </div>
             ) : null}
 
-            <KnowledgeDocumentEditor blocks={blocks} onChange={setBlocks} />
+            <KnowledgeDocumentEditor
+              blocks={blocks}
+              onChange={setBlocks}
+              recentImages={imageAssets}
+              onUseRecentImage={(blockId, asset) => {
+                setBlocks((current) => applyImageAssetToBlock(current, blockId, asset));
+                setUploadMessage(`${asset.originalFileName} applied to the image block.`);
+              }}
+            />
           </div>
 
           <details className="rounded-[1.5rem] bg-white/80 p-4 shadow-ambient">
-            <summary className="cursor-pointer text-sm font-semibold text-foreground/70">Add Quote, Image, or Video</summary>
+            <summary className="cursor-pointer text-sm font-semibold text-foreground/70">More blocks</summary>
             <div className="mt-4 space-y-4">
               <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={() => addBlock("quote")} className="rounded-full bg-surface-container-low px-3 py-2 text-xs font-semibold text-primary">Add Quote Block</button>
-                <button type="button" onClick={() => addBlock("image")} className="rounded-full bg-surface-container-low px-3 py-2 text-xs font-semibold text-primary">Add Empty Image Block</button>
-                <button type="button" onClick={() => addBlock("videoEmbed")} className="rounded-full bg-surface-container-low px-3 py-2 text-xs font-semibold text-primary">Add Empty Video Block</button>
+                <button type="button" onClick={() => addBlock("quote")} className="rounded-full bg-surface-container-low px-3 py-2 text-xs font-semibold text-primary">Quote</button>
+                <button type="button" onClick={() => addBlock("image")} className="rounded-full bg-surface-container-low px-3 py-2 text-xs font-semibold text-primary">Image</button>
+                <button type="button" onClick={() => addBlock("videoEmbed")} className="rounded-full bg-surface-container-low px-3 py-2 text-xs font-semibold text-primary">Video</button>
               </div>
 
               <div className="grid gap-4 lg:grid-cols-2">
@@ -259,7 +287,7 @@ export function KnowledgeNoteForm({ action, initialData, mode = "create" }: Know
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="text-sm font-semibold text-foreground/70">Image</p>
-                      <p className="text-xs text-foreground/50">Upload and insert an image when the note needs it.</p>
+                      <p className="text-xs text-foreground/50">Upload an image only when it adds meaning.</p>
                     </div>
                     <button
                       type="button"
@@ -267,7 +295,7 @@ export function KnowledgeNoteForm({ action, initialData, mode = "create" }: Know
                       disabled={isUploading}
                       className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
                     >
-                      {isUploading ? "Uploading..." : "Choose Image"}
+                      {isUploading ? "Uploading..." : "Upload image"}
                     </button>
                   </div>
                   <input
@@ -301,7 +329,7 @@ export function KnowledgeNoteForm({ action, initialData, mode = "create" }: Know
                           onClick={() => {
                             if (asset.url) {
                               setBlocks((current) => appendImageBlock(current, asset));
-                              setUploadMessage(`Inserted ${asset.originalFileName} into the note again.`);
+                              setUploadMessage(`${asset.originalFileName} added again.`);
                             }
                           }}
                           className="overflow-hidden rounded-[1.1rem] border border-outline-variant/20 bg-white text-left"
@@ -309,6 +337,7 @@ export function KnowledgeNoteForm({ action, initialData, mode = "create" }: Know
                           <img src={asset.url} alt={asset.altText || asset.originalFileName} className="h-24 w-full object-cover" />
                           <div className="px-3 py-2">
                             <p className="truncate text-xs font-semibold text-foreground/70">{asset.originalFileName}</p>
+                            <p className="mt-1 text-[11px] text-foreground/45">Insert again</p>
                           </div>
                         </button>
                       ))}
@@ -319,7 +348,7 @@ export function KnowledgeNoteForm({ action, initialData, mode = "create" }: Know
                 <div className="space-y-3 rounded-[1.25rem] bg-surface-container-low p-4">
                   <div>
                     <p className="text-sm font-semibold text-foreground/70">Video</p>
-                    <p className="text-xs text-foreground/50">Paste a link only when a video really helps the note.</p>
+                    <p className="text-xs text-foreground/50">Paste a link only when the note needs a video.</p>
                   </div>
                   <input
                     value={videoUrl}
@@ -365,7 +394,7 @@ export function KnowledgeNoteForm({ action, initialData, mode = "create" }: Know
           <input type="hidden" name="content" value={serializedContent} />
 
           <details className="rounded-[1.5rem] bg-white/80 p-4 shadow-ambient">
-            <summary className="cursor-pointer text-sm font-semibold text-foreground/70">Generated JSON</summary>
+            <summary className="cursor-pointer text-sm font-semibold text-foreground/70">JSON preview</summary>
             <textarea
               value={serializedContent}
               readOnly
@@ -379,7 +408,7 @@ export function KnowledgeNoteForm({ action, initialData, mode = "create" }: Know
               {mode === "edit" ? "Save Note" : "Create Note"}
             </button>
             <Link href="/knowledge" className="text-sm font-semibold text-primary">
-              Back to knowledge
+              Back to notes
             </Link>
           </div>
         </form>
@@ -387,27 +416,27 @@ export function KnowledgeNoteForm({ action, initialData, mode = "create" }: Know
 
       <aside className="space-y-6 xl:sticky xl:top-28 xl:self-start">
         <div className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
-          <p className="text-xs uppercase tracking-[0.2em] text-primary">Live Preview</p>
-          <h3 className="mt-3 font-headline text-2xl">Preview</h3>
+          <p className="text-xs uppercase tracking-[0.2em] text-primary">Preview</p>
+          <h3 className="mt-3 font-headline text-2xl">Reading view</h3>
           <p className="mt-3 text-sm leading-6 text-foreground/70">
-            A shortened reading preview for the current edit.
+            A short preview of how this note reads.
           </p>
         </div>
 
         <div className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
           <div className="mb-4 flex items-center justify-between gap-3 text-xs text-foreground/50">
-            <span>Showing the first {Math.min(previewExcerptNodes.length, 5)} blocks</span>
+            <span>Showing {Math.min(previewExcerptNodes.length, 5)} blocks</span>
             {previewNodes.length > previewExcerptNodes.length ? (
               <span>{previewNodes.length - previewExcerptNodes.length} more hidden</span>
             ) : null}
           </div>
-          <div className="max-h-[72vh] overflow-y-auto pr-2">
+          <div className="max-h-[56vh] overflow-y-auto pr-2">
           <RichTextPreview
             title={title || "Untitled note"}
             summary={summary}
             content={previewExcerptNodes}
             compact
-            emptyMessage="Add content to preview the note."
+            emptyMessage="Add content to preview this note."
           />
           </div>
         </div>

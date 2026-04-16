@@ -546,13 +546,20 @@ export function RichTextPreview({
 
     return true;
   });
+  const titleClassName = compact
+    ? "font-headline text-3xl leading-tight text-foreground"
+    : "font-headline text-4xl leading-tight text-foreground";
+  const summaryClassName = compact
+    ? "max-w-2xl text-sm leading-7 text-foreground/65"
+    : "text-base leading-7 text-foreground/70";
+  const bodyGapClassName = compact ? "space-y-6" : "space-y-8";
 
   return (
     <article className={`mx-auto flex w-full flex-col ${compact ? "gap-6" : "gap-10"}`}>
       {title || summary ? (
         <div className="space-y-4">
-          {title ? <h2 className="font-headline text-4xl leading-tight text-foreground">{title}</h2> : null}
-          {summary ? <p className="text-base leading-7 text-foreground/70">{summary}</p> : null}
+          {title ? <h2 className={titleClassName}>{title}</h2> : null}
+          {summary ? <p className={summaryClassName}>{summary}</p> : null}
         </div>
       ) : null}
 
@@ -562,7 +569,7 @@ export function RichTextPreview({
         </div>
       ) : null}
 
-      <div className="space-y-8">
+      <div className={bodyGapClassName}>
         {displayContent.length > 0 ? (
           displayContent.map((node, index) => renderNode(node, index))
         ) : (
