@@ -13,6 +13,7 @@ const moduleKeys = new Set<ModuleKey>([
   "dashboard",
   "activity",
   "planner",
+  "checkin",
   "knowledge",
   "writing",
   "archive",

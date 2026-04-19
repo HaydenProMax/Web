@@ -2,6 +2,7 @@ export type ModuleKey =
   | "dashboard"
   | "activity"
   | "planner"
+  | "checkin"
   | "knowledge"
   | "writing"
   | "archive"
@@ -31,6 +32,9 @@ export type RichTextNode = {
 export type WritingVisibility = "PRIVATE" | "UNLISTED" | "PUBLIC";
 export type PlannerTaskStatus = "TODO" | "IN_PROGRESS" | "DONE" | "ARCHIVED";
 export type PlannerTaskPriority = "LOW" | "MEDIUM" | "HIGH";
+export type CheckInScheduleType = "DAILY" | "WEEKDAYS" | "CUSTOM";
+export type CheckInEntryStatus = "DONE" | "SKIPPED";
+export type CheckInSkipReasonTag = "SICK" | "BUSY" | "OUT" | "REST" | "FORGOT" | "OTHER";
 
 export type WritingDraftInput = {
   title: string;
@@ -140,6 +144,42 @@ export type PlannerTaskLinkOption = {
 export type PlannerTaskLinkOptions = {
   notes: PlannerTaskLinkOption[];
   drafts: PlannerTaskLinkOption[];
+};
+
+export type CheckInHabitSummary = {
+  id: string;
+  title: string;
+  description: string;
+  scheduleType: CheckInScheduleType;
+  scheduleDays: number[];
+  isArchived: boolean;
+  monthlyDoneCount: number;
+  yearlyDoneCount: number;
+  totalDoneCount: number;
+  currentStreak: number;
+  longestStreak: number;
+  todayStatus?: CheckInEntryStatus;
+  updatedAt: string;
+};
+
+export type CheckInHistoryItem = {
+  id: string;
+  date: string;
+  habitId: string;
+  habitTitle: string;
+  status: CheckInEntryStatus;
+  reasonTag?: CheckInSkipReasonTag;
+  note?: string;
+};
+
+export type CheckInOverview = {
+  habitCount: number;
+  todayDoneCount: number;
+  todayPendingCount: number;
+  totalDoneCount: number;
+  currentStreak: number;
+  longestStreak: number;
+  monthlyCompletionRate: number;
 };
 
 export type KnowledgeNoteInput = {

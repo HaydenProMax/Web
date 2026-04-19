@@ -78,6 +78,11 @@ Core modules in regular use:
 - cross-module linking polish
 - production stability hardening
 
+## Next In Line
+
+- `V10.0` is planned around a new `Daily Check-in` module for repeatable habits
+- architecture notes are tracked in `docs/V10_DAILY_CHECKIN_ARCHITECTURE.md`
+
 ## Recommended Re-entry Order
 
 1. `README.md`

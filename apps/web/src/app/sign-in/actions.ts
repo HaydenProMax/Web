@@ -1,6 +1,6 @@
 "use server";
 
-import AuthError from "next-auth";
+import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 
 import { signIn, signOut } from "@/auth";
@@ -26,7 +26,9 @@ export async function signInAction(formData: FormData) {
     });
   } catch (error) {
     if (error instanceof AuthError) {
-      redirect(`/sign-in?error=invalid-credentials&callbackUrl=${encodeURIComponent(callbackPath)}`);
+      if (error.type === "CredentialsSignin" || error.type === "CallbackRouteError") {
+        redirect(`/sign-in?error=invalid-credentials&callbackUrl=${encodeURIComponent(callbackPath)}`);
+      }
     }
 
     throw error;

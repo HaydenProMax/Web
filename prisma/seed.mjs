@@ -62,6 +62,16 @@ const moduleRegistrySeed = [
     sortOrder: 2
   },
   {
+    key: "checkin",
+    name: "Check-in",
+    description: "Daily habits, streaks, and lightweight personal consistency tracking.",
+    icon: "wb_sunny",
+    routePath: "/check-in",
+    enabledByDefault: true,
+    status: "ACTIVE",
+    sortOrder: 3
+  },
+  {
     key: "knowledge",
     name: "Knowledge",
     description: "Notes, domains, tags, and connected knowledge structures.",
@@ -69,7 +79,7 @@ const moduleRegistrySeed = [
     routePath: "/knowledge",
     enabledByDefault: true,
     status: "ACTIVE",
-    sortOrder: 3
+    sortOrder: 4
   },
   {
     key: "writing",
@@ -79,7 +89,7 @@ const moduleRegistrySeed = [
     routePath: "/writing",
     enabledByDefault: true,
     status: "ACTIVE",
-    sortOrder: 4
+    sortOrder: 5
   },
   {
     key: "archive",
@@ -89,7 +99,7 @@ const moduleRegistrySeed = [
     routePath: "/archive",
     enabledByDefault: true,
     status: "ACTIVE",
-    sortOrder: 5
+    sortOrder: 6
   },
   {
     key: "modules",
@@ -99,7 +109,7 @@ const moduleRegistrySeed = [
     routePath: "/modules",
     enabledByDefault: true,
     status: "ACTIVE",
-    sortOrder: 6
+    sortOrder: 7
   },
   {
     key: "settings",
@@ -109,7 +119,7 @@ const moduleRegistrySeed = [
     routePath: "/settings",
     enabledByDefault: true,
     status: "ACTIVE",
-    sortOrder: 7
+    sortOrder: 8
   }
 ];
 
