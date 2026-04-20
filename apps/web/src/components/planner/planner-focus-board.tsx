@@ -340,7 +340,7 @@ export function PlannerFocusBoard({ overview, todayTasks, upcomingTasks, doneTas
         )}
       </SectionCard>
 
-      <PlannerDoneSection count={doneTasks.length}>
+      <PlannerDoneSection count={doneTasks.length} defaultVisibleCount={3}>
         {doneTasks.length > 0 ? (
           doneTasks.map((task) => <DoneTaskRow key={task.id} task={task} />)
         ) : (
