@@ -1,8 +1,19 @@
-import type { CheckInEntryStatus, CheckInHabitSummary, CheckInHistoryItem, CheckInOverview, CheckInSkipReasonTag } from "@workspace/types/index";
+import type {
+  CheckInEntryStatus,
+  CheckInHabitSummary,
+  CheckInHistoryItem,
+  CheckInOverview,
+  CheckInSkipReasonTag,
+  CheckInTodayStatus
+} from "@workspace/types/index";
 
 import { getCurrentUserId } from "@/server/auth/current-user";
 import { getDb } from "@/server/db";
-import { checkInHabitEditableFieldsSchema, checkInHabitInputSchema, checkInSkipInputSchema } from "@/server/check-in/schema";
+import {
+  checkInHabitEditableFieldsSchema,
+  checkInHabitInputSchema,
+  checkInSkipInputSchema
+} from "@/server/check-in/schema";
 
 type HabitWithEntries = {
   id: string;
@@ -22,6 +33,10 @@ type HabitWithEntries = {
     createdAt: Date;
     updatedAt: Date;
   }>;
+};
+
+type CheckInContextOptions = {
+  ownerId?: string;
 };
 
 function getUserDateFormatter(timeZone: string) {
@@ -184,6 +199,14 @@ function mapHabitSummary(habit: HabitWithEntries, todayKey: string): CheckInHabi
   };
 }
 
+async function resolveOwnerId(options?: CheckInContextOptions) {
+  if (options?.ownerId) {
+    return options.ownerId;
+  }
+
+  return getCurrentUserId();
+}
+
 async function getUserTimezone(ownerId: string) {
   const db = getDb();
   const preference = await db.userPreference.findUnique({
@@ -213,7 +236,7 @@ async function getActiveHabitsWithEntries(ownerId: string) {
   });
 }
 
-function sortTodayHabits(habits: CheckInHabitSummary[]) {
+function sortTodayHabits<T extends { title: string; todayStatus?: CheckInEntryStatus }>(habits: T[]) {
   const statusRank: Record<CheckInEntryStatus | "PENDING", number> = {
     PENDING: 0,
     DONE: 1,
@@ -232,27 +255,37 @@ function sortTodayHabits(habits: CheckInHabitSummary[]) {
   });
 }
 
-export async function listCheckInHabits(): Promise<CheckInHabitSummary[]> {
-  const ownerId = await getCurrentUserId();
-  const timeZone = await getUserTimezone(ownerId);
-  const todayKey = getDateKeyInTimezone(new Date(), timeZone);
-  const habits = await getActiveHabitsWithEntries(ownerId);
-
-  return habits.map((habit: HabitWithEntries) => mapHabitSummary(habit, todayKey));
-}
-
-export async function listTodayCheckInHabits(): Promise<CheckInHabitSummary[]> {
-  const ownerId = await getCurrentUserId();
+async function getTodayCheckInContext(options?: CheckInContextOptions) {
+  const ownerId = await resolveOwnerId(options);
   const timeZone = await getUserTimezone(ownerId);
   const now = new Date();
   const todayKey = getDateKeyInTimezone(now, timeZone);
-  const weekday = getWeekdayInTimezone(now, timeZone);
+  const todayWeekday = getWeekdayInTimezone(now, timeZone);
   const habits = await getActiveHabitsWithEntries(ownerId);
-  const scheduledHabits = habits
-    .filter((habit: HabitWithEntries) => isHabitScheduledOnWeekday(habit.scheduleType, normalizeScheduleDays(habit.scheduleDays), weekday))
-    .map((habit: HabitWithEntries) => mapHabitSummary(habit, todayKey));
+  const summaries: CheckInHabitSummary[] = habits.map((habit: HabitWithEntries) => mapHabitSummary(habit, todayKey));
+  const scheduledToday = summaries.filter((habit: CheckInHabitSummary) => isHabitScheduledOnWeekday(habit.scheduleType, habit.scheduleDays, todayWeekday));
 
-  return sortTodayHabits(scheduledHabits);
+  return {
+    ownerId,
+    habits,
+    summaries,
+    scheduledToday,
+    timeZone,
+    todayKey,
+    todayWeekday
+  };
+}
+
+export async function listCheckInHabits(options?: CheckInContextOptions): Promise<CheckInHabitSummary[]> {
+  const { summaries } = await getTodayCheckInContext(options);
+
+  return summaries;
+}
+
+export async function listTodayCheckInHabits(options?: CheckInContextOptions): Promise<CheckInHabitSummary[]> {
+  const { scheduledToday } = await getTodayCheckInContext(options);
+
+  return sortTodayHabits(scheduledToday);
 }
 
 export async function listRecentCheckInHistory(limit = 8): Promise<CheckInHistoryItem[]> {
@@ -285,15 +318,8 @@ export async function listRecentCheckInHistory(limit = 8): Promise<CheckInHistor
   }));
 }
 
-export async function getCheckInOverview(): Promise<CheckInOverview> {
-  const ownerId = await getCurrentUserId();
-  const timeZone = await getUserTimezone(ownerId);
-  const now = new Date();
-  const todayKey = getDateKeyInTimezone(now, timeZone);
-  const todayWeekday = getWeekdayInTimezone(now, timeZone);
-  const habits = await getActiveHabitsWithEntries(ownerId);
-  const summaries: CheckInHabitSummary[] = habits.map((habit: HabitWithEntries) => mapHabitSummary(habit, todayKey));
-  const scheduledToday = summaries.filter((habit: CheckInHabitSummary) => isHabitScheduledOnWeekday(habit.scheduleType, habit.scheduleDays, todayWeekday));
+export async function getCheckInOverview(options?: CheckInContextOptions): Promise<CheckInOverview> {
+  const { habits, summaries, scheduledToday, todayKey } = await getTodayCheckInContext(options);
   const monthStartKey = `${todayKey.slice(0, 7)}-01`;
   let monthlyScheduledDays = 0;
   let monthlyDoneDays = 0;
@@ -322,6 +348,38 @@ export async function getCheckInOverview(): Promise<CheckInOverview> {
     currentStreak: summaries.reduce((best: number, habit: CheckInHabitSummary) => Math.max(best, habit.currentStreak), 0),
     longestStreak: summaries.reduce((best: number, habit: CheckInHabitSummary) => Math.max(best, habit.longestStreak), 0),
     monthlyCompletionRate: monthlyScheduledDays === 0 ? 0 : Math.round((monthlyDoneDays / monthlyScheduledDays) * 100)
+  };
+}
+
+export async function getTodayCheckInStatus(options?: CheckInContextOptions): Promise<CheckInTodayStatus> {
+  const { scheduledToday, timeZone, todayKey } = await getTodayCheckInContext(options);
+  const done = scheduledToday.filter((habit: CheckInHabitSummary) => habit.todayStatus === "DONE");
+  const pending = scheduledToday.filter((habit: CheckInHabitSummary) => !habit.todayStatus);
+  const skipped = scheduledToday.filter((habit: CheckInHabitSummary) => habit.todayStatus === "SKIPPED");
+  const unfinished = sortTodayHabits([...pending, ...skipped]);
+  const scheduled = sortTodayHabits(scheduledToday);
+  const doneStatuses = sortTodayHabits(done);
+  const pendingStatuses = sortTodayHabits(pending);
+  const skippedStatuses = sortTodayHabits(skipped);
+  const unfinishedStatuses = sortTodayHabits(unfinished);
+
+  return {
+    date: todayKey,
+    timeZone,
+    summary: `${doneStatuses.length}/${scheduled.length} check-ins done today, ${unfinishedStatuses.length} unfinished.`,
+    habits: scheduled,
+    scheduled,
+    done: doneStatuses,
+    pending: pendingStatuses,
+    skipped: skippedStatuses,
+    unfinished: unfinishedStatuses,
+    counts: {
+      scheduledCount: scheduled.length,
+      doneCount: doneStatuses.length,
+      pendingCount: pendingStatuses.length,
+      skippedCount: skippedStatuses.length,
+      unfinishedCount: unfinishedStatuses.length
+    }
   };
 }
 
@@ -369,9 +427,8 @@ export async function updateCheckInHabitFields(habitId: string, input: unknown) 
   });
 }
 
-async function getTodayHabitRecord(habitId: string) {
+async function getTodayHabitRecordForOwner(ownerId: string, habitId: string) {
   const db = getDb();
-  const ownerId = await getCurrentUserId();
   const timeZone = await getUserTimezone(ownerId);
   const todayKey = getDateKeyInTimezone(new Date(), timeZone);
   const habit = await db.checkInHabit.findFirst({
@@ -395,9 +452,9 @@ async function getTodayHabitRecord(habitId: string) {
   };
 }
 
-export async function markCheckInDone(habitId: string) {
+async function markCheckInDoneForOwner(ownerId: string, habitId: string) {
   const db = getDb();
-  const record = await getTodayHabitRecord(habitId);
+  const record = await getTodayHabitRecordForOwner(ownerId, habitId);
 
   await db.checkInEntry.upsert({
     where: {
@@ -421,10 +478,16 @@ export async function markCheckInDone(habitId: string) {
   });
 }
 
+export async function markCheckInDone(habitId: string) {
+  const ownerId = await getCurrentUserId();
+  await markCheckInDoneForOwner(ownerId, habitId);
+}
+
 export async function markCheckInSkipped(habitId: string, input: unknown) {
   const db = getDb();
   const parsed = checkInSkipInputSchema.parse(input);
-  const record = await getTodayHabitRecord(habitId);
+  const ownerId = await getCurrentUserId();
+  const record = await getTodayHabitRecordForOwner(ownerId, habitId);
 
   await db.checkInEntry.upsert({
     where: {

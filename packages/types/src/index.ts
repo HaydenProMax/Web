@@ -182,6 +182,25 @@ export type CheckInOverview = {
   monthlyCompletionRate: number;
 };
 
+export type CheckInTodayStatus = {
+  date: string;
+  timeZone: string;
+  summary: string;
+  habits: CheckInHabitSummary[];
+  scheduled: CheckInHabitSummary[];
+  done: CheckInHabitSummary[];
+  pending: CheckInHabitSummary[];
+  skipped: CheckInHabitSummary[];
+  unfinished: CheckInHabitSummary[];
+  counts: {
+    scheduledCount: number;
+    doneCount: number;
+    pendingCount: number;
+    skippedCount: number;
+    unfinishedCount: number;
+  };
+};
+
 export type KnowledgeNoteInput = {
   title: string;
   summary?: string;
