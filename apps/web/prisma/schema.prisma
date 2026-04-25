@@ -327,6 +327,7 @@ model CheckInHabit {
   updatedAt    DateTime            @updatedAt
   owner        User                @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   entries      CheckInEntry[]
+  auditLogs    CheckInAuditLog[]
 }
 
 model CheckInEntry {
