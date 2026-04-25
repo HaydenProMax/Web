@@ -97,6 +97,20 @@ enum CheckInSkipReasonTag {
   OTHER
 }
 
+enum CheckInAuditAction {
+  CREATE_HABIT
+  UPDATE_HABIT
+  ARCHIVE_HABIT
+  UPDATE_TODAY
+  UPDATE_DATE
+  RESET_DATE
+}
+
+enum CheckInAuditSource {
+  session
+  apiKey
+}
+
 model User {
   id                 String               @id @default(cuid())
   email              String               @unique
@@ -113,6 +127,7 @@ model User {
   plannerReminders   PlannerReminder[]
   checkInHabits      CheckInHabit[]
   checkInEntries     CheckInEntry[]
+  checkInAuditLogs   CheckInAuditLog[]
   knowledgeDomains   KnowledgeDomain[]
   knowledgeNotes     KnowledgeNote[]
   knowledgeTags      KnowledgeTag[]
@@ -329,6 +344,26 @@ model CheckInEntry {
 
   @@unique([habitId, date])
   @@index([ownerId, date])
+}
+
+model CheckInAuditLog {
+  id         String             @id @default(cuid())
+  ownerId     String
+  habitId     String?
+  action     CheckInAuditAction
+  source     CheckInAuditSource
+  requestId  String
+  targetDate DateTime?
+  payloadJson Json?
+  resultJson  Json?
+  createdAt  DateTime           @default(now())
+  owner      User               @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  habit      CheckInHabit?      @relation(fields: [habitId], references: [id], onDelete: SetNull)
+
+  @@index([ownerId, createdAt])
+  @@index([ownerId, action, createdAt])
+  @@index([ownerId, habitId, createdAt])
+  @@index([requestId])
 }
 
 model KnowledgeDomain {

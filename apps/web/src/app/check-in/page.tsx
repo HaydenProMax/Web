@@ -1,11 +1,12 @@
 export const dynamic = "force-dynamic";
 
+import { CheckInAuditPanel } from "@/components/check-in/check-in-audit-panel";
 import { CheckInHabitManager } from "@/components/check-in/check-in-habit-manager";
 import { CheckInFeedbackToast } from "@/components/check-in/check-in-feedback-toast";
 import { CheckInStatsPanel } from "@/components/check-in/check-in-stats-panel";
 import { CheckInTodayList } from "@/components/check-in/check-in-today-list";
 import { ShellLayout } from "@/components/shell/shell-layout";
-import { getCheckInOverview, listCheckInHabits, listTodayCheckInHabits } from "@/server/check-in/service";
+import { getCheckInOverview, listCheckInAuditLogs, listCheckInHabits, listTodayCheckInHabits } from "@/server/check-in/service";
 
 function buildDateLabel() {
   return new Date().toLocaleDateString("zh-CN", {
@@ -53,10 +54,11 @@ export default async function CheckInPage({
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const resolvedSearchParams = await (searchParams ?? Promise.resolve({}));
-  const [overview, todayHabits, habits] = await Promise.all([
+  const [overview, todayHabits, habits, auditLogs] = await Promise.all([
     getCheckInOverview(),
     listTodayCheckInHabits(),
-    listCheckInHabits()
+    listCheckInHabits(),
+    listCheckInAuditLogs({ limit: 8 })
   ]);
   const toast = getToast(resolvedSearchParams);
 
@@ -74,6 +76,7 @@ export default async function CheckInPage({
         <aside className="space-y-6 xl:sticky xl:top-28 xl:self-start">
           <CheckInStatsPanel overview={overview} />
           <CheckInHabitManager habitCount={habits.length} />
+          <CheckInAuditPanel logs={auditLogs} />
         </aside>
       </div>
     </ShellLayout>

@@ -1,0 +1,18 @@
+[Unit]
+Description=Hayden Web Staging
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/hayden-web/current/apps/web
+Environment=PATH=/root/.nvm/versions/node/v22.22.2/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Environment=NODE_ENV=production
+Environment=PORT=3010
+EnvironmentFile=/opt/hayden-web/shared/.env.staging
+ExecStart=/root/.nvm/versions/node/v22.22.2/bin/pnpm --filter web start -- --port 3010
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,4 +1,10 @@
 import type {
+  CheckInDateUpdateResult,
+  CheckInAuditAction,
+  CheckInAuditLogItem,
+  CheckInAuditSource,
+  CheckInEntryResetResult,
+  CheckInEntryResetResultItem,
   CheckInEntryStatus,
   CheckInHabitSummary,
   CheckInHistoryItem,
@@ -12,8 +18,10 @@ import type {
 import { getCurrentUserId } from "@/server/auth/current-user";
 import { getDb } from "@/server/db";
 import {
+  checkInDateUpdateInputSchema,
   checkInHabitEditableFieldsSchema,
   checkInHabitInputSchema,
+  checkInEntryResetInputSchema,
   checkInSkipInputSchema,
   checkInTodayUpdateEnvelopeSchema,
   checkInTodayUpdateItemSchema
@@ -41,6 +49,17 @@ type HabitWithEntries = {
 
 type CheckInContextOptions = {
   ownerId?: string;
+};
+
+type CheckInAuditLogInput = {
+  ownerId: string;
+  habitId?: string;
+  action: CheckInAuditAction;
+  source: CheckInAuditSource;
+  requestId: string;
+  targetDate?: string;
+  payload?: unknown;
+  result?: unknown;
 };
 
 function getUserDateFormatter(timeZone: string) {
@@ -240,6 +259,59 @@ async function getActiveHabitsWithEntries(ownerId: string) {
   });
 }
 
+async function getHabitWithEntriesById(ownerId: string, habitId: string) {
+  const db = getDb();
+  return db.checkInHabit.findFirst({
+    where: {
+      id: habitId,
+      ownerId
+    },
+    include: {
+      entries: {
+        orderBy: { date: "asc" }
+      }
+    }
+  });
+}
+
+function assertValidDateKey(dateKey: string) {
+  const parsed = buildStoredDateFromKey(dateKey);
+
+  if (Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== dateKey) {
+    throw new Error("Invalid date.");
+  }
+
+  return parsed;
+}
+
+function mapCheckInAuditLogItem(log: {
+  id: string;
+  ownerId: string;
+  habitId: string | null;
+  action: CheckInAuditAction;
+  source: CheckInAuditSource;
+  requestId: string;
+  targetDate: Date | null;
+  payloadJson: unknown;
+  resultJson: unknown;
+  createdAt: Date;
+  habit?: { title: string } | null;
+}): CheckInAuditLogItem {
+  return {
+    id: log.id,
+    ownerId: log.ownerId,
+    habitId: log.habitId ?? undefined,
+    habitTitle: log.habit?.title ?? undefined,
+    action: log.action,
+    source: log.source,
+    requestId: log.requestId,
+    targetDate: log.targetDate ? log.targetDate.toISOString().slice(0, 10) : undefined,
+    payload: log.payloadJson ?? undefined,
+    result: log.resultJson ?? undefined,
+    createdAt: log.createdAt.toISOString()
+  };
+}
+
 function sortTodayHabits<T extends { title: string; todayStatus?: CheckInEntryStatus }>(habits: T[]) {
   const statusRank: Record<CheckInEntryStatus | "PENDING", number> = {
     PENDING: 0,
@@ -387,26 +459,35 @@ export async function getTodayCheckInStatus(options?: CheckInContextOptions): Pr
   };
 }
 
-export async function createCheckInHabit(input: unknown) {
+export async function createCheckInHabit(input: unknown, options?: CheckInContextOptions): Promise<CheckInHabitSummary> {
   const parsed = checkInHabitInputSchema.parse(input);
   const db = getDb();
-  const ownerId = await getCurrentUserId();
-
-  await db.checkInHabit.create({
+  const ownerId = await resolveOwnerId(options);
+  const created = await db.checkInHabit.create({
     data: {
       ownerId,
       title: parsed.title,
       description: parsed.description || null,
       scheduleType: parsed.scheduleType,
       scheduleDays: parsed.scheduleType === "CUSTOM" ? parsed.scheduleDays : []
+    },
+    include: {
+      entries: {
+        orderBy: { date: "asc" }
+      }
     }
   });
+
+  const timeZone = await getUserTimezone(ownerId);
+  const todayKey = getDateKeyInTimezone(new Date(), timeZone);
+
+  return mapHabitSummary(created, todayKey);
 }
 
-export async function updateCheckInHabitFields(habitId: string, input: unknown) {
+export async function updateCheckInHabitFields(habitId: string, input: unknown, options?: CheckInContextOptions): Promise<CheckInHabitSummary> {
   const parsed = checkInHabitEditableFieldsSchema.parse(input);
   const db = getDb();
-  const ownerId = await getCurrentUserId();
+  const ownerId = await resolveOwnerId(options);
   const existing = await db.checkInHabit.findFirst({
     where: {
       id: habitId,
@@ -426,15 +507,27 @@ export async function updateCheckInHabitFields(habitId: string, input: unknown) 
     where: { id: existing.id },
     data: {
       title: parsed.title,
-      description: parsed.description || null
+      description: parsed.description || null,
+      ...(parsed.scheduleType ? {
+        scheduleType: parsed.scheduleType,
+        scheduleDays: parsed.scheduleType === "CUSTOM" ? (parsed.scheduleDays ?? []) : []
+      } : {})
     }
   });
-}
 
-async function getTodayHabitRecordForOwner(ownerId: string, habitId: string) {
-  const db = getDb();
+  const updated = await getHabitWithEntriesById(ownerId, existing.id);
+  if (!updated) {
+    throw new Error("Check-in habit not found");
+  }
+
   const timeZone = await getUserTimezone(ownerId);
   const todayKey = getDateKeyInTimezone(new Date(), timeZone);
+
+  return mapHabitSummary(updated, todayKey);
+}
+
+async function getHabitRecordForOwnerOnDate(ownerId: string, habitId: string, dateKey: string) {
+  const db = getDb();
   const habit = await db.checkInHabit.findFirst({
     where: {
       id: habitId,
@@ -452,13 +545,18 @@ async function getTodayHabitRecordForOwner(ownerId: string, habitId: string) {
 
   return {
     ownerId,
-    date: buildStoredDateFromKey(todayKey)
+    date: assertValidDateKey(dateKey)
   };
 }
 
-async function markCheckInDoneForOwner(ownerId: string, habitId: string) {
+function getTodayDateKeyForTimezone(timeZone: string) {
+  return getDateKeyInTimezone(new Date(), timeZone);
+}
+
+async function markCheckInDoneForOwner(ownerId: string, habitId: string, dateKey?: string) {
   const db = getDb();
-  const record = await getTodayHabitRecordForOwner(ownerId, habitId);
+  const timeZone = await getUserTimezone(ownerId);
+  const record = await getHabitRecordForOwnerOnDate(ownerId, habitId, dateKey ?? getTodayDateKeyForTimezone(timeZone));
 
   await db.checkInEntry.upsert({
     where: {
@@ -490,7 +588,8 @@ export async function markCheckInDone(habitId: string) {
 async function markCheckInSkippedForOwner(ownerId: string, habitId: string, input: unknown) {
   const db = getDb();
   const parsed = checkInSkipInputSchema.parse(input);
-  const record = await getTodayHabitRecordForOwner(ownerId, habitId);
+  const timeZone = await getUserTimezone(ownerId);
+  const record = await getHabitRecordForOwnerOnDate(ownerId, habitId, getTodayDateKeyForTimezone(timeZone));
 
   await db.checkInEntry.upsert({
     where: {
@@ -595,9 +694,204 @@ export async function updateTodayCheckInStatuses(input: unknown, options?: Check
   };
 }
 
-export async function archiveCheckInHabit(habitId: string) {
+async function markCheckInSkippedForOwnerOnDate(ownerId: string, habitId: string, input: unknown, dateKey: string) {
   const db = getDb();
-  const ownerId = await getCurrentUserId();
+  const parsed = checkInSkipInputSchema.parse(input);
+  const record = await getHabitRecordForOwnerOnDate(ownerId, habitId, dateKey);
+
+  await db.checkInEntry.upsert({
+    where: {
+      habitId_date: {
+        habitId,
+        date: record.date
+      }
+    },
+    update: {
+      ownerId: record.ownerId,
+      status: "SKIPPED",
+      reasonTag: parsed.reasonTag,
+      note: parsed.note || null
+    },
+    create: {
+      habitId,
+      ownerId: record.ownerId,
+      date: record.date,
+      status: "SKIPPED",
+      reasonTag: parsed.reasonTag,
+      note: parsed.note || null
+    }
+  });
+}
+
+export async function updateCheckInStatusesForDate(input: unknown, options?: CheckInContextOptions): Promise<CheckInDateUpdateResult> {
+  const parsed = checkInDateUpdateInputSchema.parse(input);
+  const ownerId = await resolveOwnerId(options);
+  const results: CheckInTodayUpdateResultItem[] = [];
+
+  for (const [index, rawUpdate] of parsed.updates.entries()) {
+    const parsedUpdate = checkInTodayUpdateItemSchema.safeParse(rawUpdate);
+
+    if (!parsedUpdate.success) {
+      results.push({
+        index,
+        habitId: typeof rawUpdate === "object" && rawUpdate !== null && "habitId" in rawUpdate && typeof rawUpdate.habitId === "string"
+          ? rawUpdate.habitId
+          : "",
+        status: typeof rawUpdate === "object" && rawUpdate !== null && "status" in rawUpdate && rawUpdate.status === "SKIPPED"
+          ? "SKIPPED"
+          : "DONE",
+        applied: false,
+        error: parsedUpdate.error.issues.map((issue) => issue.message).join("; ")
+      });
+      continue;
+    }
+
+    const update = parsedUpdate.data;
+
+    try {
+      if (update.status === "DONE") {
+        await markCheckInDoneForOwner(ownerId, update.habitId, parsed.date);
+        results.push({
+          index,
+          habitId: update.habitId,
+          status: update.status,
+          applied: true
+        });
+        continue;
+      }
+
+      await markCheckInSkippedForOwnerOnDate(ownerId, update.habitId, {
+        reasonTag: update.reasonTag,
+        note: update.note
+      }, parsed.date);
+      results.push({
+        index,
+        habitId: update.habitId,
+        status: update.status,
+        applied: true,
+        reasonTag: update.reasonTag,
+        note: update.note || undefined
+      });
+    } catch (error) {
+      results.push({
+        index,
+        habitId: update.habitId,
+        status: update.status,
+        applied: false,
+        reasonTag: update.reasonTag,
+        note: update.note || undefined,
+        error: error instanceof Error ? error.message : "Failed to update check-in."
+      });
+    }
+  }
+
+  const updatedCount = results.filter((item) => item.applied).length;
+  const failedCount = results.length - updatedCount;
+
+  return {
+    ok: failedCount === 0,
+    date: parsed.date,
+    updatedCount,
+    failedCount,
+    results
+  };
+}
+
+export async function resetCheckInStatusesForDate(input: unknown, options?: CheckInContextOptions): Promise<CheckInEntryResetResult> {
+  const parsed = checkInEntryResetInputSchema.parse(input);
+  const ownerId = await resolveOwnerId(options);
+  const db = getDb();
+  const results: CheckInEntryResetResultItem[] = [];
+  const targetDate = assertValidDateKey(parsed.date);
+
+  for (const [index, reset] of parsed.resets.entries()) {
+    try {
+      await getHabitRecordForOwnerOnDate(ownerId, reset.habitId, parsed.date);
+
+      await db.checkInEntry.deleteMany({
+        where: {
+          ownerId,
+          habitId: reset.habitId,
+          date: targetDate
+        }
+      });
+
+      results.push({
+        index,
+        habitId: reset.habitId,
+        cleared: true
+      });
+    } catch (error) {
+      results.push({
+        index,
+        habitId: reset.habitId,
+        cleared: false,
+        error: error instanceof Error ? error.message : "Failed to reset check-in."
+      });
+    }
+  }
+
+  const clearedCount = results.filter((item) => item.cleared).length;
+  const failedCount = results.length - clearedCount;
+
+  return {
+    ok: failedCount === 0,
+    date: parsed.date,
+    clearedCount,
+    failedCount,
+    results
+  };
+}
+
+export async function createCheckInAuditLog(input: CheckInAuditLogInput) {
+  const db = getDb();
+
+  await db.checkInAuditLog.create({
+    data: {
+      ownerId: input.ownerId,
+      habitId: input.habitId || null,
+      action: input.action,
+      source: input.source,
+      requestId: input.requestId,
+      targetDate: input.targetDate ? assertValidDateKey(input.targetDate) : null,
+      payloadJson: input.payload ?? null,
+      resultJson: input.result ?? null
+    }
+  });
+}
+
+export async function listCheckInAuditLogs(
+  options?: CheckInContextOptions & {
+    limit?: number;
+    habitId?: string;
+  }
+): Promise<CheckInAuditLogItem[]> {
+  const db = getDb();
+  const ownerId = await resolveOwnerId(options);
+  const limit = Math.min(Math.max(options?.limit ?? 20, 1), 100);
+
+  const logs = await db.checkInAuditLog.findMany({
+    where: {
+      ownerId,
+      ...(options?.habitId ? { habitId: options.habitId } : {})
+    },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    include: {
+      habit: {
+        select: {
+          title: true
+        }
+      }
+    }
+  });
+
+  return logs.map((log: (typeof logs)[number]) => mapCheckInAuditLogItem(log));
+}
+
+export async function archiveCheckInHabit(habitId: string, options?: CheckInContextOptions) {
+  const db = getDb();
+  const ownerId = await resolveOwnerId(options);
   const existing = await db.checkInHabit.findFirst({
     where: {
       id: habitId,
@@ -619,4 +913,9 @@ export async function archiveCheckInHabit(habitId: string) {
       isArchived: true
     }
   });
+
+  return {
+    id: existing.id,
+    isArchived: true
+  };
 }
