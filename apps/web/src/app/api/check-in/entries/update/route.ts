@@ -3,7 +3,7 @@ import crypto from "node:crypto";
 import { NextResponse } from "next/server";
 
 import { authenticateApiRequest } from "@/app/api/auth-guard";
-import { createCheckInAuditLog, updateTodayCheckInStatuses } from "@/server/check-in/service";
+import { createCheckInAuditLog, updateCheckInStatusesForDate } from "@/server/check-in/service";
 
 export async function POST(request: Request) {
   const auth = await authenticateApiRequest(request);
@@ -13,15 +13,15 @@ export async function POST(request: Request) {
 
   try {
     const payload = await request.json();
-    const result = await updateTodayCheckInStatuses(payload, { ownerId: auth.userId });
+    const result = await updateCheckInStatusesForDate(payload, { ownerId: auth.userId });
     const requestId = crypto.randomUUID();
 
     await createCheckInAuditLog({
       ownerId: auth.userId,
-      action: "UPDATE_TODAY",
+      action: "UPDATE_DATE",
       source: auth.authMethod,
       requestId,
-      targetDate: result.today.date,
+      targetDate: result.date,
       payload,
       result
     });
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: error instanceof Error ? error.message : "Failed to update today's check-ins."
+        error: error instanceof Error ? error.message : "Failed to update check-ins for the requested date."
       },
       { status: 400 }
     );

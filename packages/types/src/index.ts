@@ -228,6 +228,53 @@ export type CheckInTodayUpdateResult = {
   today: CheckInTodayStatus;
 };
 
+export type CheckInEntryResetResultItem = {
+  index: number;
+  habitId: string;
+  cleared: boolean;
+  error?: string;
+};
+
+export type CheckInEntryResetResult = {
+  ok: boolean;
+  date: string;
+  clearedCount: number;
+  failedCount: number;
+  results: CheckInEntryResetResultItem[];
+};
+
+export type CheckInDateUpdateResult = {
+  ok: boolean;
+  date: string;
+  updatedCount: number;
+  failedCount: number;
+  results: CheckInTodayUpdateResultItem[];
+};
+
+export type CheckInAuditAction =
+  | "CREATE_HABIT"
+  | "UPDATE_HABIT"
+  | "ARCHIVE_HABIT"
+  | "UPDATE_TODAY"
+  | "UPDATE_DATE"
+  | "RESET_DATE";
+
+export type CheckInAuditSource = "session" | "apiKey";
+
+export type CheckInAuditLogItem = {
+  id: string;
+  ownerId: string;
+  habitId?: string;
+  habitTitle?: string;
+  action: CheckInAuditAction;
+  source: CheckInAuditSource;
+  requestId: string;
+  targetDate?: string;
+  payload?: unknown;
+  result?: unknown;
+  createdAt: string;
+};
+
 export type KnowledgeNoteInput = {
   title: string;
   summary?: string;
