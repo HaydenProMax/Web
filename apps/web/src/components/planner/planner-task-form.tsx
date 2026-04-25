@@ -42,6 +42,37 @@ function priorityTone(priority: PlannerTaskPriority) {
   return "border-sky-200 bg-sky-50 text-sky-700";
 }
 
+function getTodayDateKey() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = `${now.getMonth() + 1}`.padStart(2, "0");
+  const day = `${now.getDate()}`.padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+function normalizeDueValue(nextValue: string, previousValue: string) {
+  if (!nextValue) {
+    return nextValue;
+  }
+
+  const [nextDatePart, nextTimePart = "00:00"] = nextValue.split("T");
+  if (nextDatePart !== getTodayDateKey()) {
+    return nextValue;
+  }
+
+  if (nextTimePart !== "00:00") {
+    return nextValue;
+  }
+
+  const [previousDatePart] = previousValue.split("T");
+  if (previousDatePart === nextDatePart) {
+    return nextValue;
+  }
+
+  return `${nextDatePart}T23:59`;
+}
+
 export function PlannerTaskForm({
   action,
   initialData,
@@ -161,7 +192,7 @@ export function PlannerTaskForm({
                 name="dueAt"
                 type="datetime-local"
                 value={dueAt}
-                onChange={(event) => setDueAt(event.target.value)}
+                onChange={(event) => setDueAt((currentValue) => normalizeDueValue(event.target.value, currentValue))}
                 className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none transition-colors duration-200 focus:border-primary/40"
               />
             </div>
