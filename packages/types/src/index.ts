@@ -201,6 +201,33 @@ export type CheckInTodayStatus = {
   };
 };
 
+export type CheckInTodayUpdateItemStatus = "DONE" | "SKIPPED";
+
+export type CheckInTodayUpdateItem = {
+  habitId: string;
+  status: CheckInTodayUpdateItemStatus;
+  reasonTag?: CheckInSkipReasonTag;
+  note?: string;
+};
+
+export type CheckInTodayUpdateResultItem = {
+  index: number;
+  habitId: string;
+  status: CheckInTodayUpdateItemStatus;
+  applied: boolean;
+  reasonTag?: CheckInSkipReasonTag;
+  note?: string;
+  error?: string;
+};
+
+export type CheckInTodayUpdateResult = {
+  updatedCount: number;
+  failedCount: number;
+  ok: boolean;
+  results: CheckInTodayUpdateResultItem[];
+  today: CheckInTodayStatus;
+};
+
 export type KnowledgeNoteInput = {
   title: string;
   summary?: string;

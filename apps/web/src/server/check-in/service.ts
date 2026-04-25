@@ -4,7 +4,9 @@ import type {
   CheckInHistoryItem,
   CheckInOverview,
   CheckInSkipReasonTag,
-  CheckInTodayStatus
+  CheckInTodayStatus,
+  CheckInTodayUpdateResult,
+  CheckInTodayUpdateResultItem
 } from "@workspace/types/index";
 
 import { getCurrentUserId } from "@/server/auth/current-user";
@@ -12,7 +14,9 @@ import { getDb } from "@/server/db";
 import {
   checkInHabitEditableFieldsSchema,
   checkInHabitInputSchema,
-  checkInSkipInputSchema
+  checkInSkipInputSchema,
+  checkInTodayUpdateEnvelopeSchema,
+  checkInTodayUpdateItemSchema
 } from "@/server/check-in/schema";
 
 type HabitWithEntries = {
@@ -483,10 +487,9 @@ export async function markCheckInDone(habitId: string) {
   await markCheckInDoneForOwner(ownerId, habitId);
 }
 
-export async function markCheckInSkipped(habitId: string, input: unknown) {
+async function markCheckInSkippedForOwner(ownerId: string, habitId: string, input: unknown) {
   const db = getDb();
   const parsed = checkInSkipInputSchema.parse(input);
-  const ownerId = await getCurrentUserId();
   const record = await getTodayHabitRecordForOwner(ownerId, habitId);
 
   await db.checkInEntry.upsert({
@@ -511,6 +514,85 @@ export async function markCheckInSkipped(habitId: string, input: unknown) {
       note: parsed.note || null
     }
   });
+}
+
+export async function markCheckInSkipped(habitId: string, input: unknown) {
+  const ownerId = await getCurrentUserId();
+  await markCheckInSkippedForOwner(ownerId, habitId, input);
+}
+
+export async function updateTodayCheckInStatuses(input: unknown, options?: CheckInContextOptions): Promise<CheckInTodayUpdateResult> {
+  const envelope = checkInTodayUpdateEnvelopeSchema.parse(input);
+  const ownerId = await resolveOwnerId(options);
+  const results: CheckInTodayUpdateResultItem[] = [];
+
+  for (const [index, rawUpdate] of envelope.updates.entries()) {
+    const parsedUpdate = checkInTodayUpdateItemSchema.safeParse(rawUpdate);
+
+    if (!parsedUpdate.success) {
+      results.push({
+        index,
+        habitId: typeof rawUpdate === "object" && rawUpdate !== null && "habitId" in rawUpdate && typeof rawUpdate.habitId === "string"
+          ? rawUpdate.habitId
+          : "",
+        status: typeof rawUpdate === "object" && rawUpdate !== null && "status" in rawUpdate && rawUpdate.status === "SKIPPED"
+          ? "SKIPPED"
+          : "DONE",
+        applied: false,
+        error: parsedUpdate.error.issues.map((issue) => issue.message).join("; ")
+      });
+      continue;
+    }
+
+    const update = parsedUpdate.data;
+
+    try {
+      if (update.status === "DONE") {
+        await markCheckInDoneForOwner(ownerId, update.habitId);
+        results.push({
+          index,
+          habitId: update.habitId,
+          status: update.status,
+          applied: true
+        });
+        continue;
+      }
+
+      await markCheckInSkippedForOwner(ownerId, update.habitId, {
+        reasonTag: update.reasonTag,
+        note: update.note
+      });
+      results.push({
+        index,
+        habitId: update.habitId,
+        status: update.status,
+        applied: true,
+        reasonTag: update.reasonTag,
+        note: update.note || undefined
+      });
+    } catch (error) {
+      results.push({
+        index,
+        habitId: update.habitId,
+        status: update.status,
+        applied: false,
+        reasonTag: update.reasonTag,
+        note: update.note || undefined,
+        error: error instanceof Error ? error.message : "Failed to update check-in."
+      });
+    }
+  }
+
+  const updatedCount = results.filter((item) => item.applied).length;
+  const failedCount = results.length - updatedCount;
+
+  return {
+    ok: failedCount === 0,
+    updatedCount,
+    failedCount,
+    results,
+    today: await getTodayCheckInStatus({ ownerId })
+  };
 }
 
 export async function archiveCheckInHabit(habitId: string) {
