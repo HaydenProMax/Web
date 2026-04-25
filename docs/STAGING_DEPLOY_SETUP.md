@@ -10,6 +10,7 @@ Run a separate staging instance that:
 - listens on port `3010`
 - does not modify production data
 - can be used to validate new API routes before production rollout
+- stays available for future pre-release testing
 
 ## Files Added
 
@@ -18,9 +19,14 @@ Run a separate staging instance that:
 
 ## Recommended Server Paths
 
-- app repo: `/opt/hayden-web/current`
-- shared env: `/opt/hayden-web/shared/.env.staging`
+- app repo: `/opt/hayden-web-staging/current`
+- shared env: `/opt/hayden-web-staging/shared/.env.staging`
 - service file: `/etc/systemd/system/hayden-web-staging.service`
+
+Recommended production/staging split:
+
+- production repo: `/opt/hayden-web/current`
+- staging repo: `/opt/hayden-web-staging/current`
 
 ## Example `.env.staging`
 
@@ -39,7 +45,7 @@ Use a staging-only API key. Do not reuse the production OpenClaw key.
 ## Setup Steps
 
 1. Create the staging database.
-2. Create `/opt/hayden-web/shared/.env.staging`.
+2. Create `/opt/hayden-web-staging/shared/.env.staging`.
 3. Copy [`docs/hayden-web-staging.service.example`](/D:/HaydenWeb/docs/hayden-web-staging.service.example) to `/etc/systemd/system/hayden-web-staging.service`.
 4. Run:
 
@@ -79,6 +85,8 @@ server {
 
 ## Important Notes
 
+- This staging setup is designed to be long-lived and reusable.
+- Keep the staging repo on its own branch and working tree so production can stay on `main`.
 - This script currently uses `prisma db push`, matching the existing production deploy flow.
 - For staging validation, that is acceptable and keeps the flow consistent with production.
 - The script also runs `pnpm db:seed`, so keep staging isolated from production.

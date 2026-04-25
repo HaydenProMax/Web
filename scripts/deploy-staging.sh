@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-APP_DIR="/opt/hayden-web/current"
+APP_DIR="/opt/hayden-web-staging/current"
 SERVICE_NAME="hayden-web-staging"
 TARGET_REF="${1:-main}"
 HEALTH_URL="http://127.0.0.1:3010/sign-in"
