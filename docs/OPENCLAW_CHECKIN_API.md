@@ -1,64 +1,75 @@
-# OpenClaw Check-in API
+# OpenClaw Check-in API 文档
 
-This document describes the check-in API endpoints currently exposed for OpenClaw integration.
+这份文档面向两类使用者：
 
-## Overview
+- OpenClaw 集成方
+- 本项目的接口联调与排障人员
 
-Current API scope:
+当前 `check-in` API 已支持 OpenClaw 读取今日状态、批量写回打卡结果、维护打卡事项，以及读取审计日志。
 
-- Read today's check-in status
-- Read audit history for API-driven check-in changes
-- Batch update today's check-in results
-- Batch update check-in results for a specified date
-- Reset check-in results for a specified date
-- List active habits
-- Create habits
-- Update habit fields
-- Archive habits
+## 1. 集成概览
 
-Current design assumptions:
+当前可用接口：
 
-- API key requests are bound to one default user
-- The client does not pass a `userId` in the request
-- The server resolves the target user from `DEFAULT_USER_ID`
+- `GET /api/check-in/today`
+- `POST /api/check-in/today/update`
+- `GET /api/check-in/habits`
+- `POST /api/check-in/habits`
+- `PATCH /api/check-in/habits/:habitId`
+- `POST /api/check-in/habits/:habitId/archive`
+- `POST /api/check-in/entries/update`
+- `POST /api/check-in/entries/reset`
+- `GET /api/check-in/audit`
 
-## Authentication
+推荐给 OpenClaw 的调用顺序：
 
-The API supports two authentication modes:
+1. 先调用 `GET /api/check-in/today`
+2. 根据 `data.pending` / `data.unfinished` 告诉用户今天还有哪些事项没完成
+3. 用户用自然语言回复“哪些已完成、哪些跳过、原因是什么”
+4. OpenClaw 把自然语言解析成结构化 `updates`
+5. 调用 `POST /api/check-in/today/update`
+6. 如需核验，再调用 `GET /api/check-in/audit?limit=10`
 
-- Session auth for signed-in web users
-- API key auth for OpenClaw or other external clients
+## 2. 鉴权方式
 
-Accepted API key headers:
+接口支持两种鉴权：
+
+- 浏览器会话登录
+- API Key
+
+OpenClaw 推荐使用 API Key。
+
+可接受的请求头：
 
 ```http
 x-api-key: YOUR_OPENCLAW_API_KEY
 ```
 
-or
+或：
 
 ```http
 Authorization: ApiKey YOUR_OPENCLAW_API_KEY
 ```
 
-Required server environment variables:
+服务端必须配置：
 
 ```env
 OPENCLAW_API_KEY="your-api-key"
-DEFAULT_USER_ID="your-real-user-id"
+DEFAULT_USER_ID="your-user-id"
 ```
 
-Notes:
+说明：
 
-- `DEFAULT_USER_ID` must exist in the database
-- API key requests will act on that user
-- After changing `.env`, restart the app process
+- API Key 请求不需要传 `userId`
+- 当前实现会固定作用到服务端环境变量 `DEFAULT_USER_ID`
+- 这个 `DEFAULT_USER_ID` 必须在数据库里真实存在
+- 修改 `.env` 后必须重启服务
 
-## Response Envelope
+## 3. 响应格式
 
-All endpoints use this top-level envelope:
+所有接口都使用统一外层包裹：
 
-Successful response:
+成功时：
 
 ```json
 {
@@ -71,7 +82,7 @@ Successful response:
 }
 ```
 
-Error response:
+失败时：
 
 ```json
 {
@@ -80,27 +91,57 @@ Error response:
 }
 ```
 
-`meta.authMethod` is either:
+字段说明：
 
-- `session`
-- `apiKey`
+- `meta.authMethod`: `session` 或 `apiKey`
+- `meta.requestId`: 写操作接口会返回本次请求的审计关联 ID
 
-Some mutation endpoints also include:
+## 4. OpenClaw 状态映射建议
 
-- `meta.requestId`: unique audit correlation id for that write request
+建议把用户自然语言映射为以下状态：
 
-## GET /api/check-in/today
+- “完成了 / 做完了 / 已经做了” -> `DONE`
+- “没做 / 今天不做了 / 跳过” -> `SKIPPED`
 
-Returns today's check-in snapshot for the authenticated user.
+当前写入接口 `today/update` 和 `entries/update` 只接受：
 
-### Example
+- `DONE`
+- `SKIPPED`
+
+如果是 `SKIPPED`，必须同时带上 `reasonTag`。
+
+可用 `reasonTag`：
+
+- `SICK`
+- `BUSY`
+- `OUT`
+- `REST`
+- `FORGOT`
+- `OTHER`
+
+推荐自然语言映射：
+
+- “忙 / 加班 / 今天太忙” -> `BUSY`
+- “忘了” -> `FORGOT`
+- “生病 / 不舒服” -> `SICK`
+- “出门 / 旅行 / 不在家” -> `OUT`
+- “休息日” -> `REST`
+- 其他原因 -> `OTHER`
+
+原始解释建议保留在 `note` 里。
+
+## 5. GET /api/check-in/today
+
+读取今天的打卡总览。
+
+### 示例
 
 ```bash
 curl -i "https://your-domain.com/api/check-in/today" \
   -H "x-api-key: YOUR_OPENCLAW_API_KEY"
 ```
 
-### Success Response
+### 成功响应示例
 
 ```json
 {
@@ -124,64 +165,122 @@ curl -i "https://your-domain.com/api/check-in/today" \
     }
   },
   "meta": {
-    "authMethod": "apiKey",
-    "requestId": "REQUEST_UUID"
+    "authMethod": "apiKey"
   }
 }
 ```
 
-### Important Fields
+### 关键字段
 
-- `data.summary`: human-readable summary for conversational use
-- `data.pending`: habits not yet completed today
-- `data.skipped`: habits marked skipped today
-- `data.unfinished`: combined list of pending and skipped habits
-- `data.counts`: numeric summary for agent logic
+- `data.summary`: 适合直接给用户展示的总结句
+- `data.pending`: 今天计划内但未写入结果的事项
+- `data.skipped`: 今天被标记为跳过的事项
+- `data.unfinished`: `pending + skipped`
+- `data.counts`: 适合给 agent 做判断逻辑
 
-### Status Codes
+### 状态码
 
-- `200`: success
-- `401`: missing or invalid authentication
-- `500`: server-side failure while loading today's status
+- `200`: 成功
+- `401`: 鉴权失败
+- `500`: 服务端读取失败
 
-## GET /api/check-in/audit
+## 6. POST /api/check-in/today/update
 
-Returns recent audit logs for check-in API mutations.
+批量更新“今天”的打卡结果。
 
-### Query Parameters
+这是最核心的 OpenClaw 写回接口。
 
-- `limit`: optional, default `20`, max `100`
-- `habitId`: optional, filter by one habit id
+### 请求体
 
-### Example
-
-```bash
-curl -i "https://your-domain.com/api/check-in/audit?limit=20" \
-  -H "x-api-key: YOUR_OPENCLAW_API_KEY"
+```json
+{
+  "updates": [
+    {
+      "habitId": "habit-a",
+      "status": "DONE",
+      "note": "用户确认已完成"
+    },
+    {
+      "habitId": "habit-b",
+      "status": "SKIPPED",
+      "reasonTag": "BUSY",
+      "note": "今天加班，先跳过"
+    }
+  ]
+}
 ```
 
-### Success Response
+### 字段规则
+
+每个 `updates[]` 项支持：
+
+- `habitId`: 必填
+- `status`: 必填，取值只能是 `DONE` 或 `SKIPPED`
+- `reasonTag`: 当 `status=SKIPPED` 时必填
+- `note`: 可选，最大 280 字符
+
+请求限制：
+
+- `updates` 至少 1 项
+- `updates` 最多 50 项
+
+### 示例
+
+```bash
+curl -i -X POST "https://your-domain.com/api/check-in/today/update" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_OPENCLAW_API_KEY" \
+  -d '{
+    "updates": [
+      {
+        "habitId": "habit-a",
+        "status": "DONE",
+        "note": "用户确认已完成"
+      },
+      {
+        "habitId": "habit-b",
+        "status": "SKIPPED",
+        "reasonTag": "BUSY",
+        "note": "今天加班，先跳过"
+      }
+    ]
+  }'
+```
+
+### 全部成功
+
+HTTP 状态：
+
+```http
+200 OK
+```
+
+响应示例：
 
 ```json
 {
   "ok": true,
   "data": {
-    "logs": [
+    "ok": true,
+    "updatedCount": 2,
+    "failedCount": 0,
+    "results": [
       {
-        "id": "audit-log-id",
-        "ownerId": "seed-user-id",
-        "habitId": "habit-id",
-        "habitTitle": "Workout",
-        "action": "UPDATE_TODAY",
-        "source": "apiKey",
-        "requestId": "c9d71df9-6dd4-4a72-b5a4-a6df57f26d61",
-        "targetDate": "2026-04-25",
-        "payload": {},
-        "result": {},
-        "createdAt": "2026-04-25T10:30:00.000Z"
+        "index": 0,
+        "habitId": "habit-a",
+        "status": "DONE",
+        "applied": true
+      },
+      {
+        "index": 1,
+        "habitId": "habit-b",
+        "status": "SKIPPED",
+        "applied": true,
+        "reasonTag": "BUSY",
+        "note": "今天加班，先跳过"
       }
     ],
-    "count": 1
+    "today": {}
   },
   "meta": {
     "authMethod": "apiKey",
@@ -190,33 +289,77 @@ curl -i "https://your-domain.com/api/check-in/audit?limit=20" \
 }
 ```
 
-### Action Values
+### 部分成功
 
-- `CREATE_HABIT`
-- `UPDATE_HABIT`
-- `ARCHIVE_HABIT`
-- `UPDATE_TODAY`
-- `UPDATE_DATE`
-- `RESET_DATE`
+HTTP 状态：
 
-### Status Codes
+```http
+207 Multi-Status
+```
 
-- `200`: success
-- `400`: invalid query input
-- `401`: missing or invalid authentication
+响应示例：
 
-## GET /api/check-in/habits
+```json
+{
+  "ok": true,
+  "data": {
+    "ok": false,
+    "updatedCount": 1,
+    "failedCount": 1,
+    "results": [
+      {
+        "index": 0,
+        "habitId": "habit-a",
+        "status": "DONE",
+        "applied": true
+      },
+      {
+        "index": 1,
+        "habitId": "bad-habit-id",
+        "status": "SKIPPED",
+        "applied": false,
+        "reasonTag": "BUSY",
+        "note": "今天加班，先跳过",
+        "error": "Check-in habit not found"
+      }
+    ],
+    "today": {}
+  },
+  "meta": {
+    "authMethod": "apiKey",
+    "requestId": "REQUEST_UUID"
+  }
+}
+```
 
-Returns all active check-in habits for the authenticated user.
+### 错误场景
 
-### Example
+- `400`: 请求体不合法
+- `401`: 鉴权失败
+
+### 结果字段
+
+- `data.ok`: 本次批量是否全部成功
+- `data.updatedCount`: 成功写入数量
+- `data.failedCount`: 失败数量
+- `data.results[]`: 单条结果
+- `data.results[].index`: 对应原始请求位置
+- `data.results[].applied`: 该项是否已真正写入
+- `data.results[].error`: 单项失败原因
+- `data.today`: 更新后的今日快照
+
+## 7. GET /api/check-in/habits
+
+读取当前用户的有效打卡事项。
+
+### 示例
 
 ```bash
 curl -i "https://your-domain.com/api/check-in/habits" \
   -H "x-api-key: YOUR_OPENCLAW_API_KEY"
 ```
 
-### Success Response
+### 成功响应示例
 
 ```json
 {
@@ -242,23 +385,22 @@ curl -i "https://your-domain.com/api/check-in/habits" \
     "count": 1
   },
   "meta": {
-    "authMethod": "apiKey",
-    "requestId": "REQUEST_UUID"
+    "authMethod": "apiKey"
   }
 }
 ```
 
-### Status Codes
+### 状态码
 
-- `200`: success
-- `401`: missing or invalid authentication
-- `500`: server-side failure while loading habits
+- `200`: 成功
+- `401`: 鉴权失败
+- `500`: 服务端读取失败
 
-## POST /api/check-in/habits
+## 8. POST /api/check-in/habits
 
-Creates a new check-in habit.
+创建新的打卡事项。
 
-### Request Body
+### 请求体
 
 ```json
 {
@@ -269,24 +411,24 @@ Creates a new check-in habit.
 }
 ```
 
-### Field Rules
+### 字段规则
 
-- `title`: required, max 80 characters
-- `description`: optional, max 240 characters
-- `scheduleType`: `DAILY`, `WEEKDAYS`, or `CUSTOM`
-- `scheduleDays`: required when `scheduleType` is `CUSTOM`
+- `title`: 必填，1-80 字符
+- `description`: 可选，最多 240 字符
+- `scheduleType`: `DAILY`、`WEEKDAYS`、`CUSTOM`
+- `scheduleDays`: `CUSTOM` 时至少 1 个，范围 `0-6`
 
-Weekday mapping:
+星期映射：
 
-- `0`: Sunday
-- `1`: Monday
-- `2`: Tuesday
-- `3`: Wednesday
-- `4`: Thursday
-- `5`: Friday
-- `6`: Saturday
+- `0`: 周日
+- `1`: 周一
+- `2`: 周二
+- `3`: 周三
+- `4`: 周四
+- `5`: 周五
+- `6`: 周六
 
-### Example
+### 示例
 
 ```bash
 curl -i -X POST "https://your-domain.com/api/check-in/habits" \
@@ -300,31 +442,29 @@ curl -i -X POST "https://your-domain.com/api/check-in/habits" \
   }'
 ```
 
-### Status Codes
+### 状态码
 
-- `201`: created
-- `400`: invalid input
-- `401`: missing or invalid authentication
+- `201`: 创建成功
+- `400`: 请求体不合法
+- `401`: 鉴权失败
 
-## PATCH /api/check-in/habits/:habitId
+## 9. PATCH /api/check-in/habits/:habitId
 
-Updates habit fields for an existing active habit.
+更新现有事项字段。
 
-### Supported Fields
+### 当前支持字段
 
 - `title`
 - `description`
 - `scheduleType`
 - `scheduleDays`
 
-Notes:
+### 注意
 
-- `title` is still required in the current implementation
-- `description` may be empty
-- If `scheduleType` is omitted, the current schedule is preserved
-- If `scheduleType` is `CUSTOM`, `scheduleDays` must be provided and non-empty
+- 当前实现里 `title` 仍然是必填
+- 如果 `scheduleType=CUSTOM`，则 `scheduleDays` 必须传且不能为空
 
-### Request Body
+### 请求体示例
 
 ```json
 {
@@ -334,7 +474,7 @@ Notes:
 }
 ```
 
-### Example
+### 示例
 
 ```bash
 curl -i -X PATCH "https://your-domain.com/api/check-in/habits/habit-id" \
@@ -347,24 +487,26 @@ curl -i -X PATCH "https://your-domain.com/api/check-in/habits/habit-id" \
   }'
 ```
 
-### Status Codes
+### 状态码
 
-- `200`: updated
-- `400`: invalid input or habit not found
-- `401`: missing or invalid authentication
+- `200`: 更新成功
+- `400`: 请求非法或事项不存在
+- `401`: 鉴权失败
 
-## POST /api/check-in/habits/:habitId/archive
+## 10. POST /api/check-in/habits/:habitId/archive
 
-Archives an active habit. Past records remain in the database.
+归档一个事项。
 
-### Example
+归档后，历史记录仍保留在数据库。
+
+### 示例
 
 ```bash
 curl -i -X POST "https://your-domain.com/api/check-in/habits/habit-id/archive" \
   -H "x-api-key: YOUR_OPENCLAW_API_KEY"
 ```
 
-### Success Response
+### 成功响应示例
 
 ```json
 {
@@ -380,200 +522,19 @@ curl -i -X POST "https://your-domain.com/api/check-in/habits/habit-id/archive" \
 }
 ```
 
-### Status Codes
+### 状态码
 
-- `200`: archived
-- `400`: habit not found or already archived
-- `401`: missing or invalid authentication
+- `200`: 归档成功
+- `400`: 事项不存在或已归档
+- `401`: 鉴权失败
 
-## POST /api/check-in/today/update
+## 11. POST /api/check-in/entries/update
 
-Batch writes today's check-in results for one or more habits.
+按指定日期批量写入打卡结果。
 
-This endpoint is designed for the OpenClaw conversation loop:
+适合补录历史日期。
 
-1. OpenClaw reads `GET /api/check-in/today`
-2. The user replies in natural language
-3. OpenClaw maps the reply into structured updates
-4. OpenClaw sends the batch update request
-
-### Request Body
-
-```json
-{
-  "updates": [
-    {
-      "habitId": "cmo79o2fg002dpybooxddelrq",
-      "status": "DONE"
-    },
-    {
-      "habitId": "cmo79ojhh002hpybom1pb6he9",
-      "status": "SKIPPED",
-      "reasonTag": "BUSY",
-      "note": "Busy with work today"
-    }
-  ]
-}
-```
-
-### Field Rules
-
-Each `updates[]` item supports:
-
-- `habitId`: required string
-- `status`: required, one of `DONE` or `SKIPPED`
-- `reasonTag`: required when `status` is `SKIPPED`
-- `note`: optional free-text note, max length 280
-
-Supported `reasonTag` values:
-
-- `SICK`
-- `BUSY`
-- `OUT`
-- `REST`
-- `FORGOT`
-- `OTHER`
-
-### Example
-
-```bash
-curl -i -X POST "https://your-domain.com/api/check-in/today/update" \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: YOUR_OPENCLAW_API_KEY" \
-  -d '{
-    "updates": [
-      {
-        "habitId": "cmo79o2fg002dpybooxddelrq",
-        "status": "DONE"
-      },
-      {
-        "habitId": "cmo79ojhh002hpybom1pb6he9",
-        "status": "SKIPPED",
-        "reasonTag": "BUSY",
-        "note": "Busy with work today"
-      }
-    ]
-  }'
-```
-
-## POST Response Semantics
-
-This endpoint supports full success and partial success.
-
-### Full Success
-
-HTTP status:
-
-```http
-200 OK
-```
-
-Response:
-
-```json
-{
-  "ok": true,
-  "data": {
-    "ok": true,
-    "updatedCount": 2,
-    "failedCount": 0,
-    "results": [
-      {
-        "index": 0,
-        "habitId": "habit-a",
-        "status": "DONE",
-        "applied": true
-      },
-      {
-        "index": 1,
-        "habitId": "habit-b",
-        "status": "SKIPPED",
-        "applied": true,
-        "reasonTag": "BUSY",
-        "note": "Busy with work today"
-      }
-    ],
-    "today": {}
-  },
-  "meta": {
-    "authMethod": "apiKey"
-  }
-}
-```
-
-### Partial Success
-
-HTTP status:
-
-```http
-207 Multi-Status
-```
-
-Response:
-
-```json
-{
-  "ok": true,
-  "data": {
-    "ok": false,
-    "updatedCount": 1,
-    "failedCount": 1,
-    "results": [
-      {
-        "index": 0,
-        "habitId": "valid-habit-id",
-        "status": "DONE",
-        "applied": true
-      },
-      {
-        "index": 1,
-        "habitId": "bad-habit-id",
-        "status": "SKIPPED",
-        "applied": false,
-        "reasonTag": "BUSY",
-        "note": "Busy with work today",
-        "error": "Check-in habit not found"
-      }
-    ],
-    "today": {}
-  },
-  "meta": {
-    "authMethod": "apiKey"
-  }
-}
-```
-
-### Invalid Request
-
-HTTP status:
-
-```http
-400 Bad Request
-```
-
-Typical causes:
-
-- Missing `updates`
-- `updates` is empty
-- More than 50 items
-- Request body is not valid JSON
-
-### Result Fields
-
-- `data.ok`: whether all items were applied successfully
-- `data.updatedCount`: number of successful updates
-- `data.failedCount`: number of failed updates
-- `data.results`: per-item execution results
-- `data.results[].index`: original item position in the request
-- `data.results[].applied`: whether the item was written successfully
-- `data.results[].error`: error message for a failed item
-- `data.today`: latest today snapshot after processing the batch
-
-## POST /api/check-in/entries/update
-
-Batch writes check-in results for a specified date. This is the backfill endpoint for missed or delayed updates.
-
-### Request Body
+### 请求体
 
 ```json
 {
@@ -587,52 +548,20 @@ Batch writes check-in results for a specified date. This is the backfill endpoin
       "habitId": "habit-b",
       "status": "SKIPPED",
       "reasonTag": "FORGOT",
-      "note": "Updated the next day"
+      "note": "第二天补录"
     }
   ]
 }
 ```
 
-### Response Semantics
+### 状态码
 
-- `200`: all updates applied
-- `207`: partial success
-- `400`: invalid request
+- `200`: 全部成功
+- `207`: 部分成功
+- `400`: 请求不合法
+- `401`: 鉴权失败
 
-### Success Response
-
-```json
-{
-  "ok": true,
-  "data": {
-    "ok": true,
-    "date": "2026-04-24",
-    "updatedCount": 2,
-    "failedCount": 0,
-    "results": [
-      {
-        "index": 0,
-        "habitId": "habit-a",
-        "status": "DONE",
-        "applied": true
-      },
-      {
-        "index": 1,
-        "habitId": "habit-b",
-        "status": "SKIPPED",
-        "applied": true,
-        "reasonTag": "FORGOT",
-        "note": "Updated the next day"
-      }
-    ]
-  },
-  "meta": {
-    "authMethod": "apiKey"
-  }
-}
-```
-
-### Example
+### 示例
 
 ```bash
 curl -i -X POST "https://your-domain.com/api/check-in/entries/update" \
@@ -649,70 +578,38 @@ curl -i -X POST "https://your-domain.com/api/check-in/entries/update" \
         "habitId": "habit-b",
         "status": "SKIPPED",
         "reasonTag": "FORGOT",
-        "note": "Updated the next day"
+        "note": "第二天补录"
       }
     ]
   }'
 ```
 
-## POST /api/check-in/entries/reset
+## 12. POST /api/check-in/entries/reset
 
-Clears previously written check-in entries for a specified date.
+清空指定日期的打卡结果。
 
-Use this when the agent needs to undo or reset one or more habit results.
+适合撤销错误写入或重置历史数据。
 
-### Request Body
+### 请求体
 
 ```json
 {
   "date": "2026-04-24",
   "resets": [
-    {
-      "habitId": "habit-a"
-    },
-    {
-      "habitId": "habit-b"
-    }
+    { "habitId": "habit-a" },
+    { "habitId": "habit-b" }
   ]
 }
 ```
 
-### Response Semantics
+### 状态码
 
-- `200`: all resets applied
-- `207`: partial success
-- `400`: invalid request
+- `200`: 全部成功
+- `207`: 部分成功
+- `400`: 请求不合法
+- `401`: 鉴权失败
 
-### Success Response
-
-```json
-{
-  "ok": true,
-  "data": {
-    "ok": true,
-    "date": "2026-04-24",
-    "clearedCount": 2,
-    "failedCount": 0,
-    "results": [
-      {
-        "index": 0,
-        "habitId": "habit-a",
-        "cleared": true
-      },
-      {
-        "index": 1,
-        "habitId": "habit-b",
-        "cleared": true
-      }
-    ]
-  },
-  "meta": {
-    "authMethod": "apiKey"
-  }
-}
-```
-
-### Example
+### 示例
 
 ```bash
 curl -i -X POST "https://your-domain.com/api/check-in/entries/reset" \
@@ -727,44 +624,93 @@ curl -i -X POST "https://your-domain.com/api/check-in/entries/reset" \
   }'
 ```
 
-## Recommended OpenClaw Flow
+## 13. GET /api/check-in/audit
 
-Recommended workflow for the agent:
+读取最近的 API 写入审计记录。
 
-1. Call `GET /api/check-in/today`
-2. Read `data.unfinished`
-3. Ask the user which habits were completed and why others were skipped
-4. Convert the reply into structured `updates`
-5. Call `POST /api/check-in/today/update`
-6. Read `data.results` and `data.today`
-7. If `failedCount > 0`, tell the user which items failed and why
+### 查询参数
 
-## Mapping Natural Language to reasonTag
+- `limit`: 可选，默认 `20`，最大 `100`
+- `habitId`: 可选，只看某一个事项
 
-Suggested mapping:
+### 示例
 
-- "busy", "working", "too much work" -> `BUSY`
-- "forgot" -> `FORGOT`
-- "sick", "not feeling well" -> `SICK`
-- "outside", "traveling" -> `OUT`
-- "rest day" -> `REST`
-- anything else -> `OTHER`
+```bash
+curl -i "https://your-domain.com/api/check-in/audit?limit=20" \
+  -H "x-api-key: YOUR_OPENCLAW_API_KEY"
+```
 
-The original explanation can still be preserved in `note`.
+### 成功响应示例
 
-## Current Limitations
+```json
+{
+  "ok": true,
+  "data": {
+    "logs": [
+      {
+        "id": "audit-log-id",
+        "ownerId": "seed-user-id",
+        "habitId": "habit-id",
+        "habitTitle": "Workout",
+        "action": "CREATE_HABIT",
+        "source": "apiKey",
+        "requestId": "REQUEST_UUID",
+        "targetDate": "2026-04-25",
+        "payload": {},
+        "result": {},
+        "createdAt": "2026-04-25T10:30:00.000Z"
+      }
+    ],
+    "count": 1
+  },
+  "meta": {
+    "authMethod": "apiKey"
+  }
+}
+```
 
-Current API limitations:
+### action 取值
 
-- API key requests always use `DEFAULT_USER_ID`
-- The client cannot specify another user
-- There is no per-key user mapping yet
-- `PATCH /api/check-in/habits/:habitId` currently requires `title`
+- `CREATE_HABIT`
+- `UPDATE_HABIT`
+- `ARCHIVE_HABIT`
+- `UPDATE_TODAY`
+- `UPDATE_DATE`
+- `RESET_DATE`
 
-## Planned Next Steps
+### 状态码
 
-Suggested future extensions:
+- `200`: 成功
+- `400`: 查询参数不合法
+- `401`: 鉴权失败
 
-- Stronger multi-user or per-key user binding
-- Dedicated integration examples for OpenClaw tool configuration
-- Audit summaries grouped by request or date
+## 14. 给 OpenClaw 的最小可用说明
+
+如果你要把这套接口“喂给” OpenClaw，最少告诉它下面这些规则：
+
+```text
+1. 使用 x-api-key 调用 check-in API。
+2. 不需要 userId，服务端会用 DEFAULT_USER_ID 识别目标用户。
+3. 先调用 GET /api/check-in/today 获取今天状态。
+4. 从 data.pending 或 data.unfinished 中找未完成事项。
+5. 用户回复后，把“完成了”映射成 DONE，把“跳过/没做”映射成 SKIPPED。
+6. 当状态是 SKIPPED 时，必须提供 reasonTag。
+7. 把用户原话中的原因尽量保留到 note。
+8. 调用 POST /api/check-in/today/update 批量写回。
+9. 如果返回 HTTP 207，说明部分成功，需要根据 data.results[].error 向用户解释失败项。
+10. 如需追踪写入结果，调用 GET /api/check-in/audit?limit=10。
+```
+
+## 15. 当前限制
+
+当前实现仍有这些约束：
+
+- API Key 请求始终绑定到 `DEFAULT_USER_ID`
+- 还没有做到“一个 key 对应一个用户”
+- `PATCH /api/check-in/habits/:habitId` 当前仍要求 `title` 必填
+- `today/update` 与 `entries/update` 目前不接受 `PENDING`
+
+## 16. 相关文档
+
+- `docs/STAGING_DEPLOY_SETUP.md`
+- `docs/OPENCLAW_CHECKIN_TESTING.md`
