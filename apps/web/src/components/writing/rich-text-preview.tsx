@@ -13,6 +13,13 @@ type RichTextPreviewProps = {
   content: RichTextNode[];
   emptyMessage?: string;
   compact?: boolean;
+  imageCarousel?: boolean;
+};
+
+type PreviewImage = {
+  src: string;
+  alt: string;
+  caption?: string;
 };
 
 type MarkdownTaskItem = {
@@ -69,6 +76,64 @@ function renderImage(src: string, alt: string, className: string) {
   }
 
   return <img src={src} alt={alt} className={`h-full w-full ${className}`} />;
+}
+
+function buildPreviewImages(input: {
+  coverImage?: string;
+  coverAlt?: string;
+  title?: string;
+  content: RichTextNode[];
+}) {
+  const images: PreviewImage[] = [];
+  const seen = new Set<string>();
+
+  function addImage(image: PreviewImage) {
+    if (seen.has(image.src)) {
+      return;
+    }
+
+    seen.add(image.src);
+    images.push(image);
+  }
+
+  if (input.coverImage) {
+    addImage({
+      src: input.coverImage,
+      alt: input.coverAlt ?? input.title ?? "Post image"
+    });
+  }
+
+  for (const node of input.content) {
+    if (node.type === "image" && node.src) {
+      addImage({
+        src: node.src,
+        alt: node.alt ?? input.title ?? "Post image",
+        caption: node.caption
+      });
+    }
+  }
+
+  return images;
+}
+
+function renderImageCarousel(images: PreviewImage[], title?: string) {
+  return (
+    <section className="space-y-3">
+      <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto rounded-[1.75rem] bg-surface-container-low p-3 shadow-ambient">
+        {images.map((image, index) => (
+          <figure key={image.src} className="min-w-full snap-center space-y-3">
+            <div className="relative aspect-[4/5] overflow-hidden rounded-[1.35rem] bg-surface-container md:aspect-[5/4]">
+              {renderImage(image.src, image.alt || title || "Post image", "object-cover")}
+              <span className="absolute bottom-3 right-3 rounded-full bg-black/35 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
+                {index + 1}/{images.length}
+              </span>
+            </div>
+            {image.caption ? <figcaption className="px-1 text-sm text-foreground/60">{image.caption}</figcaption> : null}
+          </figure>
+        ))}
+      </div>
+    </section>
+  );
 }
 
 function isSafeMarkdownLink(value: string) {
@@ -509,6 +574,23 @@ function renderNode(node: RichTextNode, index: number) {
     );
   }
 
+  if (node.type === "video" && node.src) {
+    return (
+      <figure key={index} className="space-y-3">
+        <div className="aspect-video overflow-hidden rounded-[1.5rem] bg-black shadow-ambient">
+          <video
+            src={node.src}
+            title={node.caption ?? "Uploaded video"}
+            controls
+            preload="metadata"
+            className="h-full w-full"
+          />
+        </div>
+        {node.caption ? <figcaption className="text-sm text-foreground/60">{node.caption}</figcaption> : null}
+      </figure>
+    );
+  }
+
   if (node.type === "quote") {
     return (
       <blockquote key={index} className="rounded-[1.5rem] bg-primary-container/40 px-6 py-5 font-headline text-2xl italic text-primary">
@@ -535,10 +617,18 @@ export function RichTextPreview({
   coverAlt,
   content,
   emptyMessage = "Start drafting to see a live preview.",
-  compact = false
+  compact = false,
+  imageCarousel = false
 }: RichTextPreviewProps) {
+  const previewImages = imageCarousel ? buildPreviewImages({ coverImage, coverAlt, title, content }) : [];
+  const shouldRenderCarousel = imageCarousel && previewImages.length > 1;
+  const carouselImageSources = new Set(previewImages.map((image) => image.src));
   let skippedCoverDuplicate = false;
   const displayContent = content.filter((node) => {
+    if (shouldRenderCarousel && node.type === "image" && node.src && carouselImageSources.has(node.src)) {
+      return false;
+    }
+
     if (!skippedCoverDuplicate && coverImage && node.type === "image" && node.src === coverImage) {
       skippedCoverDuplicate = true;
       return false;
@@ -563,7 +653,7 @@ export function RichTextPreview({
         </div>
       ) : null}
 
-      {coverImage ? (
+      {shouldRenderCarousel ? renderImageCarousel(previewImages, title) : coverImage ? (
         <div className={`relative overflow-hidden rounded-[2rem] bg-surface-container-low shadow-ambient ${compact ? "h-[260px]" : "h-[420px]"}`}>
           {renderImage(coverImage, coverAlt ?? title ?? "Cover image", "object-cover")}
         </div>
