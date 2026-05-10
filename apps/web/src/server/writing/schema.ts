@@ -22,6 +22,11 @@ export const richTextNodeSchema = z.discriminatedUnion("type", [
     caption: z.string().optional()
   }),
   z.object({
+    type: z.literal("video"),
+    src: localMediaUrlSchema,
+    caption: z.string().optional()
+  }),
+  z.object({
     type: z.literal("videoEmbed"),
     embedUrl: z.string().url(),
     provider: z.enum(["youtube", "bilibili", "vimeo", "custom"]).optional(),

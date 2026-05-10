@@ -34,6 +34,8 @@ function isRichTextNodeShape(value: unknown): value is RichTextNode {
       return typeof node.content === "string" && (node.level === 1 || node.level === 2 || node.level === 3);
     case "image":
       return typeof node.src === "string" && isOptionalString(node.alt) && isOptionalString(node.caption);
+    case "video":
+      return typeof node.src === "string" && isOptionalString(node.caption);
     case "videoEmbed":
       return typeof node.embedUrl === "string" && isOptionalString(node.caption) && (node.provider === undefined || VIDEO_PROVIDERS.has(node.provider as WritingEditorBlock["provider"]));
     default:
@@ -113,6 +115,17 @@ export function editorBlocksToRichTextNodes(blocks: WritingEditorBlock[]): RichT
           type: "videoEmbed",
           embedUrl: block.embedUrl.trim(),
           provider: block.provider,
+          caption: block.caption.trim() || undefined
+        });
+      }
+      continue;
+    }
+
+    if (block.type === "video") {
+      if (block.src.trim()) {
+        nodes.push({
+          type: "video",
+          src: block.src.trim(),
           caption: block.caption.trim() || undefined
         });
       }

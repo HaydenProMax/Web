@@ -16,6 +16,7 @@ const BLOCK_TYPE_OPTIONS = [
   { value: "quote", label: "Quote" },
   { value: "markdown", label: "Markdown" },
   { value: "image", label: "Image" },
+  { value: "video", label: "Uploaded Video" },
   { value: "videoEmbed", label: "Video" }
 ] as const;
 
@@ -176,6 +177,26 @@ export function BlockEditor({ blocks, onChange }: BlockEditorProps) {
                     value={block.alt}
                     onChange={(event) => onChange(replaceAt(blocks, index, { ...block, alt: event.target.value }))}
                     placeholder="Alt text (optional)"
+                    className="w-full rounded-2xl border border-outline-variant/30 bg-surface-container-low px-4 py-3 text-sm outline-none"
+                  />
+                  <input
+                    value={block.caption}
+                    onChange={(event) => onChange(replaceAt(blocks, index, { ...block, caption: event.target.value }))}
+                    placeholder="Caption (optional)"
+                    className="w-full rounded-2xl border border-outline-variant/30 bg-surface-container-low px-4 py-3 text-sm outline-none"
+                  />
+                </>
+              ) : block.type === "video" ? (
+                <>
+                  {block.src ? (
+                    <div className="overflow-hidden rounded-[1.25rem] bg-surface-container-low p-3">
+                      <video src={block.src} controls preload="metadata" className="aspect-video w-full rounded-[1rem] bg-black" />
+                    </div>
+                  ) : null}
+                  <input
+                    value={block.src}
+                    onChange={(event) => onChange(replaceAt(blocks, index, { ...block, src: event.target.value }))}
+                    placeholder="Video URL (required)"
                     className="w-full rounded-2xl border border-outline-variant/30 bg-surface-container-low px-4 py-3 text-sm outline-none"
                   />
                   <input

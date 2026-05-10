@@ -79,44 +79,40 @@ function renderImage(src: string, alt: string, className: string) {
   return <img src={src} alt={alt} className={`h-full w-full ${className}`} />;
 }
 
-function buildPreviewImages({
-  coverImage,
-  coverAlt,
-  title,
-  content
-}: {
+function buildPreviewImages(input: {
   coverImage?: string;
   coverAlt?: string;
   title?: string;
   content: RichTextNode[];
 }) {
   const images: PreviewImage[] = [];
-  const seenSources = new Set<string>();
+  const seen = new Set<string>();
 
   function addImage(image: PreviewImage) {
-    if (!image.src || seenSources.has(image.src)) {
+    if (seen.has(image.src)) {
       return;
     }
 
-    seenSources.add(image.src);
+    seen.add(image.src);
     images.push(image);
   }
 
-  if (coverImage) {
-    addImage({ src: coverImage, alt: coverAlt ?? title ?? "Cover image" });
+  if (input.coverImage) {
+    addImage({
+      src: input.coverImage,
+      alt: input.coverAlt ?? input.title ?? "Post image"
+    });
   }
 
-  content.forEach((node) => {
-    if (node.type !== "image" || !node.src) {
-      return;
+  for (const node of input.content) {
+    if (node.type === "image" && node.src) {
+      addImage({
+        src: node.src,
+        alt: node.alt ?? input.title ?? "Post image",
+        caption: node.caption
+      });
     }
-
-    addImage({
-      src: node.src,
-      alt: node.alt ?? title ?? "Post image",
-      caption: node.caption
-    });
-  });
+  }
 
   return images;
 }
@@ -559,6 +555,23 @@ function renderNode(node: RichTextNode, index: number) {
     );
   }
 
+  if (node.type === "video" && node.src) {
+    return (
+      <figure key={index} className="space-y-3">
+        <div className="aspect-video overflow-hidden rounded-[1.5rem] bg-black shadow-ambient">
+          <video
+            src={node.src}
+            title={node.caption ?? "Uploaded video"}
+            controls
+            preload="metadata"
+            className="h-full w-full"
+          />
+        </div>
+        {node.caption ? <figcaption className="text-sm text-foreground/60">{node.caption}</figcaption> : null}
+      </figure>
+    );
+  }
+
   if (node.type === "quote") {
     return (
       <blockquote key={index} className="rounded-[1.5rem] bg-primary-container/40 px-6 py-5 font-headline text-2xl italic text-primary">
@@ -621,9 +634,7 @@ export function RichTextPreview({
         </div>
       ) : null}
 
-      {shouldRenderCarousel ? (
-        <WritingImageCarousel images={previewImages} title={title} />
-      ) : coverImage ? (
+      {shouldRenderCarousel ? <WritingImageCarousel images={previewImages} title={title} /> : coverImage ? (
         <div className={`relative overflow-hidden rounded-[2rem] bg-surface-container-low shadow-ambient ${compact ? "h-[260px]" : "h-[420px]"}`}>
           {renderImage(coverImage, coverAlt ?? title ?? "Cover image", "object-cover")}
         </div>
