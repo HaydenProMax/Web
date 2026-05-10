@@ -4,6 +4,7 @@ import { Fragment, type ReactNode } from "react";
 import type { RichTextNode } from "@workspace/types/index";
 
 import { MermaidPreview } from "@/components/writing/mermaid-preview";
+import { WritingImageCarousel } from "@/components/writing/writing-image-carousel";
 
 type RichTextPreviewProps = {
   title?: string;
@@ -13,6 +14,13 @@ type RichTextPreviewProps = {
   content: RichTextNode[];
   emptyMessage?: string;
   compact?: boolean;
+  imageCarousel?: boolean;
+};
+
+type PreviewImage = {
+  src: string;
+  alt: string;
+  caption?: string;
 };
 
 type MarkdownTaskItem = {
@@ -69,6 +77,48 @@ function renderImage(src: string, alt: string, className: string) {
   }
 
   return <img src={src} alt={alt} className={`h-full w-full ${className}`} />;
+}
+
+function buildPreviewImages({
+  coverImage,
+  coverAlt,
+  title,
+  content
+}: {
+  coverImage?: string;
+  coverAlt?: string;
+  title?: string;
+  content: RichTextNode[];
+}) {
+  const images: PreviewImage[] = [];
+  const seenSources = new Set<string>();
+
+  function addImage(image: PreviewImage) {
+    if (!image.src || seenSources.has(image.src)) {
+      return;
+    }
+
+    seenSources.add(image.src);
+    images.push(image);
+  }
+
+  if (coverImage) {
+    addImage({ src: coverImage, alt: coverAlt ?? title ?? "Cover image" });
+  }
+
+  content.forEach((node) => {
+    if (node.type !== "image" || !node.src) {
+      return;
+    }
+
+    addImage({
+      src: node.src,
+      alt: node.alt ?? title ?? "Post image",
+      caption: node.caption
+    });
+  });
+
+  return images;
 }
 
 function isSafeMarkdownLink(value: string) {
@@ -535,10 +585,18 @@ export function RichTextPreview({
   coverAlt,
   content,
   emptyMessage = "Start drafting to see a live preview.",
-  compact = false
+  compact = false,
+  imageCarousel = false
 }: RichTextPreviewProps) {
+  const previewImages = imageCarousel ? buildPreviewImages({ coverImage, coverAlt, title, content }) : [];
+  const shouldRenderCarousel = imageCarousel && previewImages.length > 1;
+  const carouselImageSources = new Set(previewImages.map((image) => image.src));
   let skippedCoverDuplicate = false;
   const displayContent = content.filter((node) => {
+    if (shouldRenderCarousel && node.type === "image" && node.src && carouselImageSources.has(node.src)) {
+      return false;
+    }
+
     if (!skippedCoverDuplicate && coverImage && node.type === "image" && node.src === coverImage) {
       skippedCoverDuplicate = true;
       return false;
@@ -563,7 +621,9 @@ export function RichTextPreview({
         </div>
       ) : null}
 
-      {coverImage ? (
+      {shouldRenderCarousel ? (
+        <WritingImageCarousel images={previewImages} title={title} />
+      ) : coverImage ? (
         <div className={`relative overflow-hidden rounded-[2rem] bg-surface-container-low shadow-ambient ${compact ? "h-[260px]" : "h-[420px]"}`}>
           {renderImage(coverImage, coverAlt ?? title ?? "Cover image", "object-cover")}
         </div>

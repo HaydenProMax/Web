@@ -130,6 +130,7 @@ export default async function WritingPostPage({
           coverImage={post.coverImage}
           coverAlt={post.coverAlt}
           content={post.content}
+          imageCarousel
         />
       </article>
     </ShellLayout>
