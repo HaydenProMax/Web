@@ -4,6 +4,7 @@ import { Fragment, type ReactNode } from "react";
 import type { RichTextNode } from "@workspace/types/index";
 
 import { MermaidPreview } from "@/components/writing/mermaid-preview";
+import { WritingImageCarousel } from "@/components/writing/writing-image-carousel";
 
 type RichTextPreviewProps = {
   title?: string;
@@ -114,26 +115,6 @@ function buildPreviewImages(input: {
   }
 
   return images;
-}
-
-function renderImageCarousel(images: PreviewImage[], title?: string) {
-  return (
-    <section className="space-y-3">
-      <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto rounded-[1.75rem] bg-surface-container-low p-3 shadow-ambient">
-        {images.map((image, index) => (
-          <figure key={image.src} className="min-w-full snap-center space-y-3">
-            <div className="relative aspect-[4/5] overflow-hidden rounded-[1.35rem] bg-surface-container md:aspect-[5/4]">
-              {renderImage(image.src, image.alt || title || "Post image", "object-cover")}
-              <span className="absolute bottom-3 right-3 rounded-full bg-black/35 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
-                {index + 1}/{images.length}
-              </span>
-            </div>
-            {image.caption ? <figcaption className="px-1 text-sm text-foreground/60">{image.caption}</figcaption> : null}
-          </figure>
-        ))}
-      </div>
-    </section>
-  );
 }
 
 function isSafeMarkdownLink(value: string) {
@@ -653,7 +634,7 @@ export function RichTextPreview({
         </div>
       ) : null}
 
-      {shouldRenderCarousel ? renderImageCarousel(previewImages, title) : coverImage ? (
+      {shouldRenderCarousel ? <WritingImageCarousel images={previewImages} title={title} /> : coverImage ? (
         <div className={`relative overflow-hidden rounded-[2rem] bg-surface-container-low shadow-ambient ${compact ? "h-[260px]" : "h-[420px]"}`}>
           {renderImage(coverImage, coverAlt ?? title ?? "Cover image", "object-cover")}
         </div>
