@@ -82,3 +82,15 @@ export async function readFileFromLocalStorage(storageKey: string) {
   const fullPath = resolveLocalStoragePath(storageKey);
   return fs.readFile(fullPath);
 }
+
+export async function deleteFileFromLocalStorage(storageKey: string) {
+  const fullPath = resolveLocalStoragePath(storageKey);
+
+  try {
+    await fs.unlink(fullPath);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+      throw error;
+    }
+  }
+}

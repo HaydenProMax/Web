@@ -3,9 +3,10 @@ import { notFound } from "next/navigation";
 
 import { ShellLayout } from "@/components/shell/shell-layout";
 import { WritingDraftForm } from "@/components/writing/writing-draft-form";
+import { WritingFeedbackToast } from "@/components/writing/writing-feedback-toast";
 import { getWritingDraftById } from "@/server/writing/service";
 
-import { archiveWritingDraftAction, publishWritingDraftAction, restoreWritingDraftAction, updateWritingDraftAction } from "../../new/actions";
+import { archiveWritingDraftAction, deleteWritingDraftAction, publishWritingDraftAction, restoreWritingDraftAction, updateWritingDraftAction } from "../../new/actions";
 
 function formatTimestamp(value?: string) {
   if (!value) {
@@ -25,7 +26,7 @@ export default async function WritingDraftDetailPage({
   searchParams
 }: {
   params: Promise<{ id: string }>;
-  searchParams?: Promise<{ created?: string; saved?: string; restored?: string; error?: string }>;
+  searchParams?: Promise<{ confirmDelete?: string; created?: string; saved?: string; restored?: string; error?: string }>;
 }) {
   const { id } = await params;
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
@@ -39,59 +40,48 @@ export default async function WritingDraftDetailPage({
   const publishAction = publishWritingDraftAction.bind(null, draft.id);
   const archiveAction = archiveWritingDraftAction.bind(null, draft.id);
   const restoreAction = restoreWritingDraftAction.bind(null, draft.id);
+  const deleteAction = deleteWritingDraftAction.bind(null, draft.id);
+  const confirmDelete = resolvedSearchParams?.confirmDelete === "1";
+  const canDeleteDraft = !draft.publishedPostSlug;
+  const toastItems = [
+    ...(resolvedSearchParams?.created === "1"
+      ? [{ tone: "success" as const, text: "Draft created successfully. It is now linked into the Writing workflow." }]
+      : []),
+    ...(resolvedSearchParams?.saved === "1"
+      ? [{ tone: "success" as const, text: "Draft saved successfully." }]
+      : []),
+    ...(resolvedSearchParams?.restored === "1"
+      ? [{ tone: "success" as const, text: "Draft restored successfully. It is back in the active writing lane." }]
+      : []),
+    ...(resolvedSearchParams?.error === "invalid-content-json"
+      ? [{ tone: "error" as const, text: "The content JSON could not be parsed. Please fix the JSON structure and save again." }]
+      : []),
+    ...(resolvedSearchParams?.error === "save-failed"
+      ? [{ tone: "error" as const, text: "Saving the draft failed. The draft may not belong to the current user context anymore." }]
+      : []),
+    ...(resolvedSearchParams?.error === "publish-failed"
+      ? [{ tone: "error" as const, text: "Publishing failed. Please save the draft again and retry." }]
+      : []),
+    ...(resolvedSearchParams?.error === "archive-failed"
+      ? [{ tone: "error" as const, text: "Archiving the draft failed." }]
+      : []),
+    ...(resolvedSearchParams?.error === "restore-failed"
+      ? [{ tone: "error" as const, text: "Restoring the draft failed." }]
+      : []),
+    ...(resolvedSearchParams?.error === "confirm-delete-required"
+      ? [{ tone: "warning" as const, text: "Draft delete requires a confirmation step." }]
+      : []),
+    ...(resolvedSearchParams?.error === "delete-failed"
+      ? [{ tone: "error" as const, text: "Deleting the draft failed. Published drafts cannot be deleted directly." }]
+      : [])
+  ];
 
   return (
     <ShellLayout
       title={draft.title}
       description="Edit the working draft, keep the structure stable, then publish when the article is ready."
     >
-      {resolvedSearchParams?.created === "1" ? (
-        <section className="rounded-[2rem] bg-primary-container/40 px-6 py-4 text-sm text-primary shadow-ambient">
-          Draft created successfully. It is now linked into the Writing workflow.
-        </section>
-      ) : null}
-
-      {resolvedSearchParams?.saved === "1" ? (
-        <section className="rounded-[2rem] bg-primary-container/40 px-6 py-4 text-sm text-primary shadow-ambient">
-          Draft saved successfully.
-        </section>
-      ) : null}
-
-      {resolvedSearchParams?.restored === "1" ? (
-        <section className="rounded-[2rem] bg-primary-container/40 px-6 py-4 text-sm text-primary shadow-ambient">
-          Draft restored successfully. It is back in the active writing lane.
-        </section>
-      ) : null}
-
-      {resolvedSearchParams?.error === "invalid-content-json" ? (
-        <section className="rounded-[2rem] bg-rose-100 px-6 py-4 text-sm text-rose-700 shadow-ambient">
-          The content JSON could not be parsed. Please fix the JSON structure and save again.
-        </section>
-      ) : null}
-
-      {resolvedSearchParams?.error === "save-failed" ? (
-        <section className="rounded-[2rem] bg-rose-100 px-6 py-4 text-sm text-rose-700 shadow-ambient">
-          Saving the draft failed. The draft may not belong to the current user context anymore.
-        </section>
-      ) : null}
-
-      {resolvedSearchParams?.error === "publish-failed" ? (
-        <section className="rounded-[2rem] bg-rose-100 px-6 py-4 text-sm text-rose-700 shadow-ambient">
-          Publishing failed. Please save the draft again and retry.
-        </section>
-      ) : null}
-
-      {resolvedSearchParams?.error === "archive-failed" ? (
-        <section className="rounded-[2rem] bg-rose-100 px-6 py-4 text-sm text-rose-700 shadow-ambient">
-          Archiving the draft failed.
-        </section>
-      ) : null}
-
-      {resolvedSearchParams?.error === "restore-failed" ? (
-        <section className="rounded-[2rem] bg-rose-100 px-6 py-4 text-sm text-rose-700 shadow-ambient">
-          Restoring the draft failed.
-        </section>
-      ) : null}
+      <WritingFeedbackToast items={toastItems} />
 
       {draft.isArchived ? (
         <section className="rounded-[2rem] bg-secondary-container/40 px-6 py-4 text-sm text-foreground shadow-ambient">
@@ -125,6 +115,11 @@ export default async function WritingDraftDetailPage({
                     Archive Draft
                   </button>
                 </form>
+                {canDeleteDraft ? (
+                  <Link href={`/writing/drafts/${draft.id}?confirmDelete=1`} className="inline-flex rounded-full bg-rose-700 px-5 py-2 text-sm font-semibold text-white shadow-ambient">
+                    Delete Draft
+                  </Link>
+                ) : null}
                 <form action={publishAction}>
                   <button type="submit" className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white">
                     {draft.publishedPostSlug ? "Republish" : "Publish Draft"}
@@ -178,6 +173,27 @@ export default async function WritingDraftDetailPage({
         </div>
       </section>
 
+      {confirmDelete && canDeleteDraft ? (
+        <section className="rounded-[2rem] border border-rose-200 bg-rose-50 p-6 shadow-ambient">
+          <p className="text-xs uppercase tracking-[0.2em] text-rose-700">Delete Confirmation</p>
+          <h2 className="mt-3 font-headline text-3xl text-foreground">Permanently delete this draft?</h2>
+          <p className="mt-3 text-sm leading-6 text-foreground/70">
+            <strong>{draft.title}</strong> will be deleted. Uploaded media that is not used by another draft or article will also be removed from storage.
+          </p>
+          <div className="mt-5 flex flex-wrap items-center gap-3">
+            <form action={deleteAction}>
+              <input type="hidden" name="confirmed" value="true" />
+              <button type="submit" className="rounded-full bg-rose-700 px-5 py-3 text-sm font-semibold text-white shadow-ambient">
+                Confirm Delete Draft
+              </button>
+            </form>
+            <Link href={`/writing/drafts/${draft.id}`} className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-primary shadow-ambient">
+              Cancel
+            </Link>
+          </div>
+        </section>
+      ) : null}
+
       {draft.isArchived ? (
         <section className="rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
           <p className="text-xs uppercase tracking-[0.2em] text-primary">Archived Draft</p>
@@ -199,6 +215,7 @@ export default async function WritingDraftDetailPage({
       ) : (
         <WritingDraftForm
           action={updateAction}
+          draftId={draft.id}
           mode="edit"
           initialData={{
             title: draft.title,

@@ -188,3 +188,17 @@ export function appendVideoBlock(
     })
   ];
 }
+
+export function appendUploadedVideoBlock(blocks: WritingEditorBlock[], asset: MediaAssetSummary) {
+  if (!asset.url) {
+    return blocks;
+  }
+
+  return [
+    ...blocks,
+    createEditorBlock("video", {
+      src: asset.url,
+      caption: asset.altText || asset.originalFileName
+    })
+  ];
+}

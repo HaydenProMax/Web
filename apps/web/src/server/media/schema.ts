@@ -1,7 +1,9 @@
 import { z } from "zod";
 
-const MAX_UPLOAD_SIZE = 20 * 1024 * 1024;
+const MAX_IMAGE_UPLOAD_SIZE = 20 * 1024 * 1024;
+const MAX_VIDEO_UPLOAD_SIZE = 100 * 1024 * 1024;
 const SUPPORTED_IMAGE_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
+const SUPPORTED_VIDEO_MIME_TYPES = ["video/mp4", "video/webm", "video/quicktime"] as const;
 
 export type UploadableFile = {
   name: string;
@@ -38,20 +40,30 @@ export function isUploadableFile(value: unknown): value is UploadableFile {
   );
 }
 
+export function getUploadFileKind(file: UploadableFile): "IMAGE" | "VIDEO" {
+  if (SUPPORTED_IMAGE_MIME_TYPES.includes(file.type as (typeof SUPPORTED_IMAGE_MIME_TYPES)[number])) {
+    return "IMAGE";
+  }
+
+  if (SUPPORTED_VIDEO_MIME_TYPES.includes(file.type as (typeof SUPPORTED_VIDEO_MIME_TYPES)[number])) {
+    return "VIDEO";
+  }
+
+  throw new Error("Supported upload formats are JPEG, PNG, WebP, MP4, WebM, and MOV.");
+}
+
 export function assertUploadableFile(file: UploadableFile) {
   if (!file || file.size <= 0) {
     throw new Error("No file was provided.");
   }
 
-  if (file.size > MAX_UPLOAD_SIZE) {
-    throw new Error("Uploaded file exceeds the 20MB limit.");
+  const kind = getUploadFileKind(file);
+
+  if (kind === "IMAGE" && file.size > MAX_IMAGE_UPLOAD_SIZE) {
+    throw new Error("Uploaded image exceeds the 20MB limit.");
   }
 
-  if (!file.type.startsWith("image/")) {
-    throw new Error("Local upload currently supports image files only.");
-  }
-
-  if (!SUPPORTED_IMAGE_MIME_TYPES.includes(file.type as (typeof SUPPORTED_IMAGE_MIME_TYPES)[number])) {
-    throw new Error("Supported image formats are JPEG, PNG, and WebP.");
+  if (kind === "VIDEO" && file.size > MAX_VIDEO_UPLOAD_SIZE) {
+    throw new Error("Uploaded video exceeds the 100MB limit.");
   }
 }

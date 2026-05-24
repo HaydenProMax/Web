@@ -5,7 +5,7 @@ import { upsertArchiveItemForPost } from "@/server/archive/service";
 import { getCurrentUserId } from "@/server/auth/current-user";
 import { getDb } from "@/server/db";
 import { isUniqueConstraintError } from "@/server/db/prisma-errors";
-import { syncWritingDraftMediaUsages, syncWritingPostMediaUsages } from "@/server/media/service";
+import { pruneUnusedMediaAssets, syncWritingDraftMediaUsages, syncWritingPostMediaUsages } from "@/server/media/service";
 import { writingDraftInputSchema } from "@/server/writing/schema";
 
 import { getWritingPostBySlug, listWritingPosts } from "./mock-data";
@@ -25,7 +25,7 @@ function resolveCoverImageUrl(
   } | null | undefined,
   fallback?: string | null
 ) {
-  if (asset?.storageProvider === "local") {
+  if (asset && asset.storageProvider !== "embed") {
     return buildLocalMediaUrl(asset.storageKey);
   }
 
@@ -82,7 +82,7 @@ async function resolveCoverMediaId(ownerId: string, coverImageUrl?: string) {
   const asset = await db.mediaAsset.findFirst({
     where: {
       ownerId,
-      storageProvider: "local",
+      storageProvider: { not: "embed" },
       storageKey
     },
     select: { id: true }
@@ -411,7 +411,8 @@ export async function createWritingDraft(input: unknown) {
     }
   });
 
-  await syncWritingDraftMediaUsages(draft.id, parsed);
+  const mediaIds = await syncWritingDraftMediaUsages(draft.id, parsed);
+  await pruneUnusedMediaAssets(mediaIds);
 
   return {
     id: draft.id,
@@ -491,10 +492,19 @@ export async function deleteArchivedWritingDraft(id: string) {
     throw new Error("Archived draft still backs a live post.");
   }
 
-  await db.$transaction(async (tx: Prisma.TransactionClient) => {
+  const mediaIds = await db.$transaction(async (tx: Prisma.TransactionClient) => {
     await tx.plannerTask.updateMany({
       where: { ownerId, relatedDraftId: existingDraft.id },
       data: { relatedDraftId: null }
+    });
+
+    const usages = await tx.mediaUsage.findMany({
+      where: {
+        moduleKey: "writing",
+        entityType: "draft",
+        entityId: existingDraft.id
+      },
+      select: { mediaId: true }
     });
 
     await tx.mediaUsage.deleteMany({
@@ -508,16 +518,76 @@ export async function deleteArchivedWritingDraft(id: string) {
     await tx.writingDraft.delete({
       where: { id: existingDraft.id }
     });
+
+    return usages.map((usage) => usage.mediaId);
   });
+
+  await pruneUnusedMediaAssets(mediaIds);
 }
-export async function deletePublishedWritingPost(id: string) {
+
+export async function deleteWritingDraft(id: string) {
+  const db = getDb();
+  const ownerId = await getCurrentUserId();
+  const existingDraft = await db.writingDraft.findFirst({
+    where: { id, ownerId },
+    select: {
+      id: true,
+      publishedPostId: true
+    }
+  });
+
+  if (!existingDraft) {
+    throw new Error("Draft not found.");
+  }
+
+  if (existingDraft.publishedPostId) {
+    throw new Error("Published drafts cannot be deleted directly.");
+  }
+
+  const mediaIds = await db.$transaction(async (tx: Prisma.TransactionClient) => {
+    await tx.plannerTask.updateMany({
+      where: { ownerId, relatedDraftId: existingDraft.id },
+      data: { relatedDraftId: null }
+    });
+
+    const usages = await tx.mediaUsage.findMany({
+      where: {
+        moduleKey: "writing",
+        entityType: "draft",
+        entityId: existingDraft.id
+      },
+      select: { mediaId: true }
+    });
+
+    await tx.mediaUsage.deleteMany({
+      where: {
+        moduleKey: "writing",
+        entityType: "draft",
+        entityId: existingDraft.id
+      }
+    });
+
+    await tx.writingDraft.delete({
+      where: { id: existingDraft.id }
+    });
+
+    return usages.map((usage) => usage.mediaId);
+  });
+
+  await pruneUnusedMediaAssets(mediaIds);
+}
+
+export async function deletePublishedWritingPost(id: string, options?: { deleteSourceDraft?: boolean }) {
   const db = getDb();
   const ownerId = await getCurrentUserId();
   const existingPost = await db.writingPost.findFirst({
     where: { id, ownerId, status: "PUBLISHED" },
     select: {
       id: true,
-      slug: true
+      slug: true,
+      sourceDraft: {
+        select: { id: true }
+      }
     }
   });
 
@@ -525,13 +595,34 @@ export async function deletePublishedWritingPost(id: string) {
     throw new Error("Published article not found.");
   }
 
-  await db.$transaction(async (tx: Prisma.TransactionClient) => {
+  const mediaIds = await db.$transaction(async (tx: Prisma.TransactionClient) => {
+    const sourceDraft =
+      options?.deleteSourceDraft && existingPost.sourceDraft?.id
+        ? await tx.writingDraft.findFirst({
+            where: {
+              id: existingPost.sourceDraft.id,
+              ownerId,
+              publishedPostId: existingPost.id
+            },
+            select: { id: true }
+          })
+        : null;
+
     await tx.archiveItem.deleteMany({
       where: {
         ownerId,
         sourceType: "POST",
         postId: existingPost.id
       }
+    });
+
+    const usages = await tx.mediaUsage.findMany({
+      where: {
+        moduleKey: "writing",
+        entityType: "post",
+        entityId: existingPost.id
+      },
+      select: { mediaId: true }
     });
 
     await tx.mediaUsage.deleteMany({
@@ -545,7 +636,43 @@ export async function deletePublishedWritingPost(id: string) {
     await tx.writingPost.delete({
       where: { id: existingPost.id }
     });
+
+    const mediaIdsToPrune = usages.map((usage) => usage.mediaId);
+
+    if (sourceDraft) {
+      await tx.plannerTask.updateMany({
+        where: { ownerId, relatedDraftId: sourceDraft.id },
+        data: { relatedDraftId: null }
+      });
+
+      const draftUsages = await tx.mediaUsage.findMany({
+        where: {
+          moduleKey: "writing",
+          entityType: "draft",
+          entityId: sourceDraft.id
+        },
+        select: { mediaId: true }
+      });
+
+      await tx.mediaUsage.deleteMany({
+        where: {
+          moduleKey: "writing",
+          entityType: "draft",
+          entityId: sourceDraft.id
+        }
+      });
+
+      await tx.writingDraft.delete({
+        where: { id: sourceDraft.id }
+      });
+
+      mediaIdsToPrune.push(...draftUsages.map((usage) => usage.mediaId));
+    }
+
+    return mediaIdsToPrune;
   });
+
+  await pruneUnusedMediaAssets(mediaIds);
 
   return { id: existingPost.id, slug: existingPost.slug };
 }
@@ -588,7 +715,8 @@ export async function updateWritingDraft(id: string, input: unknown) {
     }
   });
 
-  await syncWritingDraftMediaUsages(draft.id, parsed);
+  const mediaIds = await syncWritingDraftMediaUsages(draft.id, parsed);
+  await pruneUnusedMediaAssets(mediaIds);
 
   return {
     id: draft.id,
@@ -637,7 +765,7 @@ export async function publishWritingDraft(id: string) {
     };
 
     try {
-      return await db.$transaction(async (tx: Prisma.TransactionClient) => {
+      const result = await db.$transaction(async (tx: Prisma.TransactionClient) => {
         if (draft.publishedPost) {
           const nextVersion = (draft.publishedPost.versions[0]?.version ?? 0) + 1;
 
@@ -667,14 +795,17 @@ export async function publishWritingDraft(id: string) {
             }
           });
 
-          await syncWritingPostMediaUsages(post.id, syncInput, tx);
+          const mediaIds = await syncWritingPostMediaUsages(post.id, syncInput, tx);
           await upsertArchiveItemForPost({ postId: post.id, title: post.title, summary: post.summary }, tx);
 
           return {
-            id: post.id,
-            slug: post.slug,
-            title: post.title,
-            publishedAt: post.publishedAt?.toISOString() ?? now.toISOString()
+            post: {
+              id: post.id,
+              slug: post.slug,
+              title: post.title,
+              publishedAt: post.publishedAt?.toISOString() ?? now.toISOString()
+            },
+            mediaIds
           };
         }
 
@@ -709,16 +840,22 @@ export async function publishWritingDraft(id: string) {
           data: { publishedPostId: post.id }
         });
 
-        await syncWritingPostMediaUsages(post.id, syncInput, tx);
+        const mediaIds = await syncWritingPostMediaUsages(post.id, syncInput, tx);
         await upsertArchiveItemForPost({ postId: post.id, title: post.title, summary: post.summary }, tx);
 
         return {
-          id: post.id,
-          slug: post.slug,
-          title: post.title,
-          publishedAt: post.publishedAt?.toISOString() ?? now.toISOString()
+          post: {
+            id: post.id,
+            slug: post.slug,
+            title: post.title,
+            publishedAt: post.publishedAt?.toISOString() ?? now.toISOString()
+          },
+          mediaIds
         };
       });
+
+      await pruneUnusedMediaAssets(result.mediaIds);
+      return result.post;
     } catch (error) {
       if (isUniqueConstraintError(error) && attempt < MAX_SLUG_ATTEMPTS - 1) {
         continue;
@@ -730,4 +867,3 @@ export async function publishWritingDraft(id: string) {
 
   throw new Error("Unable to reserve a unique post slug.");
 }
-
