@@ -122,6 +122,7 @@ Example Nginx host:
 ```nginx
 server {
     server_name staging-console.super-hayden.top;
+    client_max_body_size 120m;
 
     location / {
         proxy_pass http://127.0.0.1:3010;
@@ -133,6 +134,8 @@ server {
 ```
 
 Reload Nginx after adding the site.
+
+Media uploads require the Nginx body limit to be larger than the app upload limits. The app currently allows images up to `20MB` and videos up to `100MB`, so staging should use at least `client_max_body_size 120m;`. Without this, Nginx returns `413 Request Entity Too Large` before the request reaches Next.js.
 
 ## Standard Update Flow
 
