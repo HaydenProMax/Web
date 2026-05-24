@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { ShellLayout } from "@/components/shell/shell-layout";
+import { WritingFeedbackToast } from "@/components/writing/writing-feedback-toast";
 import { getSettingsSnapshot, getShellIdentity } from "@/server/settings/service";
 import { getWritingOverview, listPublishedWritingPosts, listWritingDrafts } from "@/server/writing/service";
 
@@ -193,10 +194,16 @@ function getNoticeItems(params: WritingSearchParams | undefined, invalidDeleteTa
     notices.push({ tone: "success", text: "Draft restored successfully." });
   }
   if (params?.destroyed === "1") {
-    notices.push({ tone: "success", text: "Archived draft deleted permanently." });
+    notices.push({ tone: "success", text: "Draft deleted permanently." });
   }
   if (params?.deleted === "1") {
-    notices.push({ tone: "success", text: "Published article deleted. The draft has been kept." });
+    notices.push({
+      tone: "success",
+      text:
+        params?.destroyed === "1"
+          ? "Published article deleted."
+          : "Published article deleted. The draft has been kept."
+    });
   }
   if (params?.error === "archive-failed") {
     notices.push({ tone: "error", text: "Draft archiving failed. Please try again." });
@@ -221,18 +228,6 @@ function getNoticeItems(params: WritingSearchParams | undefined, invalidDeleteTa
   }
 
   return notices;
-}
-
-function noticeClassName(tone: "success" | "warning" | "error") {
-  if (tone === "error") {
-    return "border-rose-200 bg-rose-50 text-rose-700";
-  }
-
-  if (tone === "warning") {
-    return "border-amber-200 bg-amber-50 text-amber-800";
-  }
-
-  return "border-primary-container bg-primary-container/35 text-primary";
 }
 
 function feedTabClassName(active: boolean) {
@@ -388,15 +383,7 @@ export default async function WritingPage({
 
   return (
     <ShellLayout title="Writing" description="Drafts and published pieces live here.">
-      {noticeItems.length > 0 ? (
-        <div className="space-y-3">
-          {noticeItems.map((notice) => (
-            <section key={notice.text} className={`rounded-[1.5rem] border px-5 py-3 text-sm shadow-ambient ${noticeClassName(notice.tone)}`}>
-              {notice.text}
-            </section>
-          ))}
-        </div>
-      ) : null}
+      <WritingFeedbackToast items={noticeItems} />
 
       <section className="overflow-hidden rounded-[1.5rem] bg-white ring-1 ring-outline-variant/20">
         <div className="bg-white px-6 py-8 md:px-8">

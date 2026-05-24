@@ -2,6 +2,7 @@
 set -Eeuo pipefail
 
 APP_DIR="/opt/hayden-web-staging/current"
+ENV_FILE="/opt/hayden-web-staging/shared/.env.staging"
 SERVICE_NAME="hayden-web-staging"
 TARGET_REF="${1:-main}"
 HEALTH_URL="http://127.0.0.1:3010/sign-in"
@@ -18,6 +19,16 @@ trap on_error ERR
 
 echo "==> Enter project directory"
 cd "$APP_DIR"
+
+echo "==> Load staging environment"
+if [ ! -f "$ENV_FILE" ]; then
+  echo "Missing staging environment file: $ENV_FILE" >&2
+  exit 1
+fi
+set -a
+# shellcheck disable=SC1090
+source "$ENV_FILE"
+set +a
 
 echo "==> Mark repo as safe"
 git config --global --add safe.directory "$APP_DIR" || true

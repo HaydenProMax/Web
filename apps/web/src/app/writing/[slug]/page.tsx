@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { deletePublishedWritingPostAction } from "@/app/writing/new/actions";
 import { ShellLayout } from "@/components/shell/shell-layout";
 import { RichTextPreview } from "@/components/writing/rich-text-preview";
+import { WritingFeedbackToast } from "@/components/writing/writing-feedback-toast";
 import { getPublishedWritingPost } from "@/server/writing/service";
 
 function formatTimestamp(value?: string) {
@@ -36,13 +37,13 @@ export default async function WritingPostPage({
     notFound();
   }
 
+  const toastItems = resolvedSearchParams?.published === "1"
+    ? [{ tone: "success" as const, text: "Draft published successfully. You are viewing the article now." }]
+    : [];
+
   return (
     <ShellLayout title={post.title} description={post.summary}>
-      {resolvedSearchParams?.published === "1" ? (
-        <section className="mx-auto mb-8 w-full max-w-4xl rounded-[2rem] bg-primary-container/40 px-6 py-4 text-sm text-primary shadow-ambient">
-          Draft published successfully. You are viewing the article now.
-        </section>
-      ) : null}
+      <WritingFeedbackToast items={toastItems} />
 
       <section className="mx-auto mb-8 w-full max-w-4xl rounded-[2rem] bg-surface-container-low p-6 shadow-ambient">
         <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
@@ -59,6 +60,12 @@ export default async function WritingPostPage({
               <form action={deletePublishedWritingPostAction}>
                 <input type="hidden" name="postId" value={post.id} />
                 <input type="hidden" name="confirmed" value="true" />
+                {post.sourceDraftId ? (
+                  <label className="mb-3 flex items-center gap-2 rounded-[1rem] bg-white/80 px-4 py-3 text-sm font-semibold text-foreground/70">
+                    <input type="checkbox" name="deleteSourceDraft" value="true" className="h-4 w-4 accent-rose-700" />
+                    Delete source draft too
+                  </label>
+                ) : null}
                 <button type="submit" className="rounded-full bg-rose-700 px-5 py-3 text-sm font-semibold text-white shadow-ambient">
                   Confirm Delete Article
                 </button>
@@ -90,8 +97,13 @@ export default async function WritingPostPage({
           <div className="mt-6 rounded-[1.5rem] border border-rose-200 bg-rose-50 p-5 shadow-ambient">
             <p className="text-xs uppercase tracking-[0.2em] text-rose-700">Delete Confirmation</p>
             <p className="mt-3 text-sm leading-6 text-foreground/70">
-              Deleting this article will remove the published version, but the draft will be kept.
+              Deleting this article will remove the published version. The source draft is kept unless you choose to delete it too.
             </p>
+            {post.sourceDraftId ? (
+              <p className="mt-2 text-sm leading-6 text-rose-700">
+                If you delete the source draft too, uploaded media with no remaining references will also be removed from storage.
+              </p>
+            ) : null}
           </div>
         ) : null}
 

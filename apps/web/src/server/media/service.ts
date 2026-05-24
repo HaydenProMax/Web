@@ -3,15 +3,20 @@ import type { MediaAssetSummary, RichTextNode, WritingDraftInput } from "@worksp
 
 import { getCurrentUserId } from "@/server/auth/current-user";
 import { getDb } from "@/server/db";
+import { loadWorkspaceEnv } from "@/server/env";
 
-import { saveFileToLocalStorage } from "./local-storage";
-import { assertUploadableFile, mediaEmbedInputSchema, mediaUploadMetadataSchema, type UploadableFile } from "./schema";
+import { deleteFileFromLocalStorage, saveFileToLocalStorage } from "./local-storage";
+import { deleteOssObject, saveImageToOss, saveVideoToOss } from "./oss-storage";
+import { assertUploadableFile, getUploadFileKind, mediaEmbedInputSchema, mediaUploadMetadataSchema, type UploadableFile } from "./schema";
 
 function buildLocalMediaUrl(storageKey: string) {
   return `/api/media/files/${storageKey}`;
 }
 
 type DbClient = PrismaClient | Prisma.TransactionClient;
+type MediaUsageIdOnly = {
+  mediaId: string;
+};
 
 function extractStorageKeyFromUrl(url?: string) {
   if (!url || !url.startsWith("/api/media/files/")) {
@@ -30,6 +35,23 @@ function collectImageStorageKeys(content: RichTextNode[]) {
 
   for (const node of content) {
     if (node.type !== "image") {
+      continue;
+    }
+
+    const storageKey = extractStorageKeyFromUrl(node.src);
+    if (storageKey) {
+      keys.push(storageKey);
+    }
+  }
+
+  return keys;
+}
+
+function collectVideoStorageKeys(content: RichTextNode[]) {
+  const keys: string[] = [];
+
+  for (const node of content) {
+    if (node.type !== "video" || !node.src) {
       continue;
     }
 
@@ -71,23 +93,54 @@ function buildUsageFieldNames(asset: { storageProvider: string; storageKey: stri
     fields.add("coverImage");
   }
 
-  if (collectImageStorageKeys(input.content).includes(storageKey)) {
+  if (collectImageStorageKeys(input.content).includes(storageKey) || collectVideoStorageKeys(input.content).includes(storageKey)) {
     fields.add("content");
   }
 
   return Array.from(fields);
 }
 
-export async function createUploadedImageAsset(file: UploadableFile, metadataInput: unknown): Promise<MediaAssetSummary> {
+function getMediaStorageProvider() {
+  loadWorkspaceEnv();
+  return process.env.MEDIA_STORAGE_PROVIDER === "oss" ? "oss" : "local";
+}
+
+async function storeUploadedFile(file: UploadableFile) {
+  const kind = getUploadFileKind(file);
+
+  if (getMediaStorageProvider() === "oss") {
+    return kind === "IMAGE" ? saveImageToOss(file) : saveVideoToOss(file);
+  }
+
+  if (kind === "VIDEO") {
+    throw new Error("Video file upload requires MEDIA_STORAGE_PROVIDER=oss.");
+  }
+
+  return saveFileToLocalStorage(file);
+}
+
+async function deleteStoredMediaObject(asset: { storageProvider: string; storageKey: string }) {
+  if (asset.storageProvider === "oss") {
+    await deleteOssObject(asset.storageKey);
+    return;
+  }
+
+  if (asset.storageProvider === "local") {
+    await deleteFileFromLocalStorage(asset.storageKey);
+  }
+}
+
+export async function createUploadedMediaAsset(file: UploadableFile, metadataInput: unknown): Promise<MediaAssetSummary> {
   assertUploadableFile(file);
   const metadata = mediaUploadMetadataSchema.parse(metadataInput);
-  const storedFile = await saveFileToLocalStorage(file);
+  const kind = getUploadFileKind(file);
+  const storedFile = await storeUploadedFile(file);
   const db = getDb();
 
   const asset = await db.mediaAsset.create({
     data: {
       ownerId: await getCurrentUserId(),
-      kind: "IMAGE",
+      kind,
       status: "READY",
       storageProvider: storedFile.storageProvider,
       storageKey: storedFile.storageKey,
@@ -119,6 +172,10 @@ export async function createUploadedImageAsset(file: UploadableFile, metadataInp
     url: buildLocalMediaUrl(asset.storageKey),
     createdAt: asset.createdAt.toISOString()
   };
+}
+
+export async function createUploadedImageAsset(file: UploadableFile, metadataInput: unknown): Promise<MediaAssetSummary> {
+  return createUploadedMediaAsset(file, metadataInput);
 }
 
 export async function createEmbedMediaAsset(input: unknown): Promise<MediaAssetSummary> {
@@ -171,16 +228,25 @@ export async function syncWritingMediaUsages(
 ) {
   const db = dbClient ?? getDb();
   const ownerId = await getCurrentUserId();
+  const existingUsages = await db.mediaUsage.findMany({
+    where: {
+      moduleKey: "writing",
+      entityType,
+      entityId
+    },
+    select: { mediaId: true }
+  });
 
   const imageStorageKeys = uniqueStrings([
     extractStorageKeyFromUrl(input.coverImageUrl),
-    ...collectImageStorageKeys(input.content)
+    ...collectImageStorageKeys(input.content),
+    ...collectVideoStorageKeys(input.content)
   ]);
   const embedUrls = uniqueStrings(collectEmbedUrls(input.content));
 
   const orFilters: Prisma.MediaAssetWhereInput[] = [];
   if (imageStorageKeys.length > 0) {
-    orFilters.push({ storageProvider: "local", storageKey: { in: imageStorageKeys } });
+    orFilters.push({ storageProvider: { not: "embed" }, storageKey: { in: imageStorageKeys } });
   }
   if (embedUrls.length > 0) {
     orFilters.push({ storageProvider: "embed", embedUrl: { in: embedUrls } });
@@ -195,7 +261,7 @@ export async function syncWritingMediaUsages(
   });
 
   if (orFilters.length === 0) {
-    return;
+    return uniqueStrings(existingUsages.map((usage: MediaUsageIdOnly) => usage.mediaId));
   }
 
   const assets = await db.mediaAsset.findMany({
@@ -206,7 +272,7 @@ export async function syncWritingMediaUsages(
   });
 
   if (assets.length === 0) {
-    return;
+    return uniqueStrings(existingUsages.map((usage: MediaUsageIdOnly) => usage.mediaId));
   }
 
   const usageRows = assets.flatMap((asset: (typeof assets)[number]) =>
@@ -233,12 +299,47 @@ export async function syncWritingMediaUsages(
       }
     });
   }
+
+  return uniqueStrings([
+    ...existingUsages.map((usage: MediaUsageIdOnly) => usage.mediaId),
+    ...assets.map((asset: (typeof assets)[number]) => asset.id)
+  ]);
 }
 
 export async function syncWritingDraftMediaUsages(draftId: string, input: Pick<WritingDraftInput, "coverImageUrl" | "content">, dbClient?: DbClient) {
-  await syncWritingMediaUsages("draft", draftId, input, dbClient);
+  return syncWritingMediaUsages("draft", draftId, input, dbClient);
 }
 
 export async function syncWritingPostMediaUsages(postId: string, input: Pick<WritingDraftInput, "coverImageUrl" | "content">, dbClient?: DbClient) {
-  await syncWritingMediaUsages("post", postId, input, dbClient);
+  return syncWritingMediaUsages("post", postId, input, dbClient);
+}
+
+export async function pruneUnusedMediaAssets(candidateMediaIds?: string[]) {
+  const db = getDb();
+  const ownerId = await getCurrentUserId();
+  const assets = await db.mediaAsset.findMany({
+    where: {
+      ownerId,
+      storageProvider: { not: "embed" },
+      ...(candidateMediaIds?.length ? { id: { in: candidateMediaIds } } : {}),
+      usages: { none: {} },
+      draftCovers: { none: {} },
+      postCovers: { none: {} },
+      profileAvatars: { none: {} }
+    },
+    select: {
+      id: true,
+      storageProvider: true,
+      storageKey: true
+    }
+  });
+
+  for (const asset of assets) {
+    await deleteStoredMediaObject(asset);
+    await db.mediaAsset.delete({
+      where: { id: asset.id }
+    });
+  }
+
+  return assets.length;
 }

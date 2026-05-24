@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { requireApiSession } from "@/app/api/auth-guard";
-import { createEmbedMediaAsset, createUploadedImageAsset } from "@/server/media/service";
+import { createEmbedMediaAsset, createUploadedMediaAsset } from "@/server/media/service";
 import { isUploadableFile } from "@/server/media/schema";
 
 export async function POST(request: Request) {
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
 
   try {
     if (isUploadableFile(file)) {
-      const asset = await createUploadedImageAsset(file, {
+      const asset = await createUploadedMediaAsset(file, {
         altText: formData.get("altText")?.toString() ?? "",
         fieldName: formData.get("fieldName")?.toString() ?? "",
         entityType: formData.get("entityType")?.toString() ?? "",
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: "Provide either an image file or an embedUrl."
+        error: "Provide either a media file or an embedUrl."
       },
       { status: 400 }
     );

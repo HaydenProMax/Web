@@ -8,6 +8,7 @@ import {
   createWritingDraft,
   deleteArchivedWritingDraft,
   deletePublishedWritingPost,
+  deleteWritingDraft,
   publishWritingDraft,
   restoreWritingDraft,
   updateWritingDraft
@@ -61,8 +62,14 @@ async function completeWritingPermanentDelete(draftId: string) {
   revalidatePath(`/writing/drafts/${draftId}`);
 }
 
-async function completePublishedArticleDelete(postId: string) {
-  const deleted = await deletePublishedWritingPost(postId);
+async function completeWritingDraftDelete(draftId: string) {
+  await deleteWritingDraft(draftId);
+  revalidateWritingPaths();
+  revalidatePath(`/writing/drafts/${draftId}`);
+}
+
+async function completePublishedArticleDelete(postId: string, options?: { deleteSourceDraft?: boolean }) {
+  const deleted = await deletePublishedWritingPost(postId, options);
   revalidateWritingPaths();
   revalidatePath(`/writing/${deleted.slug}`);
 }
@@ -71,6 +78,19 @@ export async function createWritingDraftAction(formData: FormData) {
   const parsed = safeParseDraftPayload(formData);
   if (!parsed.ok) {
     redirect(`/writing/new?error=${parsed.error}`);
+  }
+
+  const draftId = formData.get("draftId")?.toString() ?? "";
+  if (draftId) {
+    try {
+      await updateWritingDraft(draftId, parsed.payload);
+    } catch {
+      redirect(`/writing/drafts/${draftId}?error=save-failed`);
+    }
+
+    revalidateWritingPaths();
+    revalidatePath(`/writing/drafts/${draftId}`);
+    redirect(`/writing/drafts/${draftId}?created=1`);
   }
 
   let draft;
@@ -134,6 +154,22 @@ export async function restoreWritingDraftAction(draftId: string) {
   redirect(`/writing/drafts/${draftId}?restored=1`);
 }
 
+export async function deleteWritingDraftAction(draftId: string, formData: FormData) {
+  const confirmed = formData.get("confirmed")?.toString() ?? "";
+
+  if (confirmed !== "true") {
+    redirect(`/writing/drafts/${draftId}?error=confirm-delete-required`);
+  }
+
+  try {
+    await completeWritingDraftDelete(draftId);
+  } catch {
+    redirect(`/writing/drafts/${draftId}?error=delete-failed`);
+  }
+
+  redirect("/writing?destroyed=1");
+}
+
 export async function archiveWritingDraftFromListAction(formData: FormData) {
   const draftId = formData.get("draftId")?.toString() ?? "";
 
@@ -169,18 +205,19 @@ export async function restoreWritingDraftFromListAction(formData: FormData) {
 export async function deletePublishedWritingPostAction(formData: FormData) {
   const postId = formData.get("postId")?.toString() ?? "";
   const confirmed = formData.get("confirmed")?.toString() ?? "";
+  const deleteSourceDraft = formData.get("deleteSourceDraft")?.toString() === "true";
 
   if (!postId || confirmed !== "true") {
     redirect("/writing?error=confirm-article-delete-required");
   }
 
   try {
-    await completePublishedArticleDelete(postId);
+    await completePublishedArticleDelete(postId, { deleteSourceDraft });
   } catch {
     redirect("/writing?error=delete-published-failed");
   }
 
-  redirect("/writing?deleted=1");
+  redirect(deleteSourceDraft ? "/writing?deleted=1&destroyed=1" : "/writing?deleted=1");
 }
 
 export async function deleteArchivedWritingDraftFromListAction(formData: FormData) {

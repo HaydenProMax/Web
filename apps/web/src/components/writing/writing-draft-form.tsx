@@ -8,6 +8,7 @@ import type { MediaAssetSummary, RichTextNode, WritingVisibility } from "@worksp
 import { BlockEditor } from "@/components/writing/block-editor";
 import {
   appendImageBlock,
+  appendUploadedVideoBlock,
   appendVideoBlock,
   areRichTextNodes,
   createEditorBlock,
@@ -19,6 +20,7 @@ import { RichTextPreview } from "@/components/writing/rich-text-preview";
 
 type WritingDraftFormProps = {
   action: (formData: FormData) => void | Promise<void>;
+  draftId?: string;
   initialData: {
     title: string;
     summary: string;
@@ -28,6 +30,19 @@ type WritingDraftFormProps = {
     content: string;
   };
   mode: "create" | "edit";
+};
+
+type DraftCreateResult = {
+  ok: boolean;
+  data?: {
+    id: string;
+  };
+  error?: string;
+};
+
+type DraftUpdateResult = {
+  ok: boolean;
+  error?: string;
 };
 
 function normalizeVideoInput(raw: string) {
@@ -138,8 +153,9 @@ function isUploadedImageAsset(asset: MediaAssetSummary) {
   return asset.kind === "IMAGE" && Boolean(asset.url);
 }
 
-export function WritingDraftForm({ action, initialData, mode }: WritingDraftFormProps) {
+export function WritingDraftForm({ action, draftId, initialData, mode }: WritingDraftFormProps) {
   const initialBlocks = useMemo(() => parseInitialBlocks(initialData.content), [initialData.content]);
+  const [workingDraftId, setWorkingDraftId] = useState(draftId ?? "");
   const [title, setTitle] = useState(initialData.title);
   const [summary, setSummary] = useState(initialData.summary);
   const [coverImageUrl, setCoverImageUrl] = useState(initialData.coverImageUrl);
@@ -148,12 +164,18 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
   const [videoUrl, setVideoUrl] = useState("");
   const [videoCaption, setVideoCaption] = useState("");
   const [uploadMessage, setUploadMessage] = useState<string>("");
+  const [submitError, setSubmitError] = useState<string>("");
+  const [autoSaveMessage, setAutoSaveMessage] = useState<string>("");
+  const [savedSnapshotOverride, setSavedSnapshotOverride] = useState<string>("");
   const [uploadedAssets, setUploadedAssets] = useState<MediaAssetSummary[]>([]);
   const imageAssets = uploadedAssets.filter((asset) => asset.kind === "IMAGE" && asset.url);
   const latestUploadedImage = imageAssets[0];
   const [isUploading, startUploadTransition] = useTransition();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const videoFileInputRef = useRef<HTMLInputElement | null>(null);
+  const workingDraftIdRef = useRef(draftId ?? "");
+  const draftCreationPromiseRef = useRef<Promise<string> | null>(null);
   const [blocks, setBlocks] = useState<WritingEditorBlock[]>(initialBlocks.blocks);
   const [editorError, setEditorError] = useState(initialBlocks.error);
 
@@ -167,8 +189,14 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
     setVideoUrl("");
     setVideoCaption("");
     setUploadMessage("");
+    setSubmitError("");
+    setAutoSaveMessage("");
+    setSavedSnapshotOverride("");
     setUploadedAssets([]);
-  }, [initialBlocks.blocks, initialBlocks.error, initialData.coverImageUrl, initialData.summary, initialData.title, initialData.visibility]);
+    setWorkingDraftId(draftId ?? "");
+    workingDraftIdRef.current = draftId ?? "";
+    draftCreationPromiseRef.current = null;
+  }, [draftId, initialBlocks.blocks, initialBlocks.error, initialData.coverImageUrl, initialData.summary, initialData.title, initialData.visibility]);
 
   const previewState = useMemo(() => {
     const nodes = editorBlocksToRichTextNodes(blocks);
@@ -201,11 +229,24 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
       }),
     [coverImageUrl, previewState.error, previewState.nodes, summary, title, visibility]
   );
-  const hasUnsavedChanges = !editorError && currentSnapshot !== initialSnapshot;
+  const effectiveInitialSnapshot = savedSnapshotOverride || initialSnapshot;
+  const hasUnsavedChanges = !editorError && currentSnapshot !== effectiveInitialSnapshot;
 
   useEffect(() => {
     setIsSubmitting(false);
-  }, [initialSnapshot]);
+  }, [effectiveInitialSnapshot]);
+
+  useEffect(() => {
+    if (!uploadMessage) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setUploadMessage("");
+    }, 3000);
+
+    return () => window.clearTimeout(timer);
+  }, [uploadMessage]);
 
   useEffect(() => {
     if (!hasUnsavedChanges || isSubmitting) {
@@ -221,12 +262,103 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [hasUnsavedChanges, isSubmitting]);
 
+  async function ensureDraftForMediaUpload() {
+    if (workingDraftIdRef.current) {
+      return workingDraftIdRef.current;
+    }
+
+    if (draftCreationPromiseRef.current) {
+      return draftCreationPromiseRef.current;
+    }
+
+    if (mode !== "create") {
+      throw new Error("Draft is not ready for media uploads.");
+    }
+
+    if (previewState.error) {
+      throw new Error("Fix the invalid content before uploading media.");
+    }
+
+    draftCreationPromiseRef.current = fetch("/api/writing/drafts", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        title: title.trim() || "Untitled draft",
+        summary,
+        coverImageUrl,
+        sourceNoteSlug,
+        visibility,
+        content: previewState.nodes.length > 0 ? previewState.nodes : [{ type: "paragraph", content: "Start writing here." }]
+      })
+    })
+      .then(async (response) => {
+        const result = (await response.json()) as DraftCreateResult;
+        if (!response.ok || !result.ok || !result.data?.id) {
+          throw new Error(result.error || "Draft could not be prepared for media uploads.");
+        }
+
+        workingDraftIdRef.current = result.data.id;
+        setWorkingDraftId(result.data.id);
+        return result.data.id;
+      })
+      .finally(() => {
+        draftCreationPromiseRef.current = null;
+      });
+
+    return draftCreationPromiseRef.current;
+  }
+
+  async function autoSavePreparedDraft(input: {
+    draftId: string;
+    nextBlocks: WritingEditorBlock[];
+    nextCoverImageUrl: string;
+  }) {
+    const nextContent = editorBlocksToRichTextNodes(input.nextBlocks);
+    if (nextContent.length === 0) {
+      return;
+    }
+
+    const response = await fetch(`/api/writing/drafts/${input.draftId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        title: title.trim() || "Untitled draft",
+        summary,
+        coverImageUrl: input.nextCoverImageUrl,
+        sourceNoteSlug,
+        visibility,
+        content: nextContent
+      })
+    });
+
+    const result = (await response.json()) as DraftUpdateResult;
+    if (!response.ok || !result.ok) {
+      throw new Error(result.error || "Draft auto-save failed.");
+    }
+
+    setAutoSaveMessage("This draft has been created and auto-saved.");
+    setSavedSnapshotOverride(
+      serializeDraftState({
+        title,
+        summary,
+        coverImageUrl: input.nextCoverImageUrl,
+        visibility,
+        content: nextContent
+      })
+    );
+  }
+
   async function handleImageUpload(file: File) {
+    const mediaDraftId = await ensureDraftForMediaUpload();
     const formData = new FormData();
     formData.append("file", file);
     formData.append("moduleKey", "writing");
     formData.append("entityType", "draft");
-    formData.append("entityId", "pending");
+    formData.append("entityId", mediaDraftId);
     formData.append("fieldName", "content");
     formData.append("altText", file.name.replace(/\.[^.]+$/, ""));
 
@@ -247,8 +379,11 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
 
     setUploadedAssets((current) => [result.data!, ...current]);
     if (result.data.url) {
-      setBlocks((current) => appendImageBlock(current, result.data!));
-      setCoverImageUrl((current) => current || result.data!.url || "");
+      const nextBlocks = appendImageBlock(blocks, result.data);
+      const nextCoverImageUrl = coverImageUrl || result.data.url || "";
+      setBlocks(nextBlocks);
+      setCoverImageUrl(nextCoverImageUrl);
+      await autoSavePreparedDraft({ draftId: mediaDraftId, nextBlocks, nextCoverImageUrl });
     }
 
     setUploadMessage(
@@ -258,17 +393,53 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
     );
   }
 
+  async function handleVideoUpload(file: File) {
+    const mediaDraftId = await ensureDraftForMediaUpload();
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("moduleKey", "writing");
+    formData.append("entityType", "draft");
+    formData.append("entityId", mediaDraftId);
+    formData.append("fieldName", "content");
+    formData.append("altText", file.name.replace(/\.[^.]+$/, ""));
+
+    const response = await fetch("/api/media/uploads", {
+      method: "POST",
+      body: formData
+    });
+
+    const result = (await response.json()) as {
+      ok: boolean;
+      data?: MediaAssetSummary;
+      error?: string;
+    };
+
+    if (!response.ok || !result.ok || !result.data) {
+      throw new Error(result.error || "Video upload failed.");
+    }
+
+    setUploadedAssets((current) => [result.data!, ...current]);
+    if (result.data.url) {
+      const nextBlocks = appendUploadedVideoBlock(blocks, result.data);
+      setBlocks(nextBlocks);
+      await autoSavePreparedDraft({ draftId: mediaDraftId, nextBlocks, nextCoverImageUrl: coverImageUrl });
+    }
+
+    setUploadMessage(`Uploaded ${result.data.originalFileName} and inserted it as a video block.`);
+  }
+
   async function handleVideoEmbed() {
     const normalized = normalizeVideoInput(videoUrl);
     if (!normalized) {
       throw new Error("Enter a valid video URL from YouTube, Bilibili, Vimeo, or another embeddable source.");
     }
 
+    const mediaDraftId = await ensureDraftForMediaUpload();
     const formData = new FormData();
     formData.append("embedUrl", normalized.embedUrl);
     formData.append("moduleKey", "writing");
     formData.append("entityType", "draft");
-    formData.append("entityId", "pending");
+    formData.append("entityId", mediaDraftId);
     formData.append("fieldName", "content");
     formData.append("altText", videoCaption);
 
@@ -293,7 +464,9 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
     };
 
     setUploadedAssets((current) => [asset, ...current]);
-    setBlocks((current) => appendVideoBlock(current, asset, normalized.provider, videoCaption.trim()));
+    const nextBlocks = appendVideoBlock(blocks, asset, normalized.provider, videoCaption.trim());
+    setBlocks(nextBlocks);
+    await autoSavePreparedDraft({ draftId: mediaDraftId, nextBlocks, nextCoverImageUrl: coverImageUrl });
     setUploadMessage(`Added a ${normalized.provider} video embed block to the draft content.`);
     setVideoUrl("");
     setVideoCaption("");
@@ -307,8 +480,35 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
     return window.confirm("You have unsaved changes in this draft. Leave this page anyway?");
   }
 
+  function validateBeforeSubmit() {
+    if (isUploading) {
+      return "Wait for the current upload to finish before saving the draft.";
+    }
+
+    if (!title.trim()) {
+      return "Add a title before creating the draft.";
+    }
+
+    if (previewState.error) {
+      return "Fix the invalid content before saving the draft.";
+    }
+
+    if (previewState.nodes.length === 0) {
+      return "Add at least one content block before saving the draft.";
+    }
+
+    return "";
+  }
+
   return (
     <div className="grid gap-8 xl:grid-cols-[1.05fr_0.95fr]">
+      {uploadMessage ? (
+        <div className="fixed inset-x-0 top-6 z-50 flex justify-center px-4">
+          <div className="max-w-3xl rounded-full bg-foreground px-5 py-3 text-sm font-semibold text-white shadow-ambient">
+            {uploadMessage}
+          </div>
+        </div>
+      ) : null}
       <section className="space-y-6">
         <div className="rounded-[2rem] bg-surface-container-low p-8 shadow-ambient">
           <div className="mb-8 space-y-2">
@@ -321,11 +521,20 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
           <form
             action={action}
             className="space-y-6"
-            onSubmit={() => {
+            onSubmit={(event) => {
+              const validationError = validateBeforeSubmit();
+              if (validationError) {
+                event.preventDefault();
+                setSubmitError(validationError);
+                return;
+              }
+
+              setSubmitError("");
               setIsSubmitting(true);
             }}
           >
             <input type="hidden" name="sourceNoteSlug" value={sourceNoteSlug} />
+            <input type="hidden" name="draftId" value={workingDraftId} />
             <input type="hidden" name="content" value={serializedContent} />
 
             <div className="flex flex-wrap items-center gap-3 rounded-[1.25rem] bg-white/80 px-4 py-3 text-sm">
@@ -341,7 +550,9 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
                 {editorError ? "Needs repair" : hasUnsavedChanges ? "Unsaved changes" : "Saved"}
               </span>
               <span className="text-foreground/50">
-                {editorError
+                {autoSaveMessage
+                  ? autoSaveMessage
+                  : editorError
                   ? "This draft cannot be saved until the invalid JSON is repaired."
                   : hasUnsavedChanges
                     ? "Save before leaving this page to avoid losing edits."
@@ -357,7 +568,13 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
                 id="title"
                 name="title"
                 value={title}
-                onChange={(event) => setTitle(event.target.value)}
+                required
+                onChange={(event) => {
+                  setTitle(event.target.value);
+                  if (submitError) {
+                    setSubmitError("");
+                  }
+                }}
                 className="w-full rounded-2xl border border-outline-variant/30 bg-white px-4 py-3 text-sm outline-none"
               />
             </div>
@@ -429,6 +646,45 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
 
             <div className="space-y-3 rounded-[1.5rem] bg-white/80 p-4">
               <div>
+                <p className="text-sm font-semibold text-foreground/70">Upload Video File</p>
+                <p className="text-xs text-foreground/50">Upload an MP4, WebM, or MOV video up to 100MB.</p>
+              </div>
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  disabled={isUploading}
+                  onClick={() => videoFileInputRef.current?.click()}
+                  className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+                >
+                  {isUploading ? "Uploading..." : "Choose Video"}
+                </button>
+              </div>
+              <input
+                ref={videoFileInputRef}
+                type="file"
+                accept="video/mp4,video/webm,video/quicktime"
+                className="hidden"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (!file) {
+                    return;
+                  }
+
+                  startUploadTransition(async () => {
+                    try {
+                      await handleVideoUpload(file);
+                    } catch (error) {
+                      setUploadMessage(error instanceof Error ? error.message : "Video upload failed.");
+                    } finally {
+                      event.target.value = "";
+                    }
+                  });
+                }}
+              />
+            </div>
+
+            <div className="space-y-3 rounded-[1.5rem] bg-white/80 p-4">
+              <div>
                 <p className="text-sm font-semibold text-foreground/70">Add Video Embed</p>
                 <p className="text-xs text-foreground/50">Paste a video URL.</p>
               </div>
@@ -464,7 +720,6 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
                   {isUploading ? "Saving..." : "Insert Video"}
                 </button>
               </div>
-              {uploadMessage ? <p className="text-xs text-primary">{uploadMessage}</p> : null}
             </div>
 
             <div className="space-y-3 rounded-[1.5rem] bg-white/80 p-4">
@@ -578,6 +833,7 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
                   <button type="button" onClick={() => setBlocks((current) => [...current, createEditorBlock("quote")])} className="rounded-full bg-surface-container-low px-3 py-2 text-xs font-semibold text-primary">Add Quote</button>
                   <button type="button" onClick={() => setBlocks((current) => [...current, createEditorBlock("markdown")])} className="rounded-full bg-surface-container-low px-3 py-2 text-xs font-semibold text-primary">Add Markdown</button>
                   <button type="button" onClick={() => setBlocks((current) => [...current, createEditorBlock("image")])} className="rounded-full bg-surface-container-low px-3 py-2 text-xs font-semibold text-primary">Add Image</button>
+                  <button type="button" onClick={() => setBlocks((current) => [...current, createEditorBlock("video")])} className="rounded-full bg-surface-container-low px-3 py-2 text-xs font-semibold text-primary">Add Uploaded Video</button>
                   <button type="button" onClick={() => setBlocks((current) => [...current, createEditorBlock("videoEmbed")])} className="rounded-full bg-surface-container-low px-3 py-2 text-xs font-semibold text-primary">Add Video</button>
                 </div>
               </div>
@@ -600,13 +856,15 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
               />
             </details>
 
-            <div className="flex items-center gap-4">
+            <div className="space-y-3">
+              {submitError ? <p className="text-sm font-semibold text-rose-600">{submitError}</p> : null}
+              <div className="flex items-center gap-4">
               <button
                 type="submit"
-                disabled={Boolean(editorError) || isSubmitting}
+                disabled={Boolean(editorError) || isUploading || isSubmitting}
                 className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {isSubmitting ? "Saving..." : mode === "create" ? "Create Draft" : "Save Draft"}
+                {isSubmitting ? "Saving..." : mode === "create" && !workingDraftId ? "Create Draft" : "Save Draft"}
               </button>
               <Link
                 href="/writing"
@@ -619,6 +877,7 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
               >
                 Back to writing
               </Link>
+              </div>
             </div>
           </form>
         </div>
@@ -632,6 +891,8 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
                 <div key={asset.id} className="rounded-[1.5rem] bg-white/80 p-3">
                   {asset.kind === "IMAGE" && asset.url ? (
                     <img src={asset.url} alt={asset.altText || asset.originalFileName} className="h-40 w-full rounded-[1rem] object-cover" />
+                  ) : asset.kind === "VIDEO" && asset.url ? (
+                    <video src={asset.url} controls preload="metadata" className="h-40 w-full rounded-[1rem] bg-black object-contain" />
                   ) : (
                     <div className="flex h-40 items-center justify-center rounded-[1rem] bg-primary-container/30 text-center text-sm font-semibold text-primary">
                       {asset.kind === "EMBED" ? "Video embed registered" : "Media attached"}
@@ -689,5 +950,3 @@ export function WritingDraftForm({ action, initialData, mode }: WritingDraftForm
     </div>
   );
 }
-
-
