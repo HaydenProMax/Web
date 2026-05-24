@@ -29,6 +29,7 @@ Staging:
 - repo: `/opt/hayden-web-staging/current`
 - env: `/opt/hayden-web-staging/shared/.env.staging`
 - service: `hayden-web-staging`
+- service file: `/etc/systemd/system/hayden-web-staging.service`
 - port: `3010`
 - domain: `staging-console.super-hayden.top`
 
@@ -74,6 +75,30 @@ Rules:
 - use a staging-only database
 - use a staging-only API key
 - do not reuse production secrets unless you intentionally want the same auth posture
+- keep staging secrets in `/opt/hayden-web-staging/shared/.env.staging`
+- the live server has been verified with `systemctl cat hayden-web-staging`; its runtime `EnvironmentFile` is `/opt/hayden-web-staging/shared/.env.staging`
+- `scripts/deploy-staging.sh` also sources `/opt/hayden-web-staging/shared/.env.staging` before running Prisma, seed, and build commands, so deploy-time and runtime configuration use the same file
+
+Important distinction:
+
+- Runtime config: loaded by `systemd` through `EnvironmentFile=/opt/hayden-web-staging/shared/.env.staging`
+- Deploy-time config: loaded by `scripts/deploy-staging.sh` from `/opt/hayden-web-staging/shared/.env.staging`
+- The app can still fallback to a repo-root `.env` when no environment variables are present, but staging should not rely on `/opt/hayden-web-staging/current/.env`
+
+Confirm the active service configuration on the server with:
+
+```bash
+systemctl cat hayden-web-staging
+```
+
+Expected lines:
+
+```ini
+WorkingDirectory=/opt/hayden-web-staging/current
+Environment=PORT=3010
+EnvironmentFile=/opt/hayden-web-staging/shared/.env.staging
+ExecStart=/usr/local/bin/pnpm --filter web exec next start --port 3010
+```
 
 ### 3. Install the staging `systemd` service
 
@@ -118,10 +143,10 @@ This is the default pre-release workflow for new feature work.
 From local development:
 
 ```bash
-git push -u origin codex/checkin-openclaw-staging
+git push -u origin <feature-branch>
 ```
 
-Replace the branch name as needed for future work.
+For the OSS media work, the feature branch is `codex/dev-aliyun-oss-media`.
 
 ### Step 2. Deploy that branch to staging
 
@@ -129,7 +154,14 @@ On the server:
 
 ```bash
 cd /opt/hayden-web-staging/current
-./scripts/deploy-staging.sh codex/checkin-openclaw-staging
+./scripts/deploy-staging.sh <feature-branch>
+```
+
+For the OSS media work:
+
+```bash
+cd /opt/hayden-web-staging/current
+./scripts/deploy-staging.sh codex/dev-aliyun-oss-media
 ```
 
 What the script currently does:
