@@ -120,7 +120,7 @@ export function WritingImageCarousel({ images, title }: WritingImageCarouselProp
           {safeImages.map((image, index) => (
             <figure key={image.src} className="min-w-full snap-center space-y-3 p-3">
               <div className="relative aspect-[4/5] overflow-hidden rounded-[1.35rem] bg-surface-container md:aspect-[5/4]">
-                {renderImage(image.src, image.alt || title || "Post image", "object-cover")}
+                {renderImage(image.src, image.alt || title || "Post image", "object-contain")}
                 <span className="absolute bottom-3 right-3 rounded-full bg-black/35 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
                   {index + 1}/{safeImages.length}
                 </span>
