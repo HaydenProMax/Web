@@ -41,11 +41,12 @@ function buildObjectKey(folder: "images" | "videos", fileName: string, extension
   const now = new Date();
   const year = String(now.getUTCFullYear());
   const month = String(now.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(now.getUTCDate()).padStart(2, "0");
   const randomPrefix = crypto.randomBytes(6).toString("hex");
   const configuredPrefix = normalizePrefix(process.env.ALI_OSS_PREFIX ?? "");
   const safeFileName = sanitizeFileName(fileName || "upload");
   const normalizedFileName = safeFileName.replace(/\.[^.]+$/, "") || "upload";
-  const key = path.posix.join(folder, year, month, `${randomPrefix}-${normalizedFileName}${extension}`);
+  const key = path.posix.join(folder, year, month, day, `${randomPrefix}-${normalizedFileName}${extension}`);
 
   return configuredPrefix ? path.posix.join(configuredPrefix, key) : key;
 }
