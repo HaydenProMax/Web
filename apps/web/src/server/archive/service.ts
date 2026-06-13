@@ -206,7 +206,7 @@ export async function getArchiveOverview() {
   };
 }
 
-function buildArchiveFilterWhere(ownerId: string, filter: ArchiveFilterKey): Prisma.ArchiveItemWhereInput {
+function buildArchiveFilterWhere(ownerId: string, filter: ArchiveFilterKey) {
   if (filter === "favorites") {
     return { ownerId, isFavorite: true };
   }

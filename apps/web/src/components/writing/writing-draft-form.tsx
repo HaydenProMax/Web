@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 
 import type { MediaAssetSummary, RichTextNode, WritingVisibility } from "@workspace/types/index";
+import type { MouseEvent } from "react";
 
 import { BlockEditor } from "@/components/writing/block-editor";
 import {
@@ -869,7 +870,7 @@ export function WritingDraftForm({ action, draftId, initialData, mode }: Writing
               <Link
                 href="/writing"
                 className="text-sm font-semibold text-primary"
-                onClick={(event) => {
+                onClick={(event: MouseEvent<HTMLAnchorElement>) => {
                   if (!confirmNavigation()) {
                     event.preventDefault();
                   }

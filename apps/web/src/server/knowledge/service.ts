@@ -29,7 +29,7 @@ function slugify(value: string) {
     .slice(0, 80) || "note";
 }
 
-function buildKnowledgeWhere(ownerId: string, filters?: { domain?: string; tag?: string }, archived = false): Prisma.KnowledgeNoteWhereInput {
+function buildKnowledgeWhere(ownerId: string, filters?: { domain?: string; tag?: string }, archived = false) {
   return {
     ownerId,
     isArchived: archived,

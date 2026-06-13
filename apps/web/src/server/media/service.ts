@@ -244,7 +244,10 @@ export async function syncWritingMediaUsages(
   ]);
   const embedUrls = uniqueStrings(collectEmbedUrls(input.content));
 
-  const orFilters: Prisma.MediaAssetWhereInput[] = [];
+  const orFilters: Array<
+    | { storageProvider: { not: string }; storageKey: { in: string[] } }
+    | { storageProvider: string; embedUrl: { in: string[] } }
+  > = [];
   if (imageStorageKeys.length > 0) {
     orFilters.push({ storageProvider: { not: "embed" }, storageKey: { in: imageStorageKeys } });
   }

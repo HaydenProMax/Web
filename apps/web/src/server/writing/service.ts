@@ -12,6 +12,9 @@ import { getWritingPostBySlug, listWritingPosts } from "./mock-data";
 
 const MAX_SLUG_ATTEMPTS = 5;
 const useWritingMocks = process.env.USE_WRITING_MOCKS === "true";
+type MediaUsageIdOnly = {
+  mediaId: string;
+};
 
 function buildLocalMediaUrl(storageKey: string) {
   return `/api/media/files/${storageKey}`;
@@ -519,7 +522,7 @@ export async function deleteArchivedWritingDraft(id: string) {
       where: { id: existingDraft.id }
     });
 
-    return usages.map((usage) => usage.mediaId);
+    return usages.map((usage: MediaUsageIdOnly) => usage.mediaId);
   });
 
   await pruneUnusedMediaAssets(mediaIds);
@@ -571,7 +574,7 @@ export async function deleteWritingDraft(id: string) {
       where: { id: existingDraft.id }
     });
 
-    return usages.map((usage) => usage.mediaId);
+    return usages.map((usage: MediaUsageIdOnly) => usage.mediaId);
   });
 
   await pruneUnusedMediaAssets(mediaIds);
@@ -637,7 +640,7 @@ export async function deletePublishedWritingPost(id: string, options?: { deleteS
       where: { id: existingPost.id }
     });
 
-    const mediaIdsToPrune = usages.map((usage) => usage.mediaId);
+    const mediaIdsToPrune = usages.map((usage: MediaUsageIdOnly) => usage.mediaId);
 
     if (sourceDraft) {
       await tx.plannerTask.updateMany({
@@ -666,7 +669,7 @@ export async function deletePublishedWritingPost(id: string, options?: { deleteS
         where: { id: sourceDraft.id }
       });
 
-      mediaIdsToPrune.push(...draftUsages.map((usage) => usage.mediaId));
+      mediaIdsToPrune.push(...draftUsages.map((usage: MediaUsageIdOnly) => usage.mediaId));
     }
 
     return mediaIdsToPrune;

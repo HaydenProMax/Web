@@ -156,7 +156,7 @@ export function editorBlocksToRichTextNodes(blocks: WritingEditorBlock[]): RichT
 }
 
 export function isPlaceholderWritingNode(node: RichTextNode) {
-  return node.type === "paragraph" && node.content.trim() === WRITING_PLACEHOLDER_TEXT;
+  return node.type === "paragraph" && typeof node.content === "string" && node.content.trim() === WRITING_PLACEHOLDER_TEXT;
 }
 
 export function appendImageBlock(blocks: WritingEditorBlock[], asset: MediaAssetSummary) {
