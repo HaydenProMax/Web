@@ -122,7 +122,7 @@ Example Nginx host:
 ```nginx
 server {
     server_name staging-console.super-hayden.top;
-    client_max_body_size 120m;
+    client_max_body_size 60m;
 
     location / {
         proxy_pass http://127.0.0.1:3010;
@@ -135,7 +135,27 @@ server {
 
 Reload Nginx after adding the site.
 
-Media uploads require the Nginx body limit to be larger than the app upload limits. The app currently allows images up to `20MB` and videos up to `100MB`, so staging should use at least `client_max_body_size 120m;`. Without this, Nginx returns `413 Request Entity Too Large` before the request reaches Next.js.
+Media uploads require the Nginx body limit to be larger than the app upload limits. The app currently allows images up to `20MB` and videos up to `50MB` by default, so staging should use at least `client_max_body_size 60m;`. Without this, Nginx returns `413 Request Entity Too Large` before the request reaches Next.js.
+
+### 5. Install video transcoding dependency
+
+Video uploads are transcoded on the server to browser-compatible `MP4/H.264/AAC` before being uploaded to OSS. Install `ffmpeg` on Linux/WSL/production hosts:
+
+```bash
+sudo apt update
+sudo apt install -y ffmpeg
+ffmpeg -version
+```
+
+Enable the app-side transcoding defaults in `/opt/hayden-web-staging/shared/.env.staging`:
+
+```env
+VIDEO_TRANSCODE_ENABLED="true"
+VIDEO_UPLOAD_MAX_MB="50"
+VIDEO_TRANSCODE_TIMEOUT_SECONDS="300"
+```
+
+`VIDEO_TRANSCODE_TIMEOUT_SECONDS` defaults to `300`. Increase it on lower-CPU hosts if valid videos time out during synchronous transcoding.
 
 ## Standard Update Flow
 

@@ -1,7 +1,9 @@
 import { z } from "zod";
 
+import { loadWorkspaceEnv } from "@/server/env";
+
 const MAX_IMAGE_UPLOAD_SIZE = 20 * 1024 * 1024;
-const MAX_VIDEO_UPLOAD_SIZE = 100 * 1024 * 1024;
+const DEFAULT_MAX_VIDEO_UPLOAD_MB = 50;
 const SUPPORTED_IMAGE_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
 const SUPPORTED_VIDEO_MIME_TYPES = ["video/mp4", "video/webm", "video/quicktime"] as const;
 
@@ -52,6 +54,16 @@ export function getUploadFileKind(file: UploadableFile): "IMAGE" | "VIDEO" {
   throw new Error("Supported upload formats are JPEG, PNG, WebP, MP4, WebM, and MOV.");
 }
 
+function getMaxVideoUploadMb() {
+  loadWorkspaceEnv();
+  const configuredValue = Number(process.env.VIDEO_UPLOAD_MAX_MB);
+  if (Number.isFinite(configuredValue) && configuredValue > 0) {
+    return configuredValue;
+  }
+
+  return DEFAULT_MAX_VIDEO_UPLOAD_MB;
+}
+
 export function assertUploadableFile(file: UploadableFile) {
   if (!file || file.size <= 0) {
     throw new Error("No file was provided.");
@@ -63,7 +75,8 @@ export function assertUploadableFile(file: UploadableFile) {
     throw new Error("Uploaded image exceeds the 20MB limit.");
   }
 
-  if (kind === "VIDEO" && file.size > MAX_VIDEO_UPLOAD_SIZE) {
-    throw new Error("Uploaded video exceeds the 100MB limit.");
+  const maxVideoUploadMb = getMaxVideoUploadMb();
+  if (kind === "VIDEO" && file.size > maxVideoUploadMb * 1024 * 1024) {
+    throw new Error(`Uploaded video exceeds the ${maxVideoUploadMb}MB limit.`);
   }
 }
