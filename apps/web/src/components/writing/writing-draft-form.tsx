@@ -290,7 +290,7 @@ export function WritingDraftForm({ action, draftId, initialData, mode }: Writing
         coverImageUrl,
         sourceNoteSlug,
         visibility,
-        content: previewState.nodes.length > 0 ? previewState.nodes : [{ type: "paragraph", content: "Start writing here." }]
+        content: previewState.nodes
       })
     })
       .then(async (response) => {

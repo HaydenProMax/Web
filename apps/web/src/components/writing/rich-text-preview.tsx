@@ -4,6 +4,7 @@ import { Fragment, type ReactNode } from "react";
 import type { RichTextNode } from "@workspace/types/index";
 
 import { MermaidPreview } from "@/components/writing/mermaid-preview";
+import { isPlaceholderWritingNode } from "@/components/writing/block-editor-state";
 import { WritingImageCarousel } from "@/components/writing/writing-image-carousel";
 
 type RichTextPreviewProps = {
@@ -606,6 +607,10 @@ export function RichTextPreview({
   const carouselImageSources = new Set(previewImages.map((image) => image.src));
   let skippedCoverDuplicate = false;
   const displayContent = content.filter((node) => {
+    if (isPlaceholderWritingNode(node)) {
+      return false;
+    }
+
     if (shouldRenderCarousel && node.type === "image" && node.src && carouselImageSources.has(node.src)) {
       return false;
     }

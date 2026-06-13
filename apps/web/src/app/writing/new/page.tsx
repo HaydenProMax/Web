@@ -34,16 +34,7 @@ function buildEmptyDraftSeed() {
     coverImageUrl: "",
     sourceNoteSlug: "",
     visibility: "PRIVATE" as const,
-    content: JSON.stringify(
-      [
-        {
-          type: "paragraph",
-          content: "Start writing here."
-        }
-      ],
-      null,
-      2
-    )
+    content: JSON.stringify([], null, 2)
   };
 }
 
