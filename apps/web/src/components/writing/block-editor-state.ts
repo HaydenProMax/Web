@@ -13,6 +13,7 @@ export type WritingEditorBlock = {
 };
 
 const VIDEO_PROVIDERS = new Set<WritingEditorBlock["provider"]>(["youtube", "bilibili", "vimeo", "custom"]);
+const WRITING_PLACEHOLDER_TEXT = "Start writing here.";
 
 function isOptionalString(value: unknown) {
   return value === undefined || typeof value === "string";
@@ -146,12 +147,16 @@ export function editorBlocksToRichTextNodes(blocks: WritingEditorBlock[]): RichT
       continue;
     }
 
-    if (block.content.trim()) {
+    if (block.content.trim() && block.content.trim() !== WRITING_PLACEHOLDER_TEXT) {
       nodes.push({ type: "paragraph", content: block.content });
     }
   }
 
   return nodes;
+}
+
+export function isPlaceholderWritingNode(node: RichTextNode) {
+  return node.type === "paragraph" && node.content.trim() === WRITING_PLACEHOLDER_TEXT;
 }
 
 export function appendImageBlock(blocks: WritingEditorBlock[], asset: MediaAssetSummary) {
